@@ -1,33 +1,15 @@
 #!/usr/bin/env node
-import { parseArgs } from 'node:util';
-import { colors, errorColors } from '#src/logging.mjs';
+import { runCli } from '#src/cli/run.mjs';
 
-const USAGE = `
-Usage: 
-  nhl-api-ts ${colors.pass('<plan>')} [options]
+// Exit quietly when the reader goes away (e.g. `nhl-api-ts ... | head`).
+process.stdout.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EPIPE') {
+    process.exit(0);
+  }
+  throw err;
+});
 
-
-Options:
-  -h, --help        show this help message
-`;
-
-let parsed: {
-  values: {
-    help: boolean;
-  };
-  positionals: string[];
-};
-
-try {
-  parsed = parseArgs({
-    allowPositionals: true,
-    options: {
-      help: { type: 'boolean', short: 'h', default: false },
-    },
-  });
-} catch (err) {
-  console.error(
-    `${errorColors.error(`error: ${(err as Error).message}`)}\n${USAGE}`,
-  );
-  process.exit(2);
-}
+process.exitCode = await runCli(process.argv.slice(2), {
+  stdout: (text) => process.stdout.write(`${text}\n`),
+  stderr: (text) => process.stderr.write(`${text}\n`),
+});

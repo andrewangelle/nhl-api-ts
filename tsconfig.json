@@ -4,6 +4,12 @@
     "moduleResolution": "nodenext",
     "module": "NodeNext",
     "target": "ESNext",
+    "customConditions": ["source"],
+    "strict": true,
+    "declaration": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./src"
   },
