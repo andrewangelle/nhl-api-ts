@@ -52,32 +52,34 @@ export class QueryBuilder {
     const outputFilters: string[] = [];
     const errors: string[] = [];
 
-    for (const f of filters) {
-      if (!(f instanceof QueryBase)) {
+    for (const filter of filters) {
+      if (!(filter instanceof QueryBase)) {
         if (this.debug) {
-          console.error(`Input filter is not of type QueryBase: ${String(f)}`);
+          console.error(
+            `Input filter is not of type QueryBase: ${String(filter)}`,
+          );
         }
         continue;
       }
 
       try {
-        if (!f.validate()) {
+        if (!filter.validate()) {
           throw new InvalidQueryValueException(
-            `Filter failed validation: ${String(f)}`,
+            `Filter failed validation: ${String(filter)}`,
           );
         }
-      } catch (e) {
-        if (!(e instanceof InvalidQueryValueException)) {
-          throw e;
+      } catch (error) {
+        if (!(error instanceof InvalidQueryValueException)) {
+          throw error;
         }
         if (this.debug) {
-          console.error(e.message);
+          console.error(error.message);
         }
-        errors.push(e.message);
+        errors.push(error.message);
         continue;
       }
 
-      outputFilters.push(f.toQuery());
+      outputFilters.push(filter.toQuery());
     }
 
     if (outputFilters.length > 0) {

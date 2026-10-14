@@ -28,7 +28,9 @@ export class Standings {
   } = {}): Promise<JsonObject> {
     if (season) {
       const seasons = await this.seasonStandingManifest();
-      const seasonData = seasons.find((s) => s.id === Number(season));
+      const seasonData = seasons.find(
+        (seasonEntry) => seasonEntry.id === Number(season),
+      );
       if (!seasonData) {
         throw new RangeError(`Invalid Season Id ${season}`);
       }

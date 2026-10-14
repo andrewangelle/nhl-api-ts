@@ -161,8 +161,9 @@ const edgeCommand = (
     name,
     description,
     args: [...idArg, ...edgeSeasonArgs],
-    // biome-ignore lint/suspicious/noExplicitAny: dispatch by method name
-    run: (c, v) => (c.edge[method] as any).call(c.edge, v),
+    run: (client, values) =>
+      // biome-ignore lint/suspicious/noExplicitAny: dispatch by method name
+      (client.edge[method] as any).call(client.edge, values),
   };
 };
 
@@ -247,47 +248,50 @@ const queryFilterArgs: ArgSpec[] = [
 ];
 
 // biome-ignore lint/suspicious/noExplicitAny: parsed CLI values
-function buildQueryContext(v: Record<string, any>) {
+function buildQueryContext(values: Record<string, any>) {
   const filters = [];
-  if (v.gameType !== undefined) {
-    filters.push(new GameTypeQuery(v.gameType));
+  if (values.gameType !== undefined) {
+    filters.push(new GameTypeQuery(values.gameType));
   }
-  if (v.seasonStart !== undefined || v.seasonEnd !== undefined) {
-    const first = v.seasonStart ?? v.seasonEnd;
-    filters.push(new SeasonQuery(first, v.seasonEnd ?? first));
+  if (values.seasonStart !== undefined || values.seasonEnd !== undefined) {
+    const first = values.seasonStart ?? values.seasonEnd;
+    filters.push(new SeasonQuery(first, values.seasonEnd ?? first));
   }
-  if (v.franchiseId !== undefined) {
-    filters.push(new FranchiseQuery(v.franchiseId));
+  if (values.franchiseId !== undefined) {
+    filters.push(new FranchiseQuery(values.franchiseId));
   }
-  if (v.position !== undefined) {
-    filters.push(new PositionQuery(v.position as PositionTypes));
+  if (values.position !== undefined) {
+    filters.push(new PositionQuery(values.position as PositionTypes));
   }
-  if (v.nationality !== undefined) {
-    filters.push(new NationalityQuery(v.nationality));
+  if (values.nationality !== undefined) {
+    filters.push(new NationalityQuery(values.nationality));
   }
-  if (v.decision !== undefined) {
-    filters.push(new DecisionQuery(v.decision));
+  if (values.decision !== undefined) {
+    filters.push(new DecisionQuery(values.decision));
   }
-  if (v.draftYear !== undefined) {
-    filters.push(new DraftQuery(v.draftYear, v.draftRound));
-  } else if (v.draftRound !== undefined) {
+  if (values.draftYear !== undefined) {
+    filters.push(new DraftQuery(values.draftYear, values.draftRound));
+  } else if (values.draftRound !== undefined) {
     throw new UsageError('--draft-round requires --draft-year');
   }
-  if (v.rookie !== undefined) {
-    filters.push(new ExperienceQuery(v.rookie));
+  if (values.rookie !== undefined) {
+    filters.push(new ExperienceQuery(values.rookie));
   }
-  if (v.homeRoad !== undefined) {
-    filters.push(new HomeRoadQuery(v.homeRoad));
+  if (values.homeRoad !== undefined) {
+    filters.push(new HomeRoadQuery(values.homeRoad));
   }
-  if (v.opponentFranchiseId !== undefined) {
-    filters.push(new OpponentQuery(v.opponentFranchiseId));
+  if (values.opponentFranchiseId !== undefined) {
+    filters.push(new OpponentQuery(values.opponentFranchiseId));
   }
-  if (v.shootCatch !== undefined) {
-    filters.push(new ShootCatchesQuery(v.shootCatch));
+  if (values.shootCatch !== undefined) {
+    filters.push(new ShootCatchesQuery(values.shootCatch));
   }
-  if (v.active || v.hallOfFame) {
+  if (values.active || values.hallOfFame) {
     filters.push(
-      new StatusQuery({ isActive: v.active, isHallOfFame: v.hallOfFame }),
+      new StatusQuery({
+        isActive: values.active,
+        isHallOfFame: values.hallOfFame,
+      }),
     );
   }
 
@@ -310,19 +314,19 @@ export const MODULES: ModuleSpec[] = [
         description:
           'List all NHL teams with conference, division and franchise info',
         args: [date('Standings date in YYYY-MM-DD format. Defaults to now')],
-        run: (c, v) => c.teams.teams(v),
+        run: (client, values) => client.teams.teams(values),
       },
       {
         name: 'team-roster',
         description: 'Roster for a team and season',
         args: [teamAbbr, req(season)],
-        run: (c, v) => c.teams.teamRoster(v),
+        run: (client, values) => client.teams.teamRoster(values),
       },
       {
         name: 'franchises',
         description: 'All past and current NHL franchises',
         args: [],
-        run: (c) => c.teams.franchises(),
+        run: (client) => client.teams.franchises(),
       },
     ],
   },
@@ -335,13 +339,13 @@ export const MODULES: ModuleSpec[] = [
         description:
           'Standings for a date, or at the end of a season (--season wins)',
         args: [date('Date in YYYY-MM-DD format. Defaults to now'), season],
-        run: (c, v) => c.standings.leagueStandings(v),
+        run: (client, values) => client.standings.leagueStandings(values),
       },
       {
         name: 'season-standing-manifest',
         description: 'Metadata (dates, rules in use) for every NHL season',
         args: [],
-        run: (c) => c.standings.seasonStandingManifest(),
+        run: (client) => client.standings.seasonStandingManifest(),
       },
     ],
   },
@@ -353,13 +357,13 @@ export const MODULES: ModuleSpec[] = [
         name: 'daily-schedule',
         description: 'Games on a single date',
         args: [date('Date in YYYY-MM-DD format. Defaults to today')],
-        run: (c, v) => c.schedule.dailySchedule(v),
+        run: (client, values) => client.schedule.dailySchedule(values),
       },
       {
         name: 'weekly-schedule',
         description: 'Games for the week starting at a date',
         args: [date('Date in YYYY-MM-DD format. Defaults to now')],
-        run: (c, v) => c.schedule.weeklySchedule(v),
+        run: (client, values) => client.schedule.weeklySchedule(values),
       },
       {
         name: 'team-monthly-schedule',
@@ -372,31 +376,31 @@ export const MODULES: ModuleSpec[] = [
             description: 'Month in YYYY-MM format. Defaults to now',
           },
         ],
-        run: (c, v) => c.schedule.teamMonthlySchedule(v),
+        run: (client, values) => client.schedule.teamMonthlySchedule(values),
       },
       {
         name: 'team-weekly-schedule',
         description: "A team's games for a week",
         args: [teamAbbr, date('Date in YYYY-MM-DD format. Defaults to now')],
-        run: (c, v) => c.schedule.teamWeeklySchedule(v),
+        run: (client, values) => client.schedule.teamWeeklySchedule(values),
       },
       {
         name: 'team-season-schedule',
         description: "A team's full season schedule",
         args: [teamAbbr, req(season)],
-        run: (c, v) => c.schedule.teamSeasonSchedule(v),
+        run: (client, values) => client.schedule.teamSeasonSchedule(values),
       },
       {
         name: 'calendar-schedule',
         description: 'Schedule in calendar format for a date',
         args: [req(date())],
-        run: (c, v) => c.schedule.calendarSchedule(v),
+        run: (client, values) => client.schedule.calendarSchedule(values),
       },
       {
         name: 'playoff-carousel',
         description: 'All playoff series up to the current round',
         args: [req(season)],
-        run: (c, v) => c.schedule.playoffCarousel(v),
+        run: (client, values) => client.schedule.playoffCarousel(values),
       },
       {
         name: 'playoff-series-schedule',
@@ -409,7 +413,7 @@ export const MODULES: ModuleSpec[] = [
             description: 'Series letter: a-h first round ... o final',
           }),
         ],
-        run: (c, v) => c.schedule.playoffSeriesSchedule(v),
+        run: (client, values) => client.schedule.playoffSeriesSchedule(values),
       },
       {
         name: 'playoff-bracket',
@@ -417,7 +421,7 @@ export const MODULES: ModuleSpec[] = [
         args: [
           req({ name: 'year', type: 'string', description: 'Year, e.g. 2024' }),
         ],
-        run: (c, v) => c.schedule.playoffBracket(v),
+        run: (client, values) => client.schedule.playoffBracket(values),
       },
     ],
   },
@@ -429,25 +433,25 @@ export const MODULES: ModuleSpec[] = [
         name: 'boxscore',
         description: 'Full boxscore for a game',
         args: [gameId],
-        run: (c, v) => c.gameCenter.boxscore(v),
+        run: (client, values) => client.gameCenter.boxscore(values),
       },
       {
         name: 'play-by-play',
         description: 'Every recorded event in a game',
         args: [gameId],
-        run: (c, v) => c.gameCenter.playByPlay(v),
+        run: (client, values) => client.gameCenter.playByPlay(values),
       },
       {
         name: 'match-up',
         description: 'Landing-page game summary',
         args: [gameId],
-        run: (c, v) => c.gameCenter.matchUp(v),
+        run: (client, values) => client.gameCenter.matchUp(values),
       },
       {
         name: 'daily-scores',
         description: 'Scores for all games on a date',
         args: [date('Date in YYYY-MM-DD format. Defaults to now')],
-        run: (c, v) => c.gameCenter.dailyScores(v),
+        run: (client, values) => client.gameCenter.dailyScores(values),
       },
       {
         name: 'shift-chart-data',
@@ -461,19 +465,19 @@ export const MODULES: ModuleSpec[] = [
             default: 'eventDetails',
           },
         ],
-        run: (c, v) => c.gameCenter.shiftChartData(v),
+        run: (client, values) => client.gameCenter.shiftChartData(values),
       },
       {
         name: 'season-series-matchup',
         description: 'Season series record and context for a game',
         args: [gameId],
-        run: (c, v) => c.gameCenter.seasonSeriesMatchup(v),
+        run: (client, values) => client.gameCenter.seasonSeriesMatchup(values),
       },
       {
         name: 'game-story',
         description: 'Narrative game story',
         args: [gameId],
-        run: (c, v) => c.gameCenter.gameStory(v),
+        run: (client, values) => client.gameCenter.gameStory(values),
       },
     ],
   },
@@ -485,13 +489,14 @@ export const MODULES: ModuleSpec[] = [
         name: 'gametypes-per-season-directory-by-team',
         description: 'Game types a team played each season',
         args: [teamAbbr],
-        run: (c, v) => c.stats.gametypesPerSeasonDirectoryByTeam(v),
+        run: (client, values) =>
+          client.stats.gametypesPerSeasonDirectoryByTeam(values),
       },
       {
         name: 'player-career-stats',
         description: "A player's career stats and bio",
         args: [playerId],
-        run: (c, v) => c.stats.playerCareerStats(v),
+        run: (client, values) => client.stats.playerCareerStats(values),
       },
       {
         name: 'player-game-log',
@@ -509,7 +514,7 @@ export const MODULES: ModuleSpec[] = [
             description: '1=Preseason, 2=Regular, 3=Playoffs',
           }),
         ],
-        run: (c, v) => c.stats.playerGameLog(v),
+        run: (client, values) => client.stats.playerGameLog(values),
       },
       {
         name: 'team-summary',
@@ -542,7 +547,7 @@ export const MODULES: ModuleSpec[] = [
           factCayenneExp('gamesPlayed>1'),
           defaultCayenneExp,
         ],
-        run: (c, v) => c.stats.teamSummary(v),
+        run: (client, values) => client.stats.teamSummary(values),
       },
       {
         name: 'skater-stats-summary',
@@ -575,7 +580,7 @@ export const MODULES: ModuleSpec[] = [
           factCayenneExp('gamesPlayed>=1'),
           defaultCayenneExp,
         ],
-        run: (c, v) => c.stats.skaterStatsSummary(v),
+        run: (client, values) => client.stats.skaterStatsSummary(values),
       },
       {
         name: 'skater-stats-with-query-context',
@@ -597,14 +602,14 @@ export const MODULES: ModuleSpec[] = [
           start,
           limit('25'),
         ],
-        run: (c, v) =>
-          c.stats.skaterStatsWithQueryContext({
-            queryContext: buildQueryContext(v),
-            reportType: v.reportType,
-            sortExpr: v.sortExpr,
-            aggregate: v.aggregate,
-            start: v.start,
-            limit: v.limit,
+        run: (client, values) =>
+          client.stats.skaterStatsWithQueryContext({
+            queryContext: buildQueryContext(values),
+            reportType: values.reportType,
+            sortExpr: values.sortExpr,
+            aggregate: values.aggregate,
+            start: values.start,
+            limit: values.limit,
           }),
       },
       {
@@ -645,7 +650,7 @@ export const MODULES: ModuleSpec[] = [
           factCayenneExp(),
           defaultCayenneExp,
         ],
-        run: (c, v) => c.stats.goalieStatsSummary(v),
+        run: (client, values) => client.stats.goalieStatsSummary(values),
       },
     ],
   },
@@ -801,13 +806,13 @@ export const MODULES: ModuleSpec[] = [
         name: 'prospects-by-team',
         description: "A team's prospects grouped by position",
         args: [teamAbbr],
-        run: (c, v) => c.players.prospectsByTeam(v),
+        run: (client, values) => client.players.prospectsByTeam(values),
       },
       {
         name: 'players-by-team',
         description: "A team's roster for a season",
         args: [teamAbbr, req(season)],
-        run: (c, v) => c.players.playersByTeam(v),
+        run: (client, values) => client.players.playersByTeam(values),
       },
     ],
   },
@@ -819,31 +824,31 @@ export const MODULES: ModuleSpec[] = [
         name: 'glossary',
         description: 'Glossary of stat terms',
         args: [],
-        run: (c) => c.misc.glossary(),
+        run: (client) => client.misc.glossary(),
       },
       {
         name: 'config',
         description: 'Stats API configuration (report types, filters)',
         args: [],
-        run: (c) => c.misc.config(),
+        run: (client) => client.misc.config(),
       },
       {
         name: 'countries',
         description: 'Countries recognized by the NHL',
         args: [],
-        run: (c) => c.misc.countries(),
+        run: (client) => client.misc.countries(),
       },
       {
         name: 'season-specific-rules-and-info',
         description: 'Rules and metadata for every season',
         args: [],
-        run: (c) => c.misc.seasonSpecificRulesAndInfo(),
+        run: (client) => client.misc.seasonSpecificRulesAndInfo(),
       },
       {
         name: 'draft-year-and-rounds',
         description: 'Number of rounds for each draft year',
         args: [],
-        run: (c) => c.misc.draftYearAndRounds(),
+        run: (client) => client.misc.draftYearAndRounds(),
       },
     ],
   },
@@ -863,20 +868,21 @@ export const MODULES: ModuleSpec[] = [
           },
           apiSleepRate('1'),
         ],
-        run: (c, v) => c.helpers.gameIdsBySeason(v),
+        run: (client, values) => client.helpers.gameIdsBySeason(values),
       },
       {
         name: 'all-players',
         description: 'Every rostered player in a season',
         args: [req(season), apiSleepRate('0.5')],
-        run: (c, v) => c.helpers.allPlayers(v),
+        run: (client, values) => client.helpers.allPlayers(values),
       },
       {
         name: 'all-players-summary-statistics',
         description:
           'Summary stats for every skater in a season, merged with roster info',
         args: [req(season), apiSleepRate('1')],
-        run: (c, v) => c.helpers.allPlayersSummaryStatistics(v),
+        run: (client, values) =>
+          client.helpers.allPlayersSummaryStatistics(values),
       },
     ],
   },

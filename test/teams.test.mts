@@ -23,45 +23,57 @@ const standing = (
 
 describe('Teams', () => {
   it('teamRoster', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await newClient().teams.teamRoster({ teamAbbr: 'BUF', season: '20202021' });
-    assert.deepEqual(calledUrls(f), [
+    assert.deepEqual(calledUrls(fetchSpy), [
       'https://api-web.nhle.com/v1/roster/BUF/20202021',
     ]);
   });
 
   it('franchises', async () => {
-    const f = mockFetch(() => ({ body: { data: [{ id: 1 }] } }));
+    const fetchSpy = mockFetch(() => ({ body: { data: [{ id: 1 }] } }));
     assert.deepEqual(await newClient().teams.franchises(), [{ id: 1 }]);
-    assert.deepEqual(calledUrls(f), [
+    assert.deepEqual(calledUrls(fetchSpy), [
       'https://api.nhle.com/stats/rest/en/franchise',
     ]);
   });
 
   it('teams merges standings with franchise ids', async () => {
-    const E: [string, string] = ['E', 'Eastern'];
-    const W: [string, string] = ['W', 'Western'];
-    const f = mockFetch((url) => {
+    const eastern: [string, string] = ['E', 'Eastern'];
+    const western: [string, string] = ['W', 'Western'];
+    const fetchSpy = mockFetch((url) => {
       if (url.includes('standings')) {
         return {
           body: {
             standings: [
-              standing(E, ['A', 'Atlantic'], 'Boston Bruins', 'Bruins', 'BOS'),
               standing(
-                W,
+                eastern,
+                ['A', 'Atlantic'],
+                'Boston Bruins',
+                'Bruins',
+                'BOS',
+              ),
+              standing(
+                western,
                 ['C', 'Central'],
                 'Colorado Avalanche',
                 'Avalanche',
                 'COL',
               ),
               standing(
-                E,
+                eastern,
                 ['A', 'Atlantic'],
                 'Montreal Canadiens',
                 'Canadiens',
                 'MTL',
               ),
-              standing(E, ['M', 'Metropolitan'], 'New Team', 'New Team', 'NEW'),
+              standing(
+                eastern,
+                ['M', 'Metropolitan'],
+                'New Team',
+                'New Team',
+                'NEW',
+              ),
             ],
           },
         };
@@ -88,7 +100,7 @@ describe('Teams', () => {
 
     const teams = await newClient().teams.teams();
 
-    const urls = calledUrls(f);
+    const urls = calledUrls(fetchSpy);
     assert.equal(urls.length, 2);
     assert.match(urls[0], /standings\/now$/);
     assert.match(urls[1], /franchise/);
@@ -114,8 +126,8 @@ describe('Teams', () => {
   });
 
   it('teams accepts a date', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await newClient().teams.teams({ date: '2024-01-01' });
-    assert.match(calledUrls(f)[0], /standings\/2024-01-01$/);
+    assert.match(calledUrls(fetchSpy)[0], /standings\/2024-01-01$/);
   });
 });

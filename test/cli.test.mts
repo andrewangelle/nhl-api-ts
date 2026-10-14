@@ -18,11 +18,11 @@ async function run(argv: string[], responder?: Responder) {
   const err: string[] = [];
   const options: ClientOptions[] = [];
   const code = await runCli(argv, {
-    stdout: (t) => out.push(t),
-    stderr: (t) => err.push(t),
-    createClient: (o) => {
-      options.push(o);
-      return new NHLClient(o);
+    stdout: (text) => out.push(text),
+    stderr: (text) => err.push(text),
+    createClient: (clientOptions) => {
+      options.push(clientOptions);
+      return new NHLClient(clientOptions);
     },
   });
   return {
@@ -34,8 +34,8 @@ async function run(argv: string[], responder?: Responder) {
   };
 }
 
-const kebab = (s: string) =>
-  s
+const kebab = (name: string) =>
+  name
     .replace(/([a-z]{2})(\d)/g, '$1-$2')
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .toLowerCase();
@@ -55,7 +55,7 @@ describe('cli', () => {
       'helpers',
     ] as const;
     assert.deepEqual(
-      MODULES.map((m) => m.name).sort(),
+      MODULES.map((moduleSpec) => moduleSpec.name).sort(),
       sdkModules.map(kebab).sort(),
     );
     for (const name of sdkModules) {
@@ -63,13 +63,13 @@ describe('cli', () => {
         Object.getPrototypeOf(client[name]),
       )
         .filter(
-          (m) =>
-            m !== 'constructor' &&
-            m !== 'sleep' &&
-            typeof (client[name] as never)[m] === 'function',
+          (method) =>
+            method !== 'constructor' &&
+            method !== 'sleep' &&
+            typeof (client[name] as never)[method] === 'function',
         )
         .filter(
-          (m) =>
+          (method) =>
             ![
               'getEdge',
               'getWeb',
@@ -77,12 +77,14 @@ describe('cli', () => {
               'fetchStandingsData',
               'createTeam',
               'enrichTeamsWithFranchiseIds',
-            ].includes(m),
+            ].includes(method),
         )
         .map(kebab)
         .sort();
-      const commands = MODULES.find((m) => m.name === kebab(name))
-        ?.commands.map((c) => c.name)
+      const commands = MODULES.find(
+        (moduleSpec) => moduleSpec.name === kebab(name),
+      )
+        ?.commands.map((command) => command.name)
         .sort();
       assert.deepEqual(commands, methods, `module ${name}`);
     }
@@ -110,16 +112,24 @@ describe('cli', () => {
   });
 
   it('accepts required args positionally or as flags', async () => {
-    const a = await run(['game-center', 'boxscore', '2023020280'], () => ({
-      body: { id: 1 },
-    }));
-    const b = await run(['game-center', 'boxscore', '--game-id', '2023020280']);
-    assert.equal(a.code, 0);
-    assert.deepEqual(JSON.parse(a.stdout), { id: 1 });
-    assert.deepEqual(a.urls, [
+    const positional = await run(
+      ['game-center', 'boxscore', '2023020280'],
+      () => ({
+        body: { id: 1 },
+      }),
+    );
+    const flagged = await run([
+      'game-center',
+      'boxscore',
+      '--game-id',
+      '2023020280',
+    ]);
+    assert.equal(positional.code, 0);
+    assert.deepEqual(JSON.parse(positional.stdout), { id: 1 });
+    assert.deepEqual(positional.urls, [
       'https://api-web.nhle.com/v1/gamecenter/2023020280/boxscore',
     ]);
-    assert.deepEqual(b.urls, a.urls);
+    assert.deepEqual(flagged.urls, positional.urls);
   });
 
   it('prints compact JSON', async () => {
@@ -205,14 +215,14 @@ describe('cli', () => {
       () => ({ body: { data: [] } }),
     );
     assert.equal(code, 0);
-    const q = queryOf(urls[0]);
+    const query = queryOf(urls[0]);
     assert.match(urls[0], /\/en\/skater\/realtime\?/);
     assert.equal(
-      q.cayenneExp,
+      query.cayenneExp,
       "seasonId >= 20232024 and seasonId <= 20232024 and (positionCode='L' or positionCode='R' or positionCode='C') and nationalityCode='SWE' and isRookie='1' and active=1",
     );
     assert.equal(
-      q.sort,
+      query.sort,
       '[{"property": "hits", "direction": "DESC"}, {"property": "playerId", "direction": "ASC"}]',
     );
 

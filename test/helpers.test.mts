@@ -183,14 +183,14 @@ describe('Helpers.allPlayersSummaryStatistics', () => {
       season: '20242025',
     });
 
-    const matched = result.filter((e) => e.playerId === 1);
+    const matched = result.filter((entry) => entry.playerId === 1);
     assert.ok(matched.length >= 1);
     // Stat fields overwrite player fields on collision
     assert.equal(matched[0].position, 'F');
     assert.equal(matched[0].goals, 50);
     assert.equal(matched[0].firstName, 'Auston');
 
-    const unmatched = result.filter((e) => e.playerId === 999);
+    const unmatched = result.filter((entry) => entry.playerId === 999);
     assert.ok(unmatched.length >= 1);
     assert.equal(unmatched[0].goals, 10);
 

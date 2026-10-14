@@ -75,15 +75,18 @@ async function insecureGet(
         const chunks: Buffer[] = [];
         res.on('data', (chunk: Buffer) => chunks.push(chunk));
         res.on('end', () => {
-          const h = new Headers();
-          for (const [k, v] of Object.entries(res.headers)) {
-            if (v !== undefined) {
-              h.set(k, Array.isArray(v) ? v.join(', ') : v);
+          const headers = new Headers();
+          for (const [name, value] of Object.entries(res.headers)) {
+            if (value !== undefined) {
+              headers.set(
+                name,
+                Array.isArray(value) ? value.join(', ') : value,
+              );
             }
           }
           resolve({
             status: res.statusCode ?? 0,
-            headers: h,
+            headers,
             body: Buffer.concat(chunks),
           });
         });

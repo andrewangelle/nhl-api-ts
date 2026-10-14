@@ -10,43 +10,43 @@ const SHIFT_BASE =
 describe('GameCenter', () => {
   const cases: [
     string,
-    (c: ReturnType<typeof newClient>) => Promise<unknown>,
+    (client: ReturnType<typeof newClient>) => Promise<unknown>,
     string,
   ][] = [
     [
       'boxscore',
-      (c) => c.gameCenter.boxscore({ gameId: '2020020001' }),
+      (client) => client.gameCenter.boxscore({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/gamecenter/2020020001/boxscore',
     ],
     [
       'playByPlay',
-      (c) => c.gameCenter.playByPlay({ gameId: '2020020001' }),
+      (client) => client.gameCenter.playByPlay({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/gamecenter/2020020001/play-by-play',
     ],
     [
       'matchUp',
-      (c) => c.gameCenter.matchUp({ gameId: '2020020001' }),
+      (client) => client.gameCenter.matchUp({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/gamecenter/2020020001/landing',
     ],
     [
       'dailyScores (now)',
-      (c) => c.gameCenter.dailyScores(),
+      (client) => client.gameCenter.dailyScores(),
       'https://api-web.nhle.com/v1/score/now',
     ],
     [
       'dailyScores (date)',
-      (c) => c.gameCenter.dailyScores({ date: '2023-10-15' }),
+      (client) => client.gameCenter.dailyScores({ date: '2023-10-15' }),
       'https://api-web.nhle.com/v1/score/2023-10-15',
     ],
     [
       'shiftChartData (default excludes)',
-      (c) => c.gameCenter.shiftChartData({ gameId: '2020020001' }),
+      (client) => client.gameCenter.shiftChartData({ gameId: '2020020001' }),
       `${SHIFT_BASE}&exclude=eventDetails`,
     ],
     [
       'shiftChartData (custom excludes)',
-      (c) =>
-        c.gameCenter.shiftChartData({
+      (client) =>
+        client.gameCenter.shiftChartData({
           gameId: '2020020001',
           excludes: ['eventDetails', 'playerStats'],
         }),
@@ -54,27 +54,31 @@ describe('GameCenter', () => {
     ],
     [
       'shiftChartData (empty excludes)',
-      (c) =>
-        c.gameCenter.shiftChartData({ gameId: '2020020001', excludes: [] }),
+      (client) =>
+        client.gameCenter.shiftChartData({
+          gameId: '2020020001',
+          excludes: [],
+        }),
       `${SHIFT_BASE}&exclude=`,
     ],
     [
       'seasonSeriesMatchup',
-      (c) => c.gameCenter.seasonSeriesMatchup({ gameId: '2020020001' }),
+      (client) =>
+        client.gameCenter.seasonSeriesMatchup({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/gamecenter/2020020001/right-rail',
     ],
     [
       'gameStory',
-      (c) => c.gameCenter.gameStory({ gameId: '2020020001' }),
+      (client) => client.gameCenter.gameStory({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/wsc/game-story/2020020001',
     ],
   ];
 
   for (const [name, call, url] of cases) {
     it(name, async () => {
-      const f = mockFetch();
+      const fetchSpy = mockFetch();
       await call(newClient());
-      assert.deepEqual(calledUrls(f), [url]);
+      assert.deepEqual(calledUrls(fetchSpy), [url]);
     });
   }
 });

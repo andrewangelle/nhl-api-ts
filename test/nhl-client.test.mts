@@ -22,10 +22,10 @@ afterEach(() => mock.restoreAll());
 
 describe('NHLClient', () => {
   it('exposes the API modules', () => {
-    const c = new NHLClient();
-    assert.ok(c.teams instanceof Teams);
-    assert.ok(c.standings instanceof Standings);
-    assert.ok(c.schedule instanceof Schedule);
+    const client = new NHLClient();
+    assert.ok(client.teams instanceof Teams);
+    assert.ok(client.standings instanceof Standings);
+    assert.ok(client.schedule instanceof Schedule);
     for (const key of [
       'gameCenter',
       'stats',
@@ -34,16 +34,16 @@ describe('NHLClient', () => {
       'players',
       'edge',
     ] as const) {
-      assert.ok(c[key]);
+      assert.ok(client[key]);
     }
   });
 
   it('applies config defaults', () => {
-    const c = new NHLClient();
-    assert.equal(c.config.debug, false);
-    assert.equal(c.config.timeout, 10);
-    assert.equal(c.config.sslVerify, true);
-    assert.equal(c.config.followRedirects, true);
+    const client = new NHLClient();
+    assert.equal(client.config.debug, false);
+    assert.equal(client.config.timeout, 10);
+    assert.equal(client.config.sslVerify, true);
+    assert.equal(client.config.followRedirects, true);
   });
 });
 
@@ -99,25 +99,25 @@ describe('HttpClient', () => {
   });
 
   it('encodes query params like httpx', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await http().get(Endpoint.API_CORE, 'test', {
       season: '20232024',
       isAggregate: false,
       limit: 25,
       empty: null,
     });
-    assert.deepEqual(calledUrls(f), [
+    assert.deepEqual(calledUrls(fetchSpy), [
       'https://api.nhle.com/test?season=20232024&isAggregate=false&limit=25&empty=',
     ]);
   });
 
   it('passes redirect mode and a timeout signal to fetch', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await new HttpClient(new ClientConfig({ followRedirects: false })).get(
       Endpoint.API_WEB_V1,
       'score/now',
     );
-    const init = f.mock.calls[0].arguments[1] as RequestInit;
+    const init = fetchSpy.mock.calls[0].arguments[1] as RequestInit;
     assert.equal(init.redirect, 'manual');
     assert.ok(init.signal instanceof AbortSignal);
   });

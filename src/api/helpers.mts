@@ -98,15 +98,15 @@ export class Helpers {
         teamAbbr: team.abbr,
         season,
       });
-      for (const p of [
+      for (const player of [
         ...players.forwards,
         ...players.defensemen,
         ...players.goalies,
       ]) {
-        p.team = team.abbr;
-        p.firstName = p.firstName.default;
-        p.lastName = p.lastName.default;
-        outData.push(p);
+        player.team = team.abbr;
+        player.firstName = player.firstName.default;
+        player.lastName = player.lastName.default;
+        outData.push(player);
       }
     }
     return outData;

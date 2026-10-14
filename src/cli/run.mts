@@ -57,9 +57,12 @@ function version(): string {
 // ---- Help -------------------------------------------------------------------
 
 function table(rows: [string, string][], indent = 2): string {
-  const width = Math.max(0, ...rows.map(([l]) => l.length));
+  const width = Math.max(0, ...rows.map(([label]) => label.length));
   return rows
-    .map(([l, r]) => `${' '.repeat(indent)}${l.padEnd(width)}  ${r}`)
+    .map(
+      ([label, description]) =>
+        `${' '.repeat(indent)}${label.padEnd(width)}  ${description}`,
+    )
     .join('\n');
 }
 
@@ -70,7 +73,7 @@ Command line access to the NHL API and NHL EDGE stats. Results are printed
 as JSON on stdout.
 
 Modules:
-${table(MODULES.map((m) => [m.name, m.description]))}
+${table(MODULES.map((moduleSpec) => [moduleSpec.name, moduleSpec.description]))}
 
 ${GLOBAL_HELP}
 
@@ -88,7 +91,7 @@ function moduleHelp(mod: ModuleSpec): string {
 ${mod.description}
 
 Commands:
-${table(mod.commands.map((c) => [c.name, c.description]))}
+${table(mod.commands.map((command) => [command.name, command.description]))}
 
 Run '${BIN} ${mod.name} <command> --help' for command options.`;
 }
@@ -102,42 +105,42 @@ function argLabel(arg: ArgSpec): string {
 }
 
 function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
-  const required = cmd.args.filter((a) => a.required);
-  const optional = cmd.args.filter((a) => !a.required);
+  const required = cmd.args.filter((arg) => arg.required);
+  const optional = cmd.args.filter((arg) => !arg.required);
   const usage = [
     BIN,
     mod.name,
     cmd.name,
-    ...required.map((a) => colors.pass(`<${kebab(a.name)}>`)),
+    ...required.map((arg) => colors.pass(`<${kebab(arg.name)}>`)),
     optional.length ? '[options]' : '',
   ]
     .filter(Boolean)
     .join(' ');
 
-  const describe = (a: ArgSpec): string => {
+  const describe = (arg: ArgSpec): string => {
     const extras = [
-      a.choices ? `one of: ${a.choices.join(', ')}` : '',
-      a.default !== undefined ? `default: ${a.default}` : '',
+      arg.choices ? `one of: ${arg.choices.join(', ')}` : '',
+      arg.default !== undefined ? `default: ${arg.default}` : '',
     ].filter(Boolean);
     return extras.length
-      ? `${a.description} (${extras.join('; ')})`
-      : a.description;
+      ? `${arg.description} (${extras.join('; ')})`
+      : arg.description;
   };
 
   const sections = [`Usage: ${usage}`, cmd.description];
   if (required.length) {
     sections.push(
       `Arguments (positional, or as flags):\n${table(
-        required.map((a) => [
-          `<${kebab(a.name)}>, ${argLabel(a)}`,
-          describe(a),
+        required.map((arg) => [
+          `<${kebab(arg.name)}>, ${argLabel(arg)}`,
+          describe(arg),
         ]),
       )}`,
     );
   }
   if (optional.length) {
     sections.push(
-      `Options:\n${table(optional.map((a) => [argLabel(a), describe(a)]))}`,
+      `Options:\n${table(optional.map((arg) => [argLabel(arg), describe(arg)]))}`,
     );
   }
   sections.push(GLOBAL_HELP);
@@ -149,13 +152,13 @@ function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
 /** First two non-option tokens are the module and command names. */
 function findTargets(argv: string[]): string[] {
   const targets: string[] = [];
-  for (let i = 0; i < argv.length && targets.length < 2; i++) {
-    const token = argv[i];
+  for (let index = 0; index < argv.length && targets.length < 2; index++) {
+    const token = argv[index];
     if (token === '--') {
       break;
     }
     if (token === '--timeout') {
-      i++;
+      index++;
       continue;
     }
     if (!token.startsWith('-')) {
@@ -185,27 +188,27 @@ function convert(arg: ArgSpec, raw: string | boolean): unknown {
       return Number(value);
     }
     case 'number': {
-      const n = Number(value);
-      if (value.trim() === '' || Number.isNaN(n)) {
+      const parsed = Number(value);
+      if (value.trim() === '' || Number.isNaN(parsed)) {
         throw new UsageError(`${flag} must be a number (got '${value}')`);
       }
-      return n;
+      return parsed;
     }
     case 'list':
       return value
         .split(',')
-        .map((s) => s.trim())
+        .map((part) => part.trim())
         .filter(Boolean);
     case 'int-list':
       return value
         .split(',')
-        .map((s) => s.trim())
+        .map((part) => part.trim())
         .filter(Boolean)
-        .map((s) => {
-          if (!/^-?\d+$/.test(s)) {
+        .map((part) => {
+          if (!/^-?\d+$/.test(part)) {
             throw new UsageError(`${flag} must be comma-separated integers`);
           }
-          return Number(s);
+          return Number(part);
         });
     case 'json':
       try {
@@ -276,12 +279,12 @@ function parseCommand(argv: string[], cmd: CommandSpec | undefined): Parsed {
     throw new UsageError(`unexpected argument '${extra[0]}'`);
   }
   const missing = cmd.args.filter(
-    (a) => a.required && values[a.name] === undefined,
+    (arg) => arg.required && values[arg.name] === undefined,
   );
   if (missing.length > 0) {
     throw new UsageError(
       `missing required argument${missing.length > 1 ? 's' : ''}: ${missing
-        .map((a) => `<${kebab(a.name)}>`)
+        .map((arg) => `<${kebab(arg.name)}>`)
         .join(', ')}`,
     );
   }
@@ -315,10 +318,10 @@ function clientOptions(globals: Parsed['globals']): ClientOptions {
 
 /** Runs the CLI and resolves with the process exit code. */
 export async function runCli(argv: string[], io: CliIO): Promise<number> {
-  const createClient = io.createClient ?? ((o) => new NHLClient(o));
+  const createClient = io.createClient ?? ((options) => new NHLClient(options));
   const [moduleName, commandName] = findTargets(argv);
-  const mod = MODULES.find((m) => m.name === moduleName);
-  const cmd = mod?.commands.find((c) => c.name === commandName);
+  const mod = MODULES.find((moduleSpec) => moduleSpec.name === moduleName);
+  const cmd = mod?.commands.find((command) => command.name === commandName);
 
   const usageError = (message: string, help: string): number => {
     io.stderr(`${colors.error(`error: ${message}`)}\n\n${help}`);

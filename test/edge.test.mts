@@ -42,14 +42,14 @@ const landingEndpoints: [EdgeMethod, string][] = [
 ];
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic dispatch over edge methods
-const call = (c: NHLClient, method: EdgeMethod, params?: any) =>
+const call = (client: NHLClient, method: EdgeMethod, params?: any) =>
   // biome-ignore lint/suspicious/noExplicitAny: dynamic dispatch over edge methods
-  (c.edge[method] as any).call(c.edge, params);
+  (client.edge[method] as any).call(client.edge, params);
 
 async function urlFor(method: EdgeMethod, params?: object): Promise<string> {
-  const f = mockFetch();
+  const fetchSpy = mockFetch();
   await call(newClient(), method, params);
-  const urls = calledUrls(f);
+  const urls = calledUrls(fetchSpy);
   mock.restoreAll();
   assert.equal(urls.length, 1);
   return urls[0];
@@ -104,12 +104,14 @@ describe('Edge', () => {
   it('covers every Edge method', () => {
     const methods = Object.getOwnPropertyNames(
       Object.getPrototypeOf(newClient().edge),
-    ).filter((m) => m !== 'constructor' && m !== 'getEdge');
+    ).filter(
+      (methodName) => methodName !== 'constructor' && methodName !== 'getEdge',
+    );
     const tested = [
       ...playerEndpoints,
       ...teamEndpoints,
       ...landingEndpoints,
-    ].map(([m]) => m);
+    ].map(([methodName]) => methodName);
     assert.deepEqual([...methods].sort(), [...tested].sort());
   });
 });

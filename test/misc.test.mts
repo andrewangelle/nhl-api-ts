@@ -14,16 +14,18 @@ describe('Misc', () => {
 
   for (const [method, resource] of cases) {
     it(`${method} unwraps data`, async () => {
-      const f = mockFetch(() => ({ body: { data: [{ id: 1 }] } }));
+      const fetchSpy = mockFetch(() => ({ body: { data: [{ id: 1 }] } }));
       assert.deepEqual(await newClient().misc[method](), [{ id: 1 }]);
-      assert.deepEqual(calledUrls(f), [`https://api.nhle.com/${resource}`]);
+      assert.deepEqual(calledUrls(fetchSpy), [
+        `https://api.nhle.com/${resource}`,
+      ]);
     });
   }
 
   it('config returns the full payload', async () => {
-    const f = mockFetch(() => ({ body: { playerReportData: {} } }));
+    const fetchSpy = mockFetch(() => ({ body: { playerReportData: {} } }));
     assert.deepEqual(await newClient().misc.config(), { playerReportData: {} });
-    assert.deepEqual(calledUrls(f), [
+    assert.deepEqual(calledUrls(fetchSpy), [
       'https://api.nhle.com/stats/rest/en/config',
     ]);
   });

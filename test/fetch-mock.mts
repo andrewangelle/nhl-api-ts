@@ -23,7 +23,7 @@ export function mockFetch(responder: Responder = () => ({})) {
 
 /** URLs requested through the mocked fetch, in order. */
 export const calledUrls = (fetchMock: ReturnType<typeof mockFetch>): string[] =>
-  fetchMock.mock.calls.map((c) => String(c.arguments[0]));
+  fetchMock.mock.calls.map((call) => String(call.arguments[0]));
 
 /** Query params of a requested URL as a plain object. */
 export const queryOf = (url: string): Record<string, string> =>

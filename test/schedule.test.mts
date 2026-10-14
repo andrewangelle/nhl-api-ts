@@ -9,34 +9,34 @@ const WEB = 'https://api-web.nhle.com/v1/';
 
 describe('Schedule', () => {
   it('dailySchedule with date', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await newClient().schedule.dailySchedule({ date: '2021-01-01' });
-    assert.deepEqual(calledUrls(f), [`${WEB}schedule/2021-01-01`]);
+    assert.deepEqual(calledUrls(fetchSpy), [`${WEB}schedule/2021-01-01`]);
   });
 
   it('dailySchedule fixes non-padded dates', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     await newClient().schedule.dailySchedule({ date: '2024-10-9' });
-    assert.deepEqual(calledUrls(f), [`${WEB}schedule/2024-10-09`]);
+    assert.deepEqual(calledUrls(fetchSpy), [`${WEB}schedule/2024-10-09`]);
   });
 
   it('dailySchedule rejects bad dates without requesting', async () => {
-    const f = mockFetch();
+    const fetchSpy = mockFetch();
     for (const date of ['2024-10-09-', '2024-02-30', '2024-13-01', 'today']) {
       await assert.rejects(
         newClient().schedule.dailySchedule({ date }),
         RangeError,
       );
     }
-    assert.equal(f.mock.callCount(), 0);
+    assert.equal(fetchSpy.mock.callCount(), 0);
   });
 
   it('dailySchedule defaults to today (local time)', async () => {
-    const f = mockFetch();
-    const d = new Date();
-    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const fetchSpy = mockFetch();
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const result = await newClient().schedule.dailySchedule();
-    assert.deepEqual(calledUrls(f), [`${WEB}schedule/${today}`]);
+    assert.deepEqual(calledUrls(fetchSpy), [`${WEB}schedule/${today}`]);
     assert.equal(result.date, today);
   });
 
@@ -75,88 +75,101 @@ describe('Schedule', () => {
 
   const cases: [
     string,
-    (c: ReturnType<typeof newClient>) => Promise<unknown>,
+    (client: ReturnType<typeof newClient>) => Promise<unknown>,
     string,
   ][] = [
     [
       'weeklySchedule (date)',
-      (c) => c.schedule.weeklySchedule({ date: '2021-01-01' }),
+      (client) => client.schedule.weeklySchedule({ date: '2021-01-01' }),
       'schedule/2021-01-01',
     ],
     [
       'weeklySchedule (now)',
-      (c) => c.schedule.weeklySchedule(),
+      (client) => client.schedule.weeklySchedule(),
       'schedule/now',
     ],
     [
       'teamMonthlySchedule (month)',
-      (c) =>
-        c.schedule.teamMonthlySchedule({ teamAbbr: 'BUF', month: '2023-11' }),
+      (client) =>
+        client.schedule.teamMonthlySchedule({
+          teamAbbr: 'BUF',
+          month: '2023-11',
+        }),
       'club-schedule/BUF/month/2023-11',
     ],
     [
       'teamMonthlySchedule (now)',
-      (c) => c.schedule.teamMonthlySchedule({ teamAbbr: 'BUF' }),
+      (client) => client.schedule.teamMonthlySchedule({ teamAbbr: 'BUF' }),
       'club-schedule/BUF/month/now',
     ],
     [
       'teamWeeklySchedule (now)',
-      (c) => c.schedule.teamWeeklySchedule({ teamAbbr: 'BUF' }),
+      (client) => client.schedule.teamWeeklySchedule({ teamAbbr: 'BUF' }),
       'club-schedule/BUF/week/now',
     ],
     [
       'teamWeeklySchedule (date)',
-      (c) =>
-        c.schedule.teamWeeklySchedule({ teamAbbr: 'BUF', date: '2024-02-10' }),
+      (client) =>
+        client.schedule.teamWeeklySchedule({
+          teamAbbr: 'BUF',
+          date: '2024-02-10',
+        }),
       'club-schedule/BUF/week/2024-02-10',
     ],
     [
       'teamSeasonSchedule',
-      (c) =>
-        c.schedule.teamSeasonSchedule({ teamAbbr: 'BUF', season: '20202021' }),
+      (client) =>
+        client.schedule.teamSeasonSchedule({
+          teamAbbr: 'BUF',
+          season: '20202021',
+        }),
       'club-schedule-season/BUF/20202021',
     ],
     [
       'calendarSchedule',
-      (c) => c.schedule.calendarSchedule({ date: '2023-11-08' }),
+      (client) => client.schedule.calendarSchedule({ date: '2023-11-08' }),
       'schedule-calendar/2023-11-08',
     ],
     [
       'playoffCarousel',
-      (c) => c.schedule.playoffCarousel({ season: '20232024' }),
+      (client) => client.schedule.playoffCarousel({ season: '20232024' }),
       'playoff-series/carousel/20232024',
     ],
     [
       'playoffSeriesSchedule',
-      (c) =>
-        c.schedule.playoffSeriesSchedule({ season: '20232024', series: 'a' }),
+      (client) =>
+        client.schedule.playoffSeriesSchedule({
+          season: '20232024',
+          series: 'a',
+        }),
       'schedule/playoff-series/20232024/a',
     ],
     [
       'playoffBracket',
-      (c) => c.schedule.playoffBracket({ year: '2024' }),
+      (client) => client.schedule.playoffBracket({ year: '2024' }),
       'playoff-bracket/2024',
     ],
   ];
 
   for (const [name, call, resource] of cases) {
     it(name, async () => {
-      const f = mockFetch();
+      const fetchSpy = mockFetch();
       await call(newClient());
-      assert.deepEqual(calledUrls(f), [`${WEB}${resource}`]);
+      assert.deepEqual(calledUrls(fetchSpy), [`${WEB}${resource}`]);
     });
   }
 
   it('team schedules unwrap games', async () => {
     mockFetch(() => ({ body: { games: [{ id: 1 }] } }));
-    const c = newClient();
+    const client = newClient();
     assert.deepEqual(
-      await c.schedule.teamMonthlySchedule({ teamAbbr: 'BUF' }),
+      await client.schedule.teamMonthlySchedule({ teamAbbr: 'BUF' }),
       [{ id: 1 }],
     );
-    assert.deepEqual(await c.schedule.teamWeeklySchedule({ teamAbbr: 'BUF' }), [
-      { id: 1 },
-    ]);
+    assert.deepEqual(
+      await client.schedule.teamWeeklySchedule({ teamAbbr: 'BUF' }),
+      [{ id: 1 }],
+    );
   });
 });
 

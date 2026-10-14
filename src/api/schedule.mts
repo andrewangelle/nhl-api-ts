@@ -1,12 +1,13 @@
 import { Endpoint, type HttpClient } from '#src/http-client.mjs';
 import type { Id, JsonObject } from '#src/utils.mjs';
 
-const pad = (n: number, width = 2): string => String(n).padStart(width, '0');
+const pad = (value: number, width = 2): string =>
+  String(value).padStart(width, '0');
 
 /** Today's date (local time) as YYYY-MM-DD. */
 function today(): string {
-  const d = new Date();
-  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const now = new Date();
+  return `${pad(now.getFullYear(), 4)}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 /**
@@ -22,7 +23,7 @@ export function normalizeDate(date: string): string {
   if (!match) {
     throw new RangeError('Invalid date format. Please use YYYY-MM-DD.');
   }
-  const [year, month, day] = match.slice(1).map((v) => Number(v.trim()));
+  const [year, month, day] = match.slice(1).map((part) => Number(part.trim()));
   const parsed = new Date(0);
   parsed.setUTCFullYear(year, month - 1, day);
   if (parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {

@@ -73,7 +73,7 @@ export class Teams {
    */
   async teams({ date = 'now' }: { date?: string } = {}): Promise<Team[]> {
     const standingsData = await this.fetchStandingsData(date);
-    const teams = standingsData.map((t) => this.createTeam(t));
+    const teams = standingsData.map((standing) => this.createTeam(standing));
     await this.enrichTeamsWithFranchiseIds(teams);
     return teams;
   }

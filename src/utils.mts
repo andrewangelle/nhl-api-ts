@@ -17,7 +17,7 @@ export function pyJsonDumps(value: unknown): string {
   }
   if (value !== null && typeof value === 'object') {
     const entries = Object.entries(value).map(
-      ([k, v]) => `${pyJsonDumps(k)}: ${pyJsonDumps(v)}`,
+      ([key, entryValue]) => `${pyJsonDumps(key)}: ${pyJsonDumps(entryValue)}`,
     );
     return `{${entries.join(', ')}}`;
   }
@@ -26,7 +26,7 @@ export function pyJsonDumps(value: unknown): string {
   }
   return JSON.stringify(value).replace(
     /[\u0080-￿]/g,
-    (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`,
+    (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
   );
 }
 
