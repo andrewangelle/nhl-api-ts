@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andrewangelle/audit-plan.git"
+    "url": "git+https://github.com/andrewangelle/nhl-api-ts.git"
   },
   "main": "dist/cli.mjs",
   "type": "module",
