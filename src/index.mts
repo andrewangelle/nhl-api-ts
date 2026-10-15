@@ -18,4 +18,4 @@ export {
   type QueryParamValue,
 } from '#src/http-client.mjs';
 export { NHLClient } from '#src/nhl-client.mjs';
-export { type Id, type JsonObject, pyJsonDumps } from '#src/utils.mjs';
+export type { Id, JsonObject } from '#src/utils.mjs';

@@ -2,9 +2,7 @@
 
 TypeScript SDK **and** command line tool for the NHL API and NHL EDGE stats.
 
-This is a port of [nhl-api-py](https://github.com/coreyjs/nhl-api-py). It calls
-the same endpoints, sends the same query parameters, and returns the same
-payloads. Every SDK method is also available as a CLI command.
+Every SDK method is also available as a CLI command.
 
 - Zero runtime dependencies (uses the built-in `fetch`)
 - Node.js >= 24, ESM only
@@ -31,14 +29,13 @@ const standings = await client.standings.leagueStandings();
 const games = await client.schedule.dailySchedule();
 ```
 
-Every method is `async` and takes a single options object. The keys are the
-camelCase versions of the nhl-api-py keyword arguments:
+Every method is `async` and takes a single options object:
 
-| Python                                                      | TypeScript                                                        |
-| ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| `client.game_center.boxscore(game_id="2023020280")`         | `await client.gameCenter.boxscore({ gameId: '2023020280' })`      |
-| `client.edge.skater_detail(player_id=8478402, season=20232024)` | `await client.edge.skaterDetail({ playerId: 8478402, season: 20232024 })` |
-| `client.stats.team_summary(start_season=..., end_season=...)` | `await client.stats.teamSummary({ startSeason, endSeason })`     |
+```ts
+await client.gameCenter.boxscore({ gameId: '2023020280' });
+await client.edge.skaterDetail({ playerId: 8478402, season: 20232024 });
+await client.stats.teamSummary({ startSeason: 20202021, endSeason: 20232024 });
+```
 
 IDs and seasons accept either strings or numbers.
 
@@ -48,7 +45,6 @@ IDs and seasons accept either strings or numbers.
 const client = new NHLClient({
   debug: true,           // log each request URL to stderr (default false)
   timeout: 30,           // seconds (default 10)
-  sslVerify: false,      // skip TLS certificate verification (default true)
   followRedirects: true, // "/now" endpoints redirect to today's data (default true)
 });
 ```
@@ -180,8 +176,8 @@ Skater report types: `summary`, `bios`, `faceoffpercentages`, `faceoffwins`,
 
 ## Errors
 
-HTTP failures throw the same exception classes as nhl-api-py. They all extend
-`NHLApiException`, which has `statusCode` and `errorCode`:
+HTTP failures throw exceptions that all extend `NHLApiException`, which has
+`statusCode` and `errorCode`:
 
 | Status | Exception                    |
 | ------ | ---------------------------- |
@@ -192,8 +188,7 @@ HTTP failures throw the same exception classes as nhl-api-py. They all extend
 | 5xx    | `ServerErrorException`       |
 | other  | `NHLApiException`            |
 
-Invalid input where nhl-api-py raises `ValueError` (bad dates, unknown
-seasons) throws a `RangeError`.
+Invalid input (bad dates, unknown seasons) throws a `RangeError`.
 
 ```ts
 import { ResourceNotFoundException } from 'nhl-api-ts';
@@ -253,28 +248,18 @@ Global options:
 | `--compact`             | Print JSON on a single line       |
 | `--debug`               | Log request URLs to stderr        |
 | `--timeout <seconds>`   | Request timeout (default 10)      |
-| `--no-ssl-verify`       | Skip TLS certificate verification |
 | `--no-follow-redirects` | Do not follow HTTP redirects      |
 | `-v`, `--version`       | Print the version                 |
 
 Exit codes: `0` success, `1` API or network error, `2` invalid usage.
+Progress and warning messages from `helpers` go to stderr, so stdout is always
+clean JSON.
 
 Pipe output to `jq` to slice it:
 
 ```bash
 nhl-api-ts teams teams --compact | jq -r '.[].abbr'
 ```
-
-## Differences from nhl-api-py
-
-- Methods are async, camelCase, and take one options object.
-- Response payloads are not renamed. Fields the SDK builds itself also keep the
-  Python key names (`common_name` and `franchise_id` in `teams.teams()`).
-- `DecisionQuery.validate()` returns `true` for valid values. In nhl-api-py it
-  returns `None`, so `QueryBuilder` rejects every decision filter, including
-  valid ones. The port fixes this.
-- Progress and warning messages from `helpers` go to stderr, so CLI stdout is
-  always clean JSON.
 
 ## Development
 
@@ -291,3 +276,7 @@ Try the CLI from source:
 ```bash
 node --conditions=source src/cli.mts --help
 ```
+
+## Credits
+
+Ported from [nhl-api-py](https://github.com/coreyjs/nhl-api-py).

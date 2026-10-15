@@ -1,4 +1,4 @@
-// Like the Python suite, these mock at the API class level (Teams, Schedule,
+// These mock at the API class level (Teams, Schedule,
 // Stats) because Helpers orchestrates several API modules.
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';

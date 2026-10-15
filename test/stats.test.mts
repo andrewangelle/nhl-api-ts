@@ -64,7 +64,7 @@ describe('Stats', () => {
       limit: '50',
       start: '0',
       factCayenneExp: 'gamesPlayed>1',
-      sort: '[{"property": "points", "direction": "DESC"}, {"property": "wins", "direction": "DESC"}, {"property": "teamId", "direction": "ASC"}]',
+      sort: '[{"property":"points","direction":"DESC"},{"property":"wins","direction":"DESC"},{"property":"teamId","direction":"ASC"}]',
       cayenneExp: 'gameTypeId=2 and seasonId<=20232024 and seasonId>=20232024',
     });
   });
@@ -96,7 +96,7 @@ describe('Stats', () => {
       limit: '25',
       start: '0',
       factCayenneExp: 'gamesPlayed>=1',
-      sort: '[{"property": "points", "direction": "DESC"}, {"property": "gamesPlayed", "direction": "ASC"}, {"property": "playerId", "direction": "ASC"}]',
+      sort: '[{"property":"points","direction":"DESC"},{"property":"gamesPlayed","direction":"ASC"},{"property":"playerId","direction":"ASC"}]',
       cayenneExp: 'gameTypeId=2 and seasonId<=20232024 and seasonId>=20232024',
     });
   });
@@ -134,7 +134,7 @@ describe('Stats', () => {
       start: '0',
       limit: '25',
       factCayenneExp: 'gamesPlayed>=1',
-      sort: '[{"property": "hits", "direction": "DESC"}, {"property": "playerId", "direction": "ASC"}]',
+      sort: '[{"property":"hits","direction":"DESC"},{"property":"playerId","direction":"ASC"}]',
       cayenneExp:
         'franchiseId=5 and seasonId >= 20232024 and seasonId <= 20232024',
     });
@@ -154,7 +154,7 @@ describe('Stats', () => {
       start: '0',
       limit: '25',
       factCayenneExp: '',
-      sort: '[{"property": "wins", "direction": "DESC"}, {"property": "gamesPlayed", "direction": "ASC"}, {"property": "playerId", "direction": "ASC"}]',
+      sort: '[{"property":"wins","direction":"DESC"},{"property":"gamesPlayed","direction":"ASC"},{"property":"playerId","direction":"ASC"}]',
       cayenneExp: 'gameTypeId=2 and seasonId<=20232024 and seasonId>=20232024',
     });
   });
