@@ -30,13 +30,13 @@ API failure, or a subclass to handle one case:
 
 ```ts
 import {
+  createNHLClient,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ResourceNotFoundException,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 try {
   await client.gameCenter.boxscore({ gameId: 2023020280 });
@@ -159,7 +159,7 @@ catch (err) {
 }
 ```
 
-**Fix:** raise the timeout (`new NHLClient({ timeout: 30 })`). Large stats
+**Fix:** raise the timeout (`createNHLClient({ timeout: 30 })`). Large stats
 reports and play-by-play payloads can be slow.
 
 ## Network failures: `TypeError: fetch failed`
@@ -171,22 +171,17 @@ underlying error is in `err.cause`.
 
 ## Query builder validation
 
-`QueryBuilder.build()` does **not** throw for invalid filters. It skips them
+`buildQuery()` does **not** throw for invalid filters. It skips them
 and collects their messages in `context.errors`:
 
 ```ts
-const context = new QueryBuilder().build([new DecisionQuery('X')]);
-context.isValid(); // false
-context.errors;    // ['Decision value must be one of [W, L, O]']
+const context = buildQuery([filter.decision('X' as Decision)]);
+isValidQuery(context); // false
+context.errors;        // ['Decision value must be one of [W, L, O]']
 ```
 
-Always check `context.isValid()` before you call
+Always check `isValidQuery(context)` before you call
 `skaterStatsWithQueryContext`. A skipped filter silently widens the query.
-
-`InvalidQueryValueException` is the error that filters throw internally
-during validation. The builder catches it, so it never reaches your code from
-`build()`. It is exported so that custom `QueryBase` subclasses can throw it
-from `validate()`.
 
 ## CLI exit codes
 

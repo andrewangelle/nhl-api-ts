@@ -1,4 +1,5 @@
-import { Endpoint, type HttpClient } from '#src/http-client.mjs';
+import type { Context } from '#src/context.mjs';
+import { Endpoint } from '#src/http-client.mjs';
 import type { Id, JsonObject } from '#src/utils.mjs';
 
 const pad = (value: number, width = 2): string =>
@@ -40,183 +41,168 @@ export interface DailySchedule {
   numberOfGames?: number;
 }
 
-export class Schedule {
-  readonly client: HttpClient;
+/**
+ * Gets NHL schedule for a specific date.
+ *
+ * @param params.date Date in YYYY-MM-DD format. Defaults to today.
+ * @throws RangeError If the date is not a valid YYYY-MM-DD date
+ * @example await client.schedule.dailySchedule({ date: '2024-10-09' })
+ */
+export const dailySchedule = async (
+  ctx: Context,
+  { date }: { date?: string } = {},
+): Promise<DailySchedule> => {
+  const resolvedDate = date ? normalizeDate(date) : today();
 
-  constructor(httpClient: HttpClient) {
-    this.client = httpClient;
+  const scheduleData = await (
+    await ctx.get(Endpoint.API_WEB_V1, `schedule/${resolvedDate}`)
+  ).json();
+
+  const responsePayload: DailySchedule = {
+    nextStartDate: scheduleData.nextStartDate ?? null,
+    previousStartDate: scheduleData.previousStartDate ?? null,
+    date: resolvedDate,
+    oddsPartners: scheduleData.oddsPartners ?? null,
+  };
+
+  const gameWeek: JsonObject[] = scheduleData.gameWeek ?? [];
+  const matchingDay = gameWeek.find((day) => day.date === resolvedDate);
+  if (matchingDay) {
+    const games: JsonObject[] = matchingDay.games ?? [];
+    responsePayload.games = games;
+    responsePayload.numberOfGames = games.length;
   }
+  return responsePayload;
+};
 
-  /**
-   * Gets NHL schedule for a specific date.
-   *
-   * @param params.date Date in YYYY-MM-DD format. Defaults to today.
-   * @throws RangeError If the date is not a valid YYYY-MM-DD date
-   * @example await client.schedule.dailySchedule({ date: '2024-10-09' })
-   */
-  async dailySchedule({
-    date,
-  }: {
-    date?: string;
-  } = {}): Promise<DailySchedule> {
-    date = date ? normalizeDate(date) : today();
+/**
+ * Gets NHL schedule for a week starting from the specified date.
+ *
+ * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
+ * @example https://api-web.nhle.com/v1/schedule/2024-10-09
+ */
+export const weeklySchedule = async (
+  ctx: Context,
+  { date }: { date?: string } = {},
+): Promise<JsonObject> => {
+  const res = date ? date : 'now';
+  return (await ctx.get(Endpoint.API_WEB_V1, `schedule/${res}`)).json();
+};
 
-    const scheduleData = await (
-      await this.client.get(Endpoint.API_WEB_V1, `schedule/${date}`)
-    ).json();
+/**
+ * Gets monthly schedule for a specified team.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @param params.month Month in YYYY-MM format. Defaults to "now".
+ * @example https://api-web.nhle.com/v1/club-schedule/BUF/month/2023-11
+ */
+export const teamMonthlySchedule = async (
+  ctx: Context,
+  { teamAbbr, month }: { teamAbbr: string; month?: string },
+): Promise<JsonObject[]> => {
+  const resource = `club-schedule/${teamAbbr}/month/${month ? month : 'now'}`;
+  const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
+  return response.games ?? [];
+};
 
-    const responsePayload: DailySchedule = {
-      nextStartDate: scheduleData.nextStartDate ?? null,
-      previousStartDate: scheduleData.previousStartDate ?? null,
-      date,
-      oddsPartners: scheduleData.oddsPartners ?? null,
-    };
+/**
+ * Gets weekly schedule for a specified team.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
+ * @example https://api-web.nhle.com/v1/club-schedule/BUF/week/2024-02-10
+ */
+export const teamWeeklySchedule = async (
+  ctx: Context,
+  { teamAbbr, date }: { teamAbbr: string; date?: string },
+): Promise<JsonObject[]> => {
+  const resource = `club-schedule/${teamAbbr}/week/${date ? date : 'now'}`;
+  const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
+  return response.games ?? [];
+};
 
-    const gameWeek: JsonObject[] = scheduleData.gameWeek ?? [];
-    const matchingDay = gameWeek.find((day) => day.date === date);
-    if (matchingDay) {
-      const games: JsonObject[] = matchingDay.games ?? [];
-      responsePayload.games = games;
-      responsePayload.numberOfGames = games.length;
-    }
-    return responsePayload;
-  }
+/**
+ * Gets the full season schedule for a specified team.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @example https://api-web.nhle.com/v1/club-schedule-season/BUF/20232024
+ */
+export const teamSeasonSchedule = async (
+  ctx: Context,
+  { teamAbbr, season }: { teamAbbr: string; season: Id },
+): Promise<JsonObject> =>
+  (
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `club-schedule-season/${teamAbbr}/${season}`,
+    )
+  ).json();
 
-  /**
-   * Gets NHL schedule for a week starting from the specified date.
-   *
-   * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
-   * @example https://api-web.nhle.com/v1/schedule/2024-10-09
-   */
-  async weeklySchedule({ date }: { date?: string } = {}): Promise<JsonObject> {
-    const res = date ? date : 'now';
-    return (
-      await this.client.get(Endpoint.API_WEB_V1, `schedule/${res}`)
-    ).json();
-  }
+/**
+ * Gets the schedule in calendar format for a specified date.
+ *
+ * @param params.date Date in YYYY-MM-DD format
+ * @example https://api-web.nhle.com/v1/schedule-calendar/2023-11-08
+ */
+export const calendarSchedule = async (
+  ctx: Context,
+  { date }: { date: string },
+): Promise<JsonObject> =>
+  (await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)).json();
 
-  /**
-   * Gets monthly schedule for a specified team.
-   *
-   * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
-   * @param params.month Month in YYYY-MM format. Defaults to "now".
-   * @example https://api-web.nhle.com/v1/club-schedule/BUF/month/2023-11
-   */
-  async teamMonthlySchedule({
-    teamAbbr,
-    month,
-  }: {
-    teamAbbr: string;
-    month?: string;
-  }): Promise<JsonObject[]> {
-    const resource = `club-schedule/${teamAbbr}/month/${month ? month : 'now'}`;
-    const response = await (
-      await this.client.get(Endpoint.API_WEB_V1, resource)
-    ).json();
-    return response.games ?? [];
-  }
+/**
+ * Gets all playoff series information up to the current round.
+ *
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @example https://api-web.nhle.com/v1/playoff-series/carousel/20232024
+ */
+export const playoffCarousel = async (
+  ctx: Context,
+  { season }: { season: Id },
+): Promise<JsonObject> =>
+  (
+    await ctx.get(Endpoint.API_WEB_V1, `playoff-series/carousel/${season}`)
+  ).json();
 
-  /**
-   * Gets weekly schedule for a specified team.
-   *
-   * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
-   * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
-   * @example https://api-web.nhle.com/v1/club-schedule/BUF/week/2024-02-10
-   */
-  async teamWeeklySchedule({
-    teamAbbr,
-    date,
-  }: {
-    teamAbbr: string;
-    date?: string;
-  }): Promise<JsonObject[]> {
-    const resource = `club-schedule/${teamAbbr}/week/${date ? date : 'now'}`;
-    const response = await (
-      await this.client.get(Endpoint.API_WEB_V1, resource)
-    ).json();
-    return response.games ?? [];
-  }
+/**
+ * Returns the schedule and results for a specified playoff series matchup.
+ *
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @param params.series Series letter, e.g. "a" (first round) through "o" (final)
+ * @example https://api-web.nhle.com/v1/schedule/playoff-series/20232024/a
+ */
+export const playoffSeriesSchedule = async (
+  ctx: Context,
+  { season, series }: { season: Id; series: string },
+): Promise<JsonObject> =>
+  (
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `schedule/playoff-series/${season}/${series}`,
+    )
+  ).json();
 
-  /**
-   * Gets the full season schedule for a specified team.
-   *
-   * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
-   * @param params.season Season in YYYYYYYY format, e.g. 20232024
-   * @example https://api-web.nhle.com/v1/club-schedule-season/BUF/20232024
-   */
-  async teamSeasonSchedule({
-    teamAbbr,
-    season,
-  }: {
-    teamAbbr: string;
-    season: Id;
-  }): Promise<JsonObject> {
-    return (
-      await this.client.get(
-        Endpoint.API_WEB_V1,
-        `club-schedule-season/${teamAbbr}/${season}`,
-      )
-    ).json();
-  }
+/**
+ * Returns the full playoff bracket for a given year.
+ *
+ * @param params.year Year the playoffs took place, e.g. 2024
+ * @example https://api-web.nhle.com/v1/playoff-bracket/2024
+ */
+export const playoffBracket = async (
+  ctx: Context,
+  { year }: { year: Id },
+): Promise<JsonObject> =>
+  (await ctx.get(Endpoint.API_WEB_V1, `playoff-bracket/${year}`)).json();
 
-  /**
-   * Gets the schedule in calendar format for a specified date.
-   *
-   * @param params.date Date in YYYY-MM-DD format
-   * @example https://api-web.nhle.com/v1/schedule-calendar/2023-11-08
-   */
-  async calendarSchedule({ date }: { date: string }): Promise<JsonObject> {
-    return (
-      await this.client.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)
-    ).json();
-  }
-
-  /**
-   * Gets all playoff series information up to the current round.
-   *
-   * @param params.season Season in YYYYYYYY format, e.g. 20232024
-   * @example https://api-web.nhle.com/v1/playoff-series/carousel/20232024
-   */
-  async playoffCarousel({ season }: { season: Id }): Promise<JsonObject> {
-    return (
-      await this.client.get(
-        Endpoint.API_WEB_V1,
-        `playoff-series/carousel/${season}`,
-      )
-    ).json();
-  }
-
-  /**
-   * Returns the schedule and results for a specified playoff series matchup.
-   *
-   * @param params.season Season in YYYYYYYY format, e.g. 20232024
-   * @param params.series Series letter, e.g. "a" (first round) through "o" (final)
-   * @example https://api-web.nhle.com/v1/schedule/playoff-series/20232024/a
-   */
-  async playoffSeriesSchedule({
-    season,
-    series,
-  }: {
-    season: Id;
-    series: string;
-  }): Promise<JsonObject> {
-    return (
-      await this.client.get(
-        Endpoint.API_WEB_V1,
-        `schedule/playoff-series/${season}/${series}`,
-      )
-    ).json();
-  }
-
-  /**
-   * Returns the full playoff bracket for a given year.
-   *
-   * @param params.year Year the playoffs took place, e.g. 2024
-   * @example https://api-web.nhle.com/v1/playoff-bracket/2024
-   */
-  async playoffBracket({ year }: { year: Id }): Promise<JsonObject> {
-    return (
-      await this.client.get(Endpoint.API_WEB_V1, `playoff-bracket/${year}`)
-    ).json();
-  }
-}
+export const scheduleApi = {
+  dailySchedule,
+  weeklySchedule,
+  teamMonthlySchedule,
+  teamWeeklySchedule,
+  teamSeasonSchedule,
+  calendarSchedule,
+  playoffCarousel,
+  playoffSeriesSchedule,
+  playoffBracket,
+} as const;

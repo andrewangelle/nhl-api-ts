@@ -6,13 +6,14 @@ underneath it. Read it once before you write anything non-trivial.
 ## One client, nine modules
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient({ timeout: 30 });
+const client = createNHLClient({ timeout: 30 });
 ```
 
-`NHLClient` holds the resolved config and one HTTP client. It exposes nine
-modules. Each module is a group of endpoint methods:
+`createNHLClient` builds a client holding the resolved config and one `get`
+function. It exposes nine modules. Each module is a group of bound endpoint
+functions:
 
 | Module              | What it covers                                                     |
 | ------------------- | ------------------------------------------------------------------ |
@@ -116,7 +117,7 @@ that every status code maps to an error class.
 ## Configuration
 
 ```ts
-new NHLClient({
+createNHLClient({
   debug: false,         // log "GET: <url>" to stderr for each request
   timeout: 10,          // seconds, per request (AbortSignal.timeout)
   followRedirects: true // follow the 307s from "now" endpoints
@@ -150,12 +151,11 @@ The stats API filters with a `cayenneExp` expression
 - The `*Summary` methods build `cayenneExp` from `startSeason`, `endSeason`,
   `gameTypeId` and `franchiseId`. You can replace it entirely with
   `defaultCayenneExp`.
-- `skaterStatsWithQueryContext` takes a `QueryContext` built from typed filters
-  by `QueryBuilder`. See
+- `skaterStatsWithQueryContext` takes a `QueryContext` built from `Filter`
+  values by `buildQuery`. See
   [recipes/filter-skater-stats.md](recipes/filter-skater-stats.md).
 - `sortExpr` is `SortExpr[]` (`{ property, direction }`). Each report type has
-  a default sort, from `SortingOptions.getDefaultSortingForReport` and
-  `goalieStatsSorts`.
+  a default sort, from `defaultSortForReport` and `goalieStatsSorts`.
 
 ## Retries and rate limits
 

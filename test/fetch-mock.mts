@@ -1,5 +1,5 @@
 import { mock } from 'node:test';
-import { NHLClient } from '#src/index.mjs';
+import { createNHLClient, type NHLClient } from '#src/index.mjs';
 
 export type Responder = (url: string) => { status?: number; body?: unknown };
 
@@ -32,4 +32,4 @@ export const queryOf = (url: string): Record<string, string> =>
 /** The URL without its query string. */
 export const pathOf = (url: string): string => url.split('?')[0];
 
-export const newClient = (): NHLClient => new NHLClient();
+export const newClient = (): NHLClient => createNHLClient();

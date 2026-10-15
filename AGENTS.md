@@ -112,14 +112,6 @@ docs/                  concepts, errors, recipes
 - `llms-full.txt`: `pnpm docs:llms` (script in `scripts/build-llms-full.mts`)
 - `dist/`: `pnpm build`, gitignored
 
-## In-flight work
-
-`.claude/plans/functional-refactor.md` describes a planned move from classes
-to plain functions (`createNHLClient`, `filter.*`, `buildQuery`). If you
-implement any phase of it, update the docs, examples, `MIGRATION.md` and the
-skill in `skills/nhl-api-ts/SKILL.md` in the same change. They currently
-describe the class-based API.
-
 ## Things to avoid
 
 - Adding runtime dependencies.

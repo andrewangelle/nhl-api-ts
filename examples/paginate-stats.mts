@@ -4,16 +4,14 @@
  *   node examples/paginate-stats.mts
  */
 import {
+  buildQuery,
+  createNHLClient,
+  filter,
   type JsonObject,
-  NHLClient,
-  QueryBuilder,
-  SeasonQuery,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-]);
+const client = createNHLClient();
+const queryContext = buildQuery([filter.season(20232024, 20232024)]);
 
 // The stats API caps pages at 100 rows, so advance by rows received.
 const rows: JsonObject[] = [];

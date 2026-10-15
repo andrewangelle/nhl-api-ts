@@ -102,11 +102,7 @@ describe('Edge', () => {
   }
 
   it('covers every Edge method', () => {
-    const methods = Object.getOwnPropertyNames(
-      Object.getPrototypeOf(newClient().edge),
-    ).filter(
-      (methodName) => methodName !== 'constructor' && methodName !== 'getEdge',
-    );
+    const methods = Object.keys(newClient().edge);
     const tested = [
       ...playerEndpoints,
       ...teamEndpoints,

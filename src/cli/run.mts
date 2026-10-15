@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { InvalidQueryValueException } from '#src/api/query/errors.mjs';
+import { colors } from '#src/cli/colors.mjs';
 import {
   type ArgSpec,
   type CommandSpec,
@@ -10,8 +10,7 @@ import {
 } from '#src/cli/commands.mjs';
 import type { ClientOptions } from '#src/config.mjs';
 import { NHLApiException } from '#src/errors.mjs';
-import { colors } from '#src/logging.mjs';
-import { NHLClient } from '#src/nhl-client.mjs';
+import { createNHLClient, type NHLClient } from '#src/nhl-client.mjs';
 
 const BIN = 'nhl-api-ts';
 
@@ -312,7 +311,7 @@ function clientOptions(globals: Parsed['globals']): ClientOptions {
 
 /** Runs the CLI and resolves with the process exit code. */
 export async function runCli(argv: string[], io: CliIO): Promise<number> {
-  const createClient = io.createClient ?? ((options) => new NHLClient(options));
+  const createClient = io.createClient ?? createNHLClient;
   const [moduleName, commandName] = findTargets(argv);
   const mod = MODULES.find((moduleSpec) => moduleSpec.name === moduleName);
   const cmd = mod?.commands.find((command) => command.name === commandName);
@@ -374,11 +373,7 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
     );
     return 0;
   } catch (err) {
-    if (
-      err instanceof UsageError ||
-      err instanceof InvalidQueryValueException ||
-      err instanceof RangeError
-    ) {
+    if (err instanceof UsageError || err instanceof RangeError) {
       return usageError(err.message, commandHelp(mod, cmd));
     }
     if (err instanceof NHLApiException) {

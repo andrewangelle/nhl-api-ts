@@ -8,7 +8,7 @@ tests can replace it, so they don't need network access or a special client.
 ```ts
 import assert from 'node:assert/strict';
 import { afterEach, it, mock } from 'node:test';
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
 afterEach(() => mock.restoreAll());
 
@@ -21,7 +21,7 @@ it('lists team abbreviations', async () => {
     return Response.json(body);
   });
 
-  const teams = await new NHLClient().teams.teams();
+  const teams = await createNHLClient().teams.teams();
 
   assert.deepEqual(teams.map((team) => team.abbr), ['TOR']);
   assert.equal(teams[0].franchise_id, 5);
@@ -44,7 +44,7 @@ mock.method(globalThis, 'fetch', async () =>
   Response.json({ message: 'nope' }, { status: 429 }),
 );
 await assert.rejects(
-  new NHLClient().misc.countries(),
+  createNHLClient().misc.countries(),
   { name: 'RateLimitExceededException', statusCode: 429 },
 );
 ```

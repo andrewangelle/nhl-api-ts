@@ -13,13 +13,11 @@ This method returns the whole envelope, `{ data, total }`. Advance by the
 number of rows you actually received, not by `limit`:
 
 ```ts
-import { NHLClient, QueryBuilder, SeasonQuery } from 'nhl-api-ts';
+import { buildQuery, createNHLClient, filter } from 'nhl-api-ts';
 import type { JsonObject } from 'nhl-api-ts';
 
-const client = new NHLClient();
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-]);
+const client = createNHLClient();
+const queryContext = buildQuery([filter.season(20232024, 20232024)]);
 
 const rows: JsonObject[] = [];
 while (true) {

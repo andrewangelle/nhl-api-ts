@@ -5,8 +5,8 @@ over many teams, players or games.
 
 ```ts
 import {
+  createNHLClient,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ServerErrorException,
 } from 'nhl-api-ts';
@@ -35,7 +35,7 @@ export async function withRetry<T>(
   }
 }
 
-const client = new NHLClient();
+const client = createNHLClient();
 const boxscore = await withRetry(() =>
   client.gameCenter.boxscore({ gameId: 2023020280 }),
 );

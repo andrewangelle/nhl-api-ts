@@ -1,4 +1,5 @@
-import { Endpoint, type HttpClient } from '#src/http-client.mjs';
+import type { Context } from '#src/context.mjs';
+import { Endpoint } from '#src/http-client.mjs';
 import type { Id, JsonObject } from '#src/utils.mjs';
 
 export interface Team {
@@ -11,103 +12,33 @@ export interface Team {
   franchise_id?: number;
 }
 
-/** NHL Teams API client. */
-export class Teams {
-  readonly client: HttpClient;
+async function fetchStandingsData(
+  ctx: Context,
+  date: string,
+): Promise<JsonObject[]> {
+  const response = await (
+    await ctx.get(Endpoint.API_WEB_V1, `standings/${date}`)
+  ).json();
+  return response.standings ?? [];
+}
 
-  constructor(httpClient: HttpClient) {
-    this.client = httpClient;
-  }
-
-  private async fetchStandingsData(date: string): Promise<JsonObject[]> {
-    const response = await (
-      await this.client.get(Endpoint.API_WEB_V1, `standings/${date}`)
-    ).json();
-    return response.standings ?? [];
-  }
-
-  private createTeam(teamData: JsonObject): Team {
-    const nestedDefault = (key: string): string => teamData[key]?.default ?? '';
-    return {
-      conference: {
-        abbr: teamData.conferenceAbbrev ?? '',
-        name: teamData.conferenceName ?? '',
-      },
-      division: {
-        abbr: teamData.divisionAbbrev ?? '',
-        name: teamData.divisionName ?? '',
-      },
-      name: nestedDefault('teamName'),
-      common_name: nestedDefault('teamCommonName'),
-      abbr: nestedDefault('teamAbbrev'),
-      logo: teamData.teamLogo ?? '',
-    };
-  }
-
-  private async enrichTeamsWithFranchiseIds(teams: Team[]): Promise<void> {
-    const lookup = new Map<string, number>();
-    for (const franchise of await this.franchises()) {
-      const fullName = franchise.fullName ?? '';
-      const franchiseId = franchise.id;
-      if (fullName && franchiseId) {
-        lookup.set(fullName, franchiseId);
-      }
-    }
-
-    for (const team of teams) {
-      const franchiseId = findFranchiseId(team.name ?? '', lookup);
-      if (franchiseId) {
-        team.franchise_id = franchiseId;
-      }
-    }
-  }
-
-  /**
-   * Get a list of all NHL teams with conference, division, and franchise info.
-   *
-   * Team list is derived from the standings for the given date, then enriched
-   * with franchise ids.
-   *
-   * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
-   * @example await client.teams.teams()
-   */
-  async teams({ date = 'now' }: { date?: string } = {}): Promise<Team[]> {
-    const standingsData = await this.fetchStandingsData(date);
-    const teams = standingsData.map((standing) => this.createTeam(standing));
-    await this.enrichTeamsWithFranchiseIds(teams);
-    return teams;
-  }
-
-  /**
-   * Get the roster for the given team and season.
-   *
-   * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
-   * @param params.season Season in YYYYYYYY format, e.g. 20232024
-   * @example https://api-web.nhle.com/v1/roster/BUF/20232024
-   */
-  async teamRoster({
-    teamAbbr,
-    season,
-  }: {
-    teamAbbr: string;
-    season: Id;
-  }): Promise<JsonObject> {
-    return (
-      await this.client.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)
-    ).json();
-  }
-
-  /**
-   * Get a list of all past and current NHL franchises.
-   *
-   * @example https://api.nhle.com/stats/rest/en/franchise
-   */
-  async franchises(): Promise<JsonObject[]> {
-    const response = await (
-      await this.client.get(Endpoint.API_STATS, 'en/franchise')
-    ).json();
-    return response.data ?? [];
-  }
+/** Converts a raw standings entry into a `Team`. */
+export function toTeam(teamData: JsonObject): Team {
+  const nestedDefault = (key: string): string => teamData[key]?.default ?? '';
+  return {
+    conference: {
+      abbr: teamData.conferenceAbbrev ?? '',
+      name: teamData.conferenceName ?? '',
+    },
+    division: {
+      abbr: teamData.divisionAbbrev ?? '',
+      name: teamData.divisionName ?? '',
+    },
+    name: nestedDefault('teamName'),
+    common_name: nestedDefault('teamCommonName'),
+    abbr: nestedDefault('teamAbbrev'),
+    logo: teamData.teamLogo ?? '',
+  };
 }
 
 /** Find franchise ID for a team name, with fallbacks for known name mismatches. */
@@ -132,3 +63,71 @@ function findFranchiseId(
   }
   return undefined;
 }
+
+/**
+ * Adds a `franchise_id` to each team that has a matching franchise. Teams
+ * without a match are returned unchanged (no `franchise_id` key).
+ */
+export function withFranchiseIds(
+  teams: readonly Team[],
+  franchises: readonly JsonObject[],
+): Team[] {
+  const lookup = new Map<string, number>();
+  for (const franchise of franchises) {
+    const fullName = franchise.fullName ?? '';
+    const franchiseId = franchise.id;
+    if (fullName && franchiseId) {
+      lookup.set(fullName, franchiseId);
+    }
+  }
+
+  return teams.map((team) => {
+    const franchiseId = findFranchiseId(team.name ?? '', lookup);
+    return franchiseId ? { ...team, franchise_id: franchiseId } : { ...team };
+  });
+}
+
+/**
+ * Get a list of all NHL teams with conference, division, and franchise info.
+ *
+ * Team list is derived from the standings for the given date, then enriched
+ * with franchise ids.
+ *
+ * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
+ * @example await client.teams.teams()
+ */
+export const teams = async (
+  ctx: Context,
+  { date = 'now' }: { date?: string } = {},
+): Promise<Team[]> => {
+  const standingsData = await fetchStandingsData(ctx, date);
+  const franchiseData = await franchises(ctx);
+  return withFranchiseIds(standingsData.map(toTeam), franchiseData);
+};
+
+/**
+ * Get the roster for the given team and season.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @example https://api-web.nhle.com/v1/roster/BUF/20232024
+ */
+export const teamRoster = async (
+  ctx: Context,
+  { teamAbbr, season }: { teamAbbr: string; season: Id },
+): Promise<JsonObject> =>
+  (await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)).json();
+
+/**
+ * Get a list of all past and current NHL franchises.
+ *
+ * @example https://api.nhle.com/stats/rest/en/franchise
+ */
+export const franchises = async (ctx: Context): Promise<JsonObject[]> => {
+  const response = await (
+    await ctx.get(Endpoint.API_STATS, 'en/franchise')
+  ).json();
+  return response.data ?? [];
+};
+
+export const teamsApi = { teams, teamRoster, franchises } as const;

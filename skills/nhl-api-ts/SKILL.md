@@ -9,8 +9,8 @@ description: Fetch NHL data (teams, rosters, schedules, scores, boxscores, play-
 >= 24, ships as ESM only, and has no API key.
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
-const client = new NHLClient(); // options: { debug, timeout (s), followRedirects }
+import { createNHLClient } from 'nhl-api-ts';
+const client = createNHLClient(); // options: { debug, timeout (s), followRedirects }
 ```
 
 For a one-off lookup, the CLI is often faster than writing code:
@@ -33,7 +33,7 @@ npx nhl-api-ts <module> <command> --help
 | Standings                                  | `standings.leagueStandings({ date?, season? })` returns `.standings` |
 | A player's career totals or bio            | `stats.playerCareerStats({ playerId })`                              |
 | A player's game-by-game log                | `stats.playerGameLog({ playerId, seasonId, gameType })`              |
-| Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `QueryBuilder` (see below)     |
+| Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `buildQuery`/`filter.*` (see below) |
 | Simple skater, goalie or team leaderboards | `stats.skaterStatsSummary` / `goalieStatsSummary` / `teamSummary`    |
 | Speed, distance, zone time, shot speed     | `edge.*` (`skaterDetail`, `skaterSkatingSpeedDetail`, `teamDetail`, ...) |
 | Every game id or every player in a season  | `helpers.gameIdsBySeason` / `helpers.allPlayers` (slow, 30+ requests) |
@@ -58,23 +58,23 @@ read `player.firstName.default`, not `player.firstName`.
 ## Filtered stats
 
 ```ts
-import { NHLClient, QueryBuilder, SeasonQuery, PositionQuery, PositionTypes, FranchiseQuery } from 'nhl-api-ts';
+import { buildQuery, filter, isValidQuery, PositionTypes } from 'nhl-api-ts';
 
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-  new PositionQuery(PositionTypes.DEFENSE),
-  new FranchiseQuery(5),
+const queryContext = buildQuery([
+  filter.season(20232024, 20232024),
+  filter.position(PositionTypes.DEFENSE),
+  filter.franchise(5),
 ]);
-if (!queryContext.isValid()) throw new Error(queryContext.errors.join('; '));
+if (!isValidQuery(queryContext)) throw new Error(queryContext.errors.join('; '));
 
 const { data, total } = await client.stats.skaterStatsWithQueryContext({
   queryContext, reportType: 'summary', limit: 100,
 });
 ```
 
-Other filters: `GameTypeQuery`, `NationalityQuery('SWE')`, `DraftQuery(year, round?)`,
-`ExperienceQuery(isRookie)`, `HomeRoadQuery('H'|'R')`, `OpponentQuery(franchiseId)`,
-`ShootCatchesQuery('L'|'R')`, `DecisionQuery('W'|'L'|'O')`, `StatusQuery({ isActive, isHallOfFame })`.
+Other filters: `filter.gameType(type)`, `filter.nationality('SWE')`, `filter.draft(year, round?)`,
+`filter.experience(isRookie)`, `filter.homeRoad('H'|'R')`, `filter.opponent(franchiseId)`,
+`filter.shootCatch('L'|'R')`, `filter.decision('W'|'L'|'O')`, `filter.status({ isActive, isHallOfFame })`.
 Report types: `SKATER_REPORT_TYPES` (`summary`, `realtime`, `timeonice`, `powerplay`, ...).
 An unknown report type makes the API return 500.
 
@@ -92,7 +92,7 @@ An unknown report type makes the API return 500.
 - No built-in retries. On `RateLimitExceededException` (429) or
   `ServerErrorException` (5xx), back off and retry. Don't `Promise.all` over
   all 32 teams.
-- `QueryBuilder.build` drops invalid filters silently. Always check `isValid()`.
+- `buildQuery` drops invalid filters silently. Always check `isValidQuery(context)`.
 
 ## Errors
 

@@ -1,14 +1,19 @@
 import type { SortExpr } from '#src/api/query/sorting/sorting-options.mjs';
 
-/** Default sorting criteria for goalie stats reports. */
+const goalieSummaryDefaultSorting: SortExpr[] = [
+  { property: 'wins', direction: 'DESC' },
+  { property: 'gamesPlayed', direction: 'ASC' },
+  { property: 'playerId', direction: 'ASC' },
+];
+
+/**
+ * Default sorting criteria for goalie stats reports. Falls back to the
+ * goalie summary sort for unknown report types.
+ */
 export function goalieStatsSorts(report: string): SortExpr[] {
   switch (report) {
     case 'summary':
-      return [
-        { property: 'wins', direction: 'DESC' },
-        { property: 'gamesPlayed', direction: 'ASC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
+      return goalieSummaryDefaultSorting;
     case 'advanced':
       return [
         { property: 'qualityStart', direction: 'DESC' },
@@ -52,6 +57,6 @@ export function goalieStatsSorts(report: string): SortExpr[] {
         { property: 'playerId', direction: 'ASC' },
       ];
     default:
-      return [{} as SortExpr];
+      return goalieSummaryDefaultSorting;
   }
 }

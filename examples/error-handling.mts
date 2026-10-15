@@ -5,8 +5,8 @@
  */
 import { setTimeout as delay } from 'node:timers/promises';
 import {
+  createNHLClient,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ResourceNotFoundException,
   ServerErrorException,
@@ -34,7 +34,7 @@ async function withRetry<T>(
   }
 }
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 // 404: a game id that does not exist.
 try {

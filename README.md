@@ -19,7 +19,7 @@ Every SDK method is also available as a CLI command.
 - [Examples](examples/): runnable scripts
 - [API report](api-report.md): the full public TypeScript API
 - [OpenAPI](openapi.yaml): every HTTP path the SDK calls
-- [Migration guide](MIGRATION.md): from nhl-api-py
+- [Migration guide](MIGRATION.md): breaking changes between versions
 - For LLMs and agents: [llms.txt](llms.txt), [llms-full.txt](llms-full.txt),
   [Agent Skill](skills/nhl-api-ts/SKILL.md)
 
@@ -35,9 +35,9 @@ npx nhl-api-ts --help
 ## SDK quick start
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const teams = await client.teams.teams();
 const standings = await client.standings.leagueStandings();
@@ -57,7 +57,7 @@ IDs and seasons accept either strings or numbers.
 ## Configuration
 
 ```ts
-const client = new NHLClient({
+const client = createNHLClient({
   debug: true,           // log each request URL to stderr (default false)
   timeout: 30,           // seconds (default 10)
   followRedirects: true, // "/now" endpoints redirect to today's data (default true)
@@ -151,26 +151,18 @@ between teams to avoid rate limiting.
 ## Query builder
 
 ```ts
-import {
-  NHLClient,
-  QueryBuilder,
-  SeasonQuery,
-  GameTypeQuery,
-  PositionQuery,
-  PositionTypes,
-  DraftQuery,
-} from 'nhl-api-ts';
+import { createNHLClient, buildQuery, isValidQuery, filter, PositionTypes } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
-const context = new QueryBuilder().build([
-  new GameTypeQuery('2'),
-  new SeasonQuery('20232024', '20232024'),
-  new PositionQuery(PositionTypes.ALL_FORWARDS),
-  new DraftQuery('2015', '1'),
+const context = buildQuery([
+  filter.gameType('2'),
+  filter.season('20232024', '20232024'),
+  filter.position(PositionTypes.ALL_FORWARDS),
+  filter.draft('2015', '1'),
 ]);
 
-if (!context.isValid()) console.error(context.errors);
+if (!isValidQuery(context)) console.error(context.errors);
 
 const { data, total } = await client.stats.skaterStatsWithQueryContext({
   queryContext: context,
@@ -179,10 +171,10 @@ const { data, total } = await client.stats.skaterStatsWithQueryContext({
 });
 ```
 
-Available filters: `DecisionQuery`, `DraftQuery`, `ExperienceQuery`,
-`FranchiseQuery`, `GameTypeQuery`, `HomeRoadQuery`, `NationalityQuery`,
-`OpponentQuery`, `PositionQuery`, `SeasonQuery`, `ShootCatchesQuery`,
-`StatusQuery`.
+Available filters: `filter.decision`, `filter.draft`, `filter.experience`,
+`filter.franchise`, `filter.gameType`, `filter.homeRoad`,
+`filter.nationality`, `filter.opponent`, `filter.position`, `filter.season`,
+`filter.shootCatch`, `filter.status`.
 
 Skater report types: `summary`, `bios`, `faceoffpercentages`, `faceoffwins`,
 `goalsForAgainst`, `realtime`, `penalties`, `penaltykill`, `penaltyShots`,

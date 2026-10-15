@@ -8,24 +8,23 @@ export interface ClientOptions {
    * use "/now" in them, which redirect to today's data. Defaults to true.
    */
   followRedirects?: boolean;
+  /** Overrides the fetch implementation used for requests. Defaults to the global fetch. */
+  fetch?: typeof fetch;
 }
 
-export class ClientConfig {
+export interface Config {
   readonly debug: boolean;
   readonly timeout: number;
   readonly followRedirects: boolean;
+  readonly fetch?: typeof fetch;
+}
 
-  readonly apiWebBaseUrl = 'https://api-web.nhle.com';
-  readonly apiBaseUrl = 'https://api.nhle.com';
-  readonly apiWebApiVer = '/v1/';
-
-  constructor({
+export function resolveConfig(options: ClientOptions = {}): Readonly<Config> {
+  const {
     debug = false,
     timeout = 10,
     followRedirects = true,
-  }: ClientOptions = {}) {
-    this.debug = debug;
-    this.timeout = timeout;
-    this.followRedirects = followRedirects;
-  }
+    fetch,
+  } = options;
+  return { debug, timeout, followRedirects, fetch };
 }

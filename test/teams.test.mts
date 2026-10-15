@@ -1,8 +1,71 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
+import { toTeam, withFranchiseIds } from '#src/api/teams.mjs';
 import { calledUrls, mockFetch, newClient } from './fetch-mock.mts';
 
 afterEach(() => mock.restoreAll());
+
+describe('toTeam', () => {
+  it('maps a standings entry to a Team', () => {
+    assert.deepEqual(
+      toTeam({
+        conferenceAbbrev: 'E',
+        conferenceName: 'Eastern',
+        divisionAbbrev: 'A',
+        divisionName: 'Atlantic',
+        teamName: { default: 'Boston Bruins' },
+        teamCommonName: { default: 'Bruins' },
+        teamAbbrev: { default: 'BOS' },
+        teamLogo: 'https://assets.nhle.com/logos/nhl/svg/BOS_light.svg',
+      }),
+      {
+        conference: { abbr: 'E', name: 'Eastern' },
+        division: { abbr: 'A', name: 'Atlantic' },
+        name: 'Boston Bruins',
+        common_name: 'Bruins',
+        abbr: 'BOS',
+        logo: 'https://assets.nhle.com/logos/nhl/svg/BOS_light.svg',
+      },
+    );
+  });
+
+  it('defaults missing fields to empty strings', () => {
+    assert.deepEqual(toTeam({}), {
+      conference: { abbr: '', name: '' },
+      division: { abbr: '', name: '' },
+      name: '',
+      common_name: '',
+      abbr: '',
+      logo: '',
+    });
+  });
+});
+
+describe('withFranchiseIds', () => {
+  it('adds franchise_id on a matching name', () => {
+    const teams = withFranchiseIds(
+      [toTeam({ teamName: { default: 'Boston Bruins' } })],
+      [{ id: 6, fullName: 'Boston Bruins' }],
+    );
+    assert.equal(teams[0].franchise_id, 6);
+  });
+
+  it('matches Canadiens and Utah despite name mismatches', () => {
+    const teams = withFranchiseIds(
+      [toTeam({ teamName: { default: 'Montreal Canadiens' } })],
+      [{ id: 1, fullName: 'Montréal Canadiens' }],
+    );
+    assert.equal(teams[0].franchise_id, 1);
+  });
+
+  it('leaves franchise_id out entirely when there is no match', () => {
+    const teams = withFranchiseIds(
+      [toTeam({ teamName: { default: 'New Team' } })],
+      [{ id: 6, fullName: 'Boston Bruins' }],
+    );
+    assert.equal('franchise_id' in teams[0], false);
+  });
+});
 
 const standing = (
   conf: [string, string],

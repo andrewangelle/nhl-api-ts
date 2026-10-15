@@ -90,16 +90,14 @@ const defaultSortingByReport: Record<string, SortExpr[]> = {
 /** Skater report types that have a default sort configured. */
 export const SKATER_REPORT_TYPES = Object.keys(defaultSortingByReport);
 
-export const SortingOptions = {
-  /**
-   * Default sort criteria for a skater stats report. Falls back to the skater
-   * summary sort for unknown report types.
-   */
-  getDefaultSortingForReport(report: string): SortExpr[] {
-    return (
-      (Object.hasOwn(defaultSortingByReport, report)
-        ? defaultSortingByReport[report]
-        : undefined) ?? skaterSummaryDefaultSorting
-    );
-  },
-};
+/**
+ * Default sort criteria for a skater stats report. Falls back to the skater
+ * summary sort for unknown report types.
+ */
+export function defaultSortForReport(report: string): SortExpr[] {
+  return (
+    (Object.hasOwn(defaultSortingByReport, report)
+      ? defaultSortingByReport[report]
+      : undefined) ?? skaterSummaryDefaultSorting
+  );
+}

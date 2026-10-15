@@ -3,9 +3,9 @@
  *
  *   node examples/quick-start.mts
  */
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient({ timeout: 20 });
+const client = createNHLClient({ timeout: 20 });
 
 const teams = await client.teams.teams();
 console.log(`${teams.length} teams`);

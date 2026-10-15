@@ -7,9 +7,9 @@ call to take 30 to 60 seconds. Progress messages go to stderr.
 ## Every game id in a season
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const ids = await client.helpers.gameIdsBySeason({
   season: 20232024,

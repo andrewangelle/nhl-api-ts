@@ -4,28 +4,26 @@
  *   node examples/query-builder.mts
  */
 import {
-  GameTypeQuery,
-  NationalityQuery,
-  NHLClient,
-  PositionQuery,
+  buildQuery,
+  createNHLClient,
+  filter,
+  isValidQuery,
   PositionTypes,
-  QueryBuilder,
-  SeasonQuery,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-  new GameTypeQuery(2),
-  new PositionQuery(PositionTypes.ALL_FORWARDS),
-  new NationalityQuery('SWE'),
+const queryContext = buildQuery([
+  filter.season(20232024, 20232024),
+  filter.gameType(2),
+  filter.position(PositionTypes.ALL_FORWARDS),
+  filter.nationality('SWE'),
 ]);
 
-if (!queryContext.isValid()) {
+if (!isValidQuery(queryContext)) {
   throw new Error(`invalid filters: ${queryContext.errors.join('; ')}`);
 }
-console.log(`cayenneExp: ${queryContext.queryStr}`);
+console.log(`cayenneExp: ${queryContext.query}`);
 
 const { data, total } = await client.stats.skaterStatsWithQueryContext({
   queryContext,
