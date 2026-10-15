@@ -3,9 +3,9 @@
  *
  *   node examples/game-summary.mts 2023020280
  */
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 const gameId = process.argv[2] ?? '2023020280';
 
 const box = await client.gameCenter.boxscore({ gameId });

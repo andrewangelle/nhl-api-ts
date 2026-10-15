@@ -1,4 +1,5 @@
-import type { ClientConfig } from '#src/config.mjs';
+import type { Config } from '#src/config.mjs';
+import type { Get } from '#src/context.mjs';
 import {
   BadRequestException,
   NHLApiException,
@@ -47,81 +48,80 @@ export function buildUrl(
   return `${url}${url.includes('?') ? '&' : '?'}${qs}`;
 }
 
-export class HttpClient {
-  readonly config: ClientConfig;
-
-  constructor(config: ClientConfig) {
-    this.config = config;
+/** Maps a non-2xx HTTP status to the matching NHLApiException subclass. */
+export function errorForStatus(
+  status: number,
+  message: string,
+): NHLApiException {
+  if (status === 404) {
+    return new ResourceNotFoundException(message);
   }
+  if (status === 429) {
+    return new RateLimitExceededException(message);
+  }
+  if (status === 400) {
+    return new BadRequestException(message);
+  }
+  if (status === 401) {
+    return new UnauthorizedException(message);
+  }
+  if (status >= 500 && status < 600) {
+    return new ServerErrorException(message, status);
+  }
+  return new NHLApiException(`Unexpected error: ${message}`, status);
+}
 
-  private debug(message: string): void {
-    if (this.config.debug) {
+/** Builds the error message for a non-2xx response, sniffing a JSON `message` field. */
+export async function readErrorMessage(
+  response: Response,
+  url: string,
+): Promise<string> {
+  let errorMessage = `Request to ${url} failed`;
+  try {
+    const json: unknown = await response.json();
+    if (json !== null && typeof json === 'object' && !Array.isArray(json)) {
+      const detail = (json as Record<string, unknown>).message;
+      if (detail) {
+        errorMessage = `${errorMessage}: ${detail}`;
+      }
+    }
+  } catch {
+    // Response isn't JSON or doesn't have a message field
+  }
+  return errorMessage;
+}
+
+/**
+ * Builds a `Get` function bound to the given config.
+ *
+ * @throws ResourceNotFoundException When the resource is not found
+ * @throws RateLimitExceededException When rate limit is exceeded
+ * @throws ServerErrorException When server returns 5xx error
+ * @throws BadRequestException When request is malformed
+ * @throws UnauthorizedException When authentication fails
+ * @throws NHLApiException For other unexpected errors
+ */
+export function createGet(config: Config): Get {
+  const debug = (message: string): void => {
+    if (config.debug) {
       console.error(`nhl-api-ts.http_client - DEBUG - ${message}`);
     }
-  }
+  };
 
-  /** Throws the appropriate NHLApiException for a non-2xx response. */
-  private async handleResponse(response: Response, url: string): Promise<void> {
-    if (response.ok) {
-      return;
-    }
-
-    let errorMessage = `Request to ${url} failed`;
-    try {
-      const json: unknown = await response.json();
-      if (json !== null && typeof json === 'object' && !Array.isArray(json)) {
-        const detail = (json as Record<string, unknown>).message;
-        if (detail) {
-          errorMessage = `${errorMessage}: ${detail}`;
-        }
-      }
-    } catch {
-      // Response isn't JSON or doesn't have a message field
-    }
-
-    const status = response.status;
-    if (status === 404) {
-      throw new ResourceNotFoundException(errorMessage);
-    }
-    if (status === 429) {
-      throw new RateLimitExceededException(errorMessage);
-    }
-    if (status === 400) {
-      throw new BadRequestException(errorMessage);
-    }
-    if (status === 401) {
-      throw new UnauthorizedException(errorMessage);
-    }
-    if (status >= 500 && status < 600) {
-      throw new ServerErrorException(errorMessage, status);
-    }
-    throw new NHLApiException(`Unexpected error: ${errorMessage}`, status);
-  }
-
-  /**
-   * Makes a GET request to the NHL API.
-   *
-   * @throws ResourceNotFoundException When the resource is not found
-   * @throws RateLimitExceededException When rate limit is exceeded
-   * @throws ServerErrorException When server returns 5xx error
-   * @throws BadRequestException When request is malformed
-   * @throws UnauthorizedException When authentication fails
-   * @throws NHLApiException For other unexpected errors
-   */
-  async get(
-    endpoint: Endpoint,
-    resource: string,
-    queryParams?: QueryParams,
-  ): Promise<Response> {
+  return async (endpoint, resource, queryParams) => {
     const fullUrl = buildUrl(endpoint, resource, queryParams);
-    this.debug(`GET: ${fullUrl}`);
+    debug(`GET: ${fullUrl}`);
 
-    const response = await fetch(fullUrl, {
-      signal: AbortSignal.timeout(this.config.timeout * 1000),
-      redirect: this.config.followRedirects ? 'follow' : 'manual',
+    const doFetch = config.fetch ?? globalThis.fetch;
+    const response = await doFetch(fullUrl, {
+      signal: AbortSignal.timeout(config.timeout * 1000),
+      redirect: config.followRedirects ? 'follow' : 'manual',
     });
 
-    await this.handleResponse(response, resource);
+    if (!response.ok) {
+      const message = await readErrorMessage(response, resource);
+      throw errorForStatus(response.status, message);
+    }
     return response;
-  }
+  };
 }

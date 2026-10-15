@@ -1,32 +1,29 @@
 # Filter skater stats with the query builder
 
-Use `QueryBuilder` with `skaterStatsWithQueryContext` for questions like
+Use `buildQuery` with `skaterStatsWithQueryContext` for questions like
 "Swedish rookie forwards in 2023-24, by points". You don't have to write
 `cayenneExp` strings by hand.
 
 ```ts
 import {
-  ExperienceQuery,
-  GameTypeQuery,
-  NationalityQuery,
-  NHLClient,
-  PositionQuery,
+  buildQuery,
+  createNHLClient,
+  filter,
+  isValidQuery,
   PositionTypes,
-  QueryBuilder,
-  SeasonQuery,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-  new GameTypeQuery(2),
-  new PositionQuery(PositionTypes.ALL_FORWARDS),
-  new NationalityQuery('SWE'),
-  new ExperienceQuery(true),
+const queryContext = buildQuery([
+  filter.season(20232024, 20232024),
+  filter.gameType(2),
+  filter.position(PositionTypes.ALL_FORWARDS),
+  filter.nationality('SWE'),
+  filter.experience(true),
 ]);
 
-if (!queryContext.isValid()) {
+if (!isValidQuery(queryContext)) {
   throw new Error(queryContext.errors.join('; '));
 }
 
@@ -37,7 +34,7 @@ const { data, total } = await client.stats.skaterStatsWithQueryContext({
 });
 ```
 
-`queryContext.queryStr` is the generated `cayenneExp`:
+`queryContext.query` is the generated `cayenneExp`:
 
 ```
 seasonId >= 20232024 and seasonId <= 20232024 and gameTypeId=2 and (positionCode='L' or positionCode='R' or positionCode='C') and nationalityCode='SWE' and isRookie='1'
@@ -45,24 +42,25 @@ seasonId >= 20232024 and seasonId <= 20232024 and gameTypeId=2 and (positionCode
 
 ## Filters
 
-| Filter                                    | Produces                                  | Values                                      |
-| ----------------------------------------- | ----------------------------------------- | ------------------------------------------- |
-| `new SeasonQuery(start, end)`             | `seasonId >= start and seasonId <= end`   | `YYYYYYYY`                                  |
-| `new GameTypeQuery(type)`                 | `gameTypeId=type`                         | `1`, `2`, `3`                               |
-| `new PositionQuery(position)`             | `positionCode='C'` (or an OR group for `F`) | `PositionTypes.CENTER`, `LEFT_WING`, `RIGHT_WING`, `DEFENSE`, `ALL_FORWARDS` |
-| `new FranchiseQuery(id)`                  | `franchiseId=id`                          | franchise id (from `teams.franchises()`)    |
-| `new OpponentQuery(id)`                   | `opponentFranchiseId=id`                  | franchise id                                |
-| `new NationalityQuery(code)`              | `nationalityCode='SWE'`                   | 3-letter code (from `misc.countries()`)     |
-| `new DraftQuery(year, round?)`            | `draftYear=2015 and draftRound=1`         |                                             |
-| `new ExperienceQuery(isRookie)`           | `isRookie='1'` / `'0'`                    | boolean                                     |
-| `new HomeRoadQuery(hr)`                   | `homeRoad='H'`                            | `H`, `R`                                    |
-| `new ShootCatchesQuery(lr)`               | `shootsCatches='L'`                       | `L`, `R`                                    |
-| `new DecisionQuery(d)`                    | `decision='W'`                            | `W`, `L`, `O` (validated)                   |
-| `new StatusQuery({ isActive, isHallOfFame })` | `active=1` / `isInHallOfFame=1`       | Hall of Fame wins if both are set           |
+| Filter                               | Produces                                    | Values                                      |
+| ------------------------------------ | -------------------------------------------- | ------------------------------------------- |
+| `filter.season(start, end)`          | `seasonId >= start and seasonId <= end`      | `YYYYYYYY`                                  |
+| `filter.gameType(type)`              | `gameTypeId=type`                            | `1`, `2`, `3`                               |
+| `filter.position(position)`          | `positionCode='C'` (or an OR group for `F`)  | `PositionTypes.CENTER`, `LEFT_WING`, `RIGHT_WING`, `DEFENSE`, `ALL_FORWARDS` |
+| `filter.franchise(id)`               | `franchiseId=id`                             | franchise id (from `teams.franchises()`)    |
+| `filter.opponent(id)`                | `opponentFranchiseId=id`                     | franchise id                                |
+| `filter.nationality(code)`           | `nationalityCode='SWE'`                      | 3-letter code (from `misc.countries()`)     |
+| `filter.draft(year, round?)`         | `draftYear=2015 and draftRound=1`            |                                              |
+| `filter.experience(isRookie)`        | `isRookie='1'` / `'0'`                       | boolean                                     |
+| `filter.homeRoad(hr)`                | `homeRoad='H'`                                | `H`, `R`                                    |
+| `filter.shootCatch(lr)`              | `shootsCatches='L'`                           | `L`, `R`                                    |
+| `filter.decision(d)`                 | `decision='W'`                                | `W`, `L`, `O` (validated)                   |
+| `filter.status({ isActive, isHallOfFame })` | `active=1` / `isInHallOfFame=1`        | Hall of Fame wins if both are set           |
 
-Filters are joined with `and`. Invalid filters (only `DecisionQuery` validates
-today) are left out and reported in `queryContext.errors`. **Check
-`isValid()`**, or the query silently matches more rows than you meant.
+Filters are joined with `and`. Invalid filters (only `filter.decision`
+validates today) are left out and reported in `queryContext.errors`. **Check
+`isValidQuery(queryContext)`**, or the query silently matches more rows than
+you meant.
 
 ## Report types
 
@@ -88,11 +86,11 @@ An unknown `reportType` makes the API answer `500` (`ServerErrorException`).
 
 ## Aggregate across seasons
 
-With a multi-season `SeasonQuery`, you get one row per player per season. Pass
-`aggregate: true` to get one row per player:
+With a multi-season `filter.season`, you get one row per player per season.
+Pass `aggregate: true` to get one row per player:
 
 ```ts
-const career = new QueryBuilder().build([new SeasonQuery(20182019, 20232024)]);
+const career = buildQuery([filter.season(20182019, 20232024)]);
 await client.stats.skaterStatsWithQueryContext({
   queryContext: career,
   reportType: 'summary',

@@ -4,9 +4,9 @@
  *   node examples/edge-tracking.mts
  *   node examples/edge-tracking.mts 8478402 20232024 3
  */
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 const [playerId = '8478402', season = '20232024', gameType = '2'] =
   process.argv.slice(2);
 

@@ -4,7 +4,7 @@
 
 Key facts:
 
-- `import { NHLClient } from 'nhl-api-ts'; const client = new NHLClient();` then `await client.<module>.<method>({ ...options })`.
+- `import { createNHLClient } from 'nhl-api-ts'; const client = createNHLClient();` then `await client.<module>.<method>({ ...options })`.
 - Modules: teams, standings, schedule, gameCenter, stats, edge, players, misc, helpers. Every method is async and takes one options object with camelCase keys.
 - Every SDK method is also a CLI command: `npx nhl-api-ts <module-kebab> <method-kebab> [args] --compact` prints JSON.
 - Seasons are `YYYYYYYY` (20232024). Game ids are `YYYYTTNNNN` (2023020280). Game type: 1 preseason, 2 regular, 3 playoffs.
@@ -19,7 +19,7 @@ Key facts:
 
 ## Recipes
 
-- [Filter skater stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/filter-skater-stats.md): QueryBuilder filters, report types, sorting, aggregation
+- [Filter skater stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/filter-skater-stats.md): buildQuery filters, report types, sorting, aggregation
 - [Paginate stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/paginate-stats.md): start/limit paging, the 100-row cap, fetching all rows
 - [Today's games and live scores](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/live-scores.md): Daily schedule, scores, game states, polling
 - [Season-wide data](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/season-wide-data.md): Every game id, every player, bulk stats with helpers
@@ -30,7 +30,7 @@ Key facts:
 ## Reference
 
 - [API report](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/api-report.md): Generated public TypeScript API surface (every export and signature)
-- [Migration guide](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/MIGRATION.md): From nhl-api-py, and planned version changes
+- [Migration guide](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/MIGRATION.md): Breaking changes between versions (empty; no breaking release yet)
 
 ## Optional
 

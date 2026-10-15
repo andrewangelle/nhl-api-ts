@@ -1,19 +1,5 @@
-import { QueryBuilder } from '#src/api/query/builder.mjs';
-import { DecisionQuery } from '#src/api/query/filters/decision.mjs';
-import { DraftQuery } from '#src/api/query/filters/draft.mjs';
-import { ExperienceQuery } from '#src/api/query/filters/experience.mjs';
-import { FranchiseQuery } from '#src/api/query/filters/franchise.mjs';
-import { GameTypeQuery } from '#src/api/query/filters/game-type.mjs';
-import { HomeRoadQuery } from '#src/api/query/filters/home-road.mjs';
-import { NationalityQuery } from '#src/api/query/filters/nationality.mjs';
-import { OpponentQuery } from '#src/api/query/filters/opponent.mjs';
-import {
-  PositionQuery,
-  type PositionTypes,
-} from '#src/api/query/filters/position.mjs';
-import { SeasonQuery } from '#src/api/query/filters/season.mjs';
-import { ShootCatchesQuery } from '#src/api/query/filters/shoot-catch.mjs';
-import { StatusQuery } from '#src/api/query/filters/status.mjs';
+import { buildQuery, isValidQuery } from '#src/api/query/builder.mjs';
+import { filter } from '#src/api/query/filters.mjs';
 import { SKATER_REPORT_TYPES } from '#src/api/query/sorting/sorting-options.mjs';
 import type { NHLClient } from '#src/nhl-client.mjs';
 
@@ -251,52 +237,52 @@ const queryFilterArgs: ArgSpec[] = [
 function buildQueryContext(values: Record<string, any>) {
   const filters = [];
   if (values.gameType !== undefined) {
-    filters.push(new GameTypeQuery(values.gameType));
+    filters.push(filter.gameType(values.gameType));
   }
   if (values.seasonStart !== undefined || values.seasonEnd !== undefined) {
     const first = values.seasonStart ?? values.seasonEnd;
-    filters.push(new SeasonQuery(first, values.seasonEnd ?? first));
+    filters.push(filter.season(first, values.seasonEnd ?? first));
   }
   if (values.franchiseId !== undefined) {
-    filters.push(new FranchiseQuery(values.franchiseId));
+    filters.push(filter.franchise(values.franchiseId));
   }
   if (values.position !== undefined) {
-    filters.push(new PositionQuery(values.position as PositionTypes));
+    filters.push(filter.position(values.position));
   }
   if (values.nationality !== undefined) {
-    filters.push(new NationalityQuery(values.nationality));
+    filters.push(filter.nationality(values.nationality));
   }
   if (values.decision !== undefined) {
-    filters.push(new DecisionQuery(values.decision));
+    filters.push(filter.decision(values.decision));
   }
   if (values.draftYear !== undefined) {
-    filters.push(new DraftQuery(values.draftYear, values.draftRound));
+    filters.push(filter.draft(values.draftYear, values.draftRound));
   } else if (values.draftRound !== undefined) {
     throw new UsageError('--draft-round requires --draft-year');
   }
   if (values.rookie !== undefined) {
-    filters.push(new ExperienceQuery(values.rookie));
+    filters.push(filter.experience(values.rookie));
   }
   if (values.homeRoad !== undefined) {
-    filters.push(new HomeRoadQuery(values.homeRoad));
+    filters.push(filter.homeRoad(values.homeRoad));
   }
   if (values.opponentFranchiseId !== undefined) {
-    filters.push(new OpponentQuery(values.opponentFranchiseId));
+    filters.push(filter.opponent(values.opponentFranchiseId));
   }
   if (values.shootCatch !== undefined) {
-    filters.push(new ShootCatchesQuery(values.shootCatch));
+    filters.push(filter.shootCatch(values.shootCatch));
   }
   if (values.active || values.hallOfFame) {
     filters.push(
-      new StatusQuery({
+      filter.status({
         isActive: values.active,
         isHallOfFame: values.hallOfFame,
       }),
     );
   }
 
-  const context = new QueryBuilder().build(filters);
-  if (!context.isValid()) {
+  const context = buildQuery(filters);
+  if (!isValidQuery(context)) {
     throw new UsageError(`invalid filters: ${context.errors.join('; ')}`);
   }
   return context;

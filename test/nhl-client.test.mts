@@ -1,32 +1,27 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it, mock } from 'node:test';
+import { describe, it } from 'node:test';
+import { errorForStatus } from '#src/http-client.mjs';
 import {
   BadRequestException,
-  ClientConfig,
+  createGet,
+  createNHLClient,
   Endpoint,
-  HttpClient,
   NHLApiErrorCode,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ResourceNotFoundException,
-  Schedule,
+  resolveConfig,
   ServerErrorException,
-  Standings,
-  Teams,
   UnauthorizedException,
 } from '#src/index.mjs';
-import { calledUrls, mockFetch } from './fetch-mock.mts';
-
-afterEach(() => mock.restoreAll());
 
 describe('NHLClient', () => {
   it('exposes the API modules', () => {
-    const client = new NHLClient();
-    assert.ok(client.teams instanceof Teams);
-    assert.ok(client.standings instanceof Standings);
-    assert.ok(client.schedule instanceof Schedule);
+    const client = createNHLClient();
     for (const key of [
+      'teams',
+      'standings',
+      'schedule',
       'gameCenter',
       'stats',
       'misc',
@@ -35,20 +30,21 @@ describe('NHLClient', () => {
       'edge',
     ] as const) {
       assert.ok(client[key]);
+      for (const fn of Object.values(client[key])) {
+        assert.equal(typeof fn, 'function');
+      }
     }
   });
 
   it('applies config defaults', () => {
-    const client = new NHLClient();
+    const client = createNHLClient();
     assert.equal(client.config.debug, false);
     assert.equal(client.config.timeout, 10);
     assert.equal(client.config.followRedirects, true);
   });
 });
 
-describe('HttpClient', () => {
-  const http = () => new HttpClient(new ClientConfig({ timeout: 30 }));
-
+describe('errorForStatus', () => {
   const cases = [
     [404, ResourceNotFoundException, NHLApiErrorCode.RESOURCE_NOT_FOUND],
     [429, RateLimitExceededException, NHLApiErrorCode.RATE_LIMIT_EXCEEDED],
@@ -60,36 +56,41 @@ describe('HttpClient', () => {
   ] as const;
 
   for (const [status, ErrorClass, code] of cases) {
-    it(`maps HTTP ${status} to ${ErrorClass.name}`, async () => {
-      mockFetch(() => ({ status, body: { message: 'Test error message' } }));
-      await assert.rejects(http().get(Endpoint.API_CORE, '/test'), (err) => {
-        assert.ok(err instanceof ErrorClass);
-        assert.ok(err instanceof NHLApiException);
-        assert.equal(err.statusCode, status);
-        assert.equal(err.errorCode, code);
-        assert.match(err.message, /Test error message/);
-        return true;
-      });
+    it(`maps HTTP ${status} to ${ErrorClass.name}`, () => {
+      const err = errorForStatus(status, 'Test error message');
+      assert.ok(err instanceof ErrorClass);
+      assert.ok(err instanceof NHLApiException);
+      assert.equal(err.statusCode, status);
+      assert.equal(err.errorCode, code);
+      assert.match(err.message, /Test error message/);
     });
   }
 
-  it('prefixes unexpected statuses with "Unexpected error"', async () => {
-    mockFetch(() => ({ status: 418, body: { message: 'teapot' } }));
-    await assert.rejects(http().get(Endpoint.API_CORE, 'x'), {
-      message: 'Unexpected error: Request to x failed: teapot',
-    });
+  it('prefixes unexpected statuses with "Unexpected error"', () => {
+    const err = errorForStatus(418, 'Request to x failed: teapot');
+    assert.equal(err.message, 'Unexpected error: Request to x failed: teapot');
   });
+});
+
+describe('createGet', () => {
+  const jsonResponse = (status: number, body: unknown): Response =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { 'content-type': 'application/json' },
+    });
 
   it('returns the response on success', async () => {
-    mockFetch(() => ({ body: { data: 'test' } }));
-    const res = await http().get(Endpoint.API_CORE, '/test');
-    assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { data: 'test' });
+    const fakeFetch = async () => jsonResponse(200, { data: 'test' });
+    const get = createGet(resolveConfig({ fetch: fakeFetch }));
+    const response = await get(Endpoint.API_CORE, '/test');
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { data: 'test' });
   });
 
   it('handles non-JSON error bodies', async () => {
-    mockFetch(() => ({ status: 500, body: 'oops <html>' }));
-    await assert.rejects(http().get(Endpoint.API_CORE, 'test'), (err) => {
+    const fakeFetch = async () => new Response('oops <html>', { status: 500 });
+    const get = createGet(resolveConfig({ fetch: fakeFetch }));
+    await assert.rejects(get(Endpoint.API_CORE, 'test'), (err) => {
       assert.ok(err instanceof ServerErrorException);
       assert.equal(err.statusCode, 500);
       assert.equal(err.message, 'Request to test failed');
@@ -97,27 +98,50 @@ describe('HttpClient', () => {
     });
   });
 
+  it('maps error status with a JSON message body', async () => {
+    const fakeFetch = async () =>
+      jsonResponse(404, { message: 'Test error message' });
+    const get = createGet(resolveConfig({ fetch: fakeFetch }));
+    await assert.rejects(get(Endpoint.API_CORE, '/test'), (err) => {
+      assert.ok(err instanceof ResourceNotFoundException);
+      assert.equal(err.statusCode, 404);
+      assert.match(err.message, /Test error message/);
+      return true;
+    });
+  });
+
   it('encodes query params like httpx', async () => {
-    const fetchSpy = mockFetch();
-    await http().get(Endpoint.API_CORE, 'test', {
+    const calls: string[] = [];
+    const fakeFetch = async (input: string | URL | Request) => {
+      calls.push(String(input));
+      return jsonResponse(200, {});
+    };
+    const get = createGet(resolveConfig({ fetch: fakeFetch }));
+    await get(Endpoint.API_CORE, 'test', {
       season: '20232024',
       isAggregate: false,
       limit: 25,
       empty: null,
     });
-    assert.deepEqual(calledUrls(fetchSpy), [
+    assert.deepEqual(calls, [
       'https://api.nhle.com/test?season=20232024&isAggregate=false&limit=25&empty=',
     ]);
   });
 
   it('passes redirect mode and a timeout signal to fetch', async () => {
-    const fetchSpy = mockFetch();
-    await new HttpClient(new ClientConfig({ followRedirects: false })).get(
-      Endpoint.API_WEB_V1,
-      'score/now',
+    let capturedInit: RequestInit | undefined;
+    const fakeFetch = async (
+      _input: string | URL | Request,
+      init?: RequestInit,
+    ) => {
+      capturedInit = init;
+      return jsonResponse(200, {});
+    };
+    const get = createGet(
+      resolveConfig({ fetch: fakeFetch, followRedirects: false }),
     );
-    const init = fetchSpy.mock.calls[0].arguments[1] as RequestInit;
-    assert.equal(init.redirect, 'manual');
-    assert.ok(init.signal instanceof AbortSignal);
+    await get(Endpoint.API_WEB_V1, 'score/now');
+    assert.equal(capturedInit?.redirect, 'manual');
+    assert.ok(capturedInit?.signal instanceof AbortSignal);
   });
 });

@@ -3,9 +3,9 @@
 ## Today's schedule
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const today = await client.schedule.dailySchedule();
 console.log(today.date, today.numberOfGames ?? 0);

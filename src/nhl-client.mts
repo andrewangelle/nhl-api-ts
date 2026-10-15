@@ -1,49 +1,63 @@
-import { Edge } from '#src/api/edge.mjs';
-import { GameCenter } from '#src/api/game-center.mjs';
-import { Helpers } from '#src/api/helpers.mjs';
-import { Misc } from '#src/api/misc.mjs';
-import { Players } from '#src/api/players.mjs';
-import { Schedule } from '#src/api/schedule.mjs';
-import { Standings } from '#src/api/standings.mjs';
-import { Stats } from '#src/api/stats.mjs';
-import { Teams } from '#src/api/teams.mjs';
-import { ClientConfig, type ClientOptions } from '#src/config.mjs';
-import { HttpClient } from '#src/http-client.mjs';
+import { edgeApi } from '#src/api/edge.mjs';
+import { gameCenterApi } from '#src/api/game-center.mjs';
+import { helpersApi } from '#src/api/helpers.mjs';
+import { miscApi } from '#src/api/misc.mjs';
+import { playersApi } from '#src/api/players.mjs';
+import { scheduleApi } from '#src/api/schedule.mjs';
+import { standingsApi } from '#src/api/standings.mjs';
+import { statsApi } from '#src/api/stats.mjs';
+import { teamsApi } from '#src/api/teams.mjs';
+import { type ClientOptions, resolveConfig } from '#src/config.mjs';
+import type { Context } from '#src/context.mjs';
+import { createGet } from '#src/http-client.mjs';
+import { sleep } from '#src/utils.mjs';
+
+type Bound<Module> = {
+  [Method in keyof Module]: Module[Method] extends (
+    ctx: Context,
+    ...args: infer Args
+  ) => infer MethodResponse
+    ? (...args: Args) => MethodResponse
+    : never;
+};
+
+const bind = <
+  Module extends Record<string, (ctx: Context, ...args: never[]) => unknown>,
+>(
+  ctx: Context,
+  api: Module,
+): Bound<Module> =>
+  Object.fromEntries(
+    Object.entries(api).map(([key, fn]) => [
+      key,
+      (...args: never[]) => fn(ctx, ...args),
+    ]),
+  ) as Bound<Module>;
 
 /**
- * The main class used to access the NHL API.
+ * Builds the main client used to access the NHL API.
  *
  * @example
- * const client = new NHLClient();
- * const client = new NHLClient({ debug: true }); // for a lil extra logging
+ * const client = createNHLClient();
+ * const client = createNHLClient({ debug: true }); // for a lil extra logging
  * const teams = await client.teams.teams();
  */
-export class NHLClient {
-  readonly config: ClientConfig;
-  readonly httpClient: HttpClient;
+export const createNHLClient = (options: ClientOptions = {}) => {
+  const config = resolveConfig(options);
+  const ctx: Context = { get: createGet(config), sleep };
 
-  readonly teams: Teams;
-  readonly standings: Standings;
-  readonly schedule: Schedule;
-  readonly gameCenter: GameCenter;
-  readonly stats: Stats;
-  readonly misc: Misc;
-  readonly helpers: Helpers;
-  readonly players: Players;
-  readonly edge: Edge;
+  return {
+    config,
+    teams: bind(ctx, teamsApi),
+    standings: bind(ctx, standingsApi),
+    schedule: bind(ctx, scheduleApi),
+    gameCenter: bind(ctx, gameCenterApi),
+    stats: bind(ctx, statsApi),
+    misc: bind(ctx, miscApi),
+    helpers: bind(ctx, helpersApi),
+    players: bind(ctx, playersApi),
+    edge: bind(ctx, edgeApi),
+  } as const;
+};
 
-  constructor(options: ClientOptions = {}) {
-    this.config = new ClientConfig(options);
-    this.httpClient = new HttpClient(this.config);
-
-    this.teams = new Teams(this.httpClient);
-    this.standings = new Standings(this.httpClient);
-    this.schedule = new Schedule(this.httpClient);
-    this.gameCenter = new GameCenter(this.httpClient);
-    this.stats = new Stats(this.httpClient);
-    this.misc = new Misc(this.httpClient);
-    this.helpers = new Helpers(this.httpClient);
-    this.players = new Players(this.httpClient);
-    this.edge = new Edge(this.httpClient);
-  }
-}
+export type NHLClient = ReturnType<typeof createNHLClient>;

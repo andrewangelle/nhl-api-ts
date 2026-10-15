@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
-import { FranchiseQuery, QueryBuilder, SeasonQuery } from '#src/index.mjs';
+import { buildQuery, filter } from '#src/index.mjs';
 import {
   calledUrls,
   mockFetch,
@@ -116,9 +116,9 @@ describe('Stats', () => {
 
   it('skaterStatsWithQueryContext uses the report default sort', async () => {
     const fetchSpy = mockFetch(() => ({ body: { data: [], total: 0 } }));
-    const context = new QueryBuilder().build([
-      new FranchiseQuery(5),
-      new SeasonQuery('20232024', '20232024'),
+    const context = buildQuery([
+      filter.franchise(5),
+      filter.season('20232024', '20232024'),
     ]);
     const result = await newClient().stats.skaterStatsWithQueryContext({
       queryContext: context,
@@ -171,6 +171,9 @@ describe('Stats', () => {
     assert.deepEqual(data, []);
     const query = queryOf(calledUrls(fetchSpy)[0]);
     assert.equal(query.cayenneExp, 'franchiseId=6 and gameTypeId=3');
-    assert.equal(query.sort, '[{}]');
+    assert.equal(
+      query.sort,
+      '[{"property":"wins","direction":"DESC"},{"property":"gamesPlayed","direction":"ASC"},{"property":"playerId","direction":"ASC"}]',
+    );
   });
 });

@@ -1,148 +1,140 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  DecisionQuery,
-  DraftQuery,
-  ExperienceQuery,
-  FranchiseQuery,
-  GameTypeQuery,
+  type Decision,
+  defaultSortForReport,
+  filter,
   goalieStatsSorts,
-  HomeRoadQuery,
-  InvalidQueryValueException,
-  NationalityQuery,
-  OpponentQuery,
-  PositionQuery,
   PositionTypes,
-  SeasonQuery,
-  ShootCatchesQuery,
-  SortingOptions,
-  StatusQuery,
+  toQuery,
+  validateFilter,
 } from '#src/index.mjs';
 
 describe('filters', () => {
-  it('DecisionQuery', () => {
-    assert.equal(new DecisionQuery('W').toQuery(), "decision='W'");
-    assert.equal(new DecisionQuery('L').toQuery(), "decision='L'");
-    assert.equal(new DecisionQuery('O').toQuery(), "decision='O'");
-    assert.throws(
-      () => new DecisionQuery('A').validate(),
-      InvalidQueryValueException,
+  it('decision', () => {
+    assert.equal(toQuery(filter.decision('W')), "decision='W'");
+    assert.equal(toQuery(filter.decision('L')), "decision='L'");
+    assert.equal(toQuery(filter.decision('O')), "decision='O'");
+    assert.equal(
+      validateFilter(filter.decision('A' as Decision)),
+      'Decision value must be one of [W, L, O]',
     );
   });
 
-  it('DraftQuery', () => {
+  it('draft', () => {
     assert.equal(
-      new DraftQuery('2020', '2').toQuery(),
+      toQuery(filter.draft('2020', '2')),
       'draftYear=2020 and draftRound=2',
     );
-    assert.equal(new DraftQuery('2020').toQuery(), 'draftYear=2020');
+    assert.equal(toQuery(filter.draft('2020')), 'draftYear=2020');
   });
 
-  it('ExperienceQuery', () => {
-    assert.equal(new ExperienceQuery(true).toQuery(), "isRookie='1'");
-    assert.equal(new ExperienceQuery(false).toQuery(), "isRookie='0'");
+  it('experience', () => {
+    assert.equal(toQuery(filter.experience(true)), "isRookie='1'");
+    assert.equal(toQuery(filter.experience(false)), "isRookie='0'");
   });
 
-  it('FranchiseQuery', () => {
-    assert.equal(new FranchiseQuery('1').toQuery(), 'franchiseId=1');
+  it('franchise', () => {
+    assert.equal(toQuery(filter.franchise('1')), 'franchiseId=1');
   });
 
-  it('GameTypeQuery', () => {
-    assert.equal(new GameTypeQuery('1').toQuery(), 'gameTypeId=1');
-    assert.equal(new GameTypeQuery('2').toQuery(), 'gameTypeId=2');
+  it('gameType', () => {
+    assert.equal(toQuery(filter.gameType('1')), 'gameTypeId=1');
+    assert.equal(toQuery(filter.gameType('2')), 'gameTypeId=2');
   });
 
-  it('HomeRoadQuery', () => {
-    assert.equal(new HomeRoadQuery('H').toQuery(), "homeRoad='H'");
-    assert.equal(new HomeRoadQuery('R').toQuery(), "homeRoad='R'");
+  it('homeRoad', () => {
+    assert.equal(toQuery(filter.homeRoad('H')), "homeRoad='H'");
+    assert.equal(toQuery(filter.homeRoad('R')), "homeRoad='R'");
   });
 
-  it('NationalityQuery', () => {
+  it('nationality', () => {
+    assert.equal(toQuery(filter.nationality('USA')), "nationalityCode='USA'");
+  });
+
+  it('opponent', () => {
+    assert.equal(toQuery(filter.opponent('6')), 'opponentFranchiseId=6');
+  });
+
+  it('position', () => {
     assert.equal(
-      new NationalityQuery('USA').toQuery(),
-      "nationalityCode='USA'",
-    );
-  });
-
-  it('OpponentQuery', () => {
-    assert.equal(new OpponentQuery('6').toQuery(), 'opponentFranchiseId=6');
-  });
-
-  it('PositionQuery', () => {
-    assert.equal(
-      new PositionQuery(PositionTypes.CENTER).toQuery(),
+      toQuery(filter.position(PositionTypes.CENTER)),
       "positionCode='C'",
     );
     assert.equal(
-      new PositionQuery(PositionTypes.LEFT_WING).toQuery(),
+      toQuery(filter.position(PositionTypes.LEFT_WING)),
       "positionCode='L'",
     );
     assert.equal(
-      new PositionQuery(PositionTypes.RIGHT_WING).toQuery(),
+      toQuery(filter.position(PositionTypes.RIGHT_WING)),
       "positionCode='R'",
     );
     assert.equal(
-      new PositionQuery(PositionTypes.DEFENSE).toQuery(),
+      toQuery(filter.position(PositionTypes.DEFENSE)),
       "positionCode='D'",
     );
     assert.equal(
-      new PositionQuery(PositionTypes.ALL_FORWARDS).toQuery(),
+      toQuery(filter.position(PositionTypes.ALL_FORWARDS)),
       "(positionCode='L' or positionCode='R' or positionCode='C')",
     );
   });
 
-  it('SeasonQuery', () => {
+  it('season', () => {
     assert.equal(
-      new SeasonQuery('20202021', '20232024').toQuery(),
+      toQuery(filter.season('20202021', '20232024')),
       'seasonId >= 20202021 and seasonId <= 20232024',
     );
     assert.equal(
-      new SeasonQuery('20202021', '20202021').toQuery(),
+      toQuery(filter.season('20202021', '20202021')),
       'seasonId >= 20202021 and seasonId <= 20202021',
     );
     assert.equal(
-      new SeasonQuery('20232024', '20202020').toQuery(),
+      toQuery(filter.season('20232024', '20202020')),
       'seasonId >= 20232024 and seasonId <= 20202020',
     );
   });
 
-  it('ShootCatchesQuery', () => {
-    assert.equal(new ShootCatchesQuery('L').toQuery(), "shootsCatches='L'");
-    assert.equal(new ShootCatchesQuery('R').toQuery(), "shootsCatches='R'");
+  it('shootCatch', () => {
+    assert.equal(toQuery(filter.shootCatch('L')), "shootsCatches='L'");
+    assert.equal(toQuery(filter.shootCatch('R')), "shootsCatches='R'");
   });
 
-  it('StatusQuery', () => {
-    assert.equal(new StatusQuery({ isActive: true }).toQuery(), 'active=1');
+  it('status', () => {
+    assert.equal(toQuery(filter.status({ isActive: true })), 'active=1');
     assert.equal(
-      new StatusQuery({ isHallOfFame: true }).toQuery(),
+      toQuery(filter.status({ isHallOfFame: true })),
       'isInHallOfFame=1',
     );
     assert.equal(
-      new StatusQuery({ isActive: true, isHallOfFame: true }).toQuery(),
+      toQuery(filter.status({ isActive: true, isHallOfFame: true })),
       'isInHallOfFame=1',
     );
-    assert.equal(new StatusQuery().toQuery(), '');
+    assert.equal(toQuery(filter.status()), '');
   });
 });
 
 describe('sorting', () => {
   it('skater report defaults fall back to summary', () => {
-    assert.deepEqual(SortingOptions.getDefaultSortingForReport('timeonice'), [
+    assert.deepEqual(defaultSortForReport('timeonice'), [
       { property: 'timeOnIce', direction: 'DESC' },
       { property: 'playerId', direction: 'ASC' },
     ]);
     assert.deepEqual(
-      SortingOptions.getDefaultSortingForReport('nope'),
-      SortingOptions.getDefaultSortingForReport('summary'),
+      defaultSortForReport('nope'),
+      defaultSortForReport('summary'),
     );
     assert.deepEqual(
-      SortingOptions.getDefaultSortingForReport('constructor'),
-      SortingOptions.getDefaultSortingForReport('summary'),
+      defaultSortForReport('constructor'),
+      defaultSortForReport('summary'),
     );
   });
 
   it('goalie report defaults', () => {
     assert.equal(goalieStatsSorts('advanced')[0].property, 'qualityStart');
-    assert.deepEqual(goalieStatsSorts('unknown'), [{}]);
+    assert.deepEqual(goalieStatsSorts('unknown'), [
+      { property: 'wins', direction: 'DESC' },
+      { property: 'gamesPlayed', direction: 'ASC' },
+      { property: 'playerId', direction: 'ASC' },
+    ]);
   });
 });

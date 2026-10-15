@@ -4,7 +4,7 @@
 
 Key facts:
 
-- `import { NHLClient } from 'nhl-api-ts'; const client = new NHLClient();` then `await client.<module>.<method>({ ...options })`.
+- `import { createNHLClient } from 'nhl-api-ts'; const client = createNHLClient();` then `await client.<module>.<method>({ ...options })`.
 - Modules: teams, standings, schedule, gameCenter, stats, edge, players, misc, helpers. Every method is async and takes one options object with camelCase keys.
 - Every SDK method is also a CLI command: `npx nhl-api-ts <module-kebab> <method-kebab> [args] --compact` prints JSON.
 - Seasons are `YYYYYYYY` (20232024). Game ids are `YYYYTTNNNN` (2023020280). Game type: 1 preseason, 2 regular, 3 playoffs.
@@ -36,7 +36,7 @@ Every SDK method is also available as a CLI command.
 - [Examples](examples/): runnable scripts
 - [API report](api-report.md): the full public TypeScript API
 - [OpenAPI](openapi.yaml): every HTTP path the SDK calls
-- [Migration guide](MIGRATION.md): from nhl-api-py
+- [Migration guide](MIGRATION.md): breaking changes between versions
 - For LLMs and agents: [llms.txt](llms.txt), [llms-full.txt](llms-full.txt),
   [Agent Skill](skills/nhl-api-ts/SKILL.md)
 
@@ -52,9 +52,9 @@ npx nhl-api-ts --help
 ## SDK quick start
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const teams = await client.teams.teams();
 const standings = await client.standings.leagueStandings();
@@ -74,7 +74,7 @@ IDs and seasons accept either strings or numbers.
 ## Configuration
 
 ```ts
-const client = new NHLClient({
+const client = createNHLClient({
   debug: true,           // log each request URL to stderr (default false)
   timeout: 30,           // seconds (default 10)
   followRedirects: true, // "/now" endpoints redirect to today's data (default true)
@@ -168,26 +168,18 @@ between teams to avoid rate limiting.
 ## Query builder
 
 ```ts
-import {
-  NHLClient,
-  QueryBuilder,
-  SeasonQuery,
-  GameTypeQuery,
-  PositionQuery,
-  PositionTypes,
-  DraftQuery,
-} from 'nhl-api-ts';
+import { createNHLClient, buildQuery, isValidQuery, filter, PositionTypes } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
-const context = new QueryBuilder().build([
-  new GameTypeQuery('2'),
-  new SeasonQuery('20232024', '20232024'),
-  new PositionQuery(PositionTypes.ALL_FORWARDS),
-  new DraftQuery('2015', '1'),
+const context = buildQuery([
+  filter.gameType('2'),
+  filter.season('20232024', '20232024'),
+  filter.position(PositionTypes.ALL_FORWARDS),
+  filter.draft('2015', '1'),
 ]);
 
-if (!context.isValid()) console.error(context.errors);
+if (!isValidQuery(context)) console.error(context.errors);
 
 const { data, total } = await client.stats.skaterStatsWithQueryContext({
   queryContext: context,
@@ -196,10 +188,10 @@ const { data, total } = await client.stats.skaterStatsWithQueryContext({
 });
 ```
 
-Available filters: `DecisionQuery`, `DraftQuery`, `ExperienceQuery`,
-`FranchiseQuery`, `GameTypeQuery`, `HomeRoadQuery`, `NationalityQuery`,
-`OpponentQuery`, `PositionQuery`, `SeasonQuery`, `ShootCatchesQuery`,
-`StatusQuery`.
+Available filters: `filter.decision`, `filter.draft`, `filter.experience`,
+`filter.franchise`, `filter.gameType`, `filter.homeRoad`,
+`filter.nationality`, `filter.opponent`, `filter.position`, `filter.season`,
+`filter.shootCatch`, `filter.status`.
 
 Skater report types: `summary`, `bios`, `faceoffpercentages`, `faceoffwins`,
 `goalsForAgainst`, `realtime`, `penalties`, `penaltykill`, `penaltyShots`,
@@ -331,13 +323,14 @@ underneath it. Read it once before you write anything non-trivial.
 ## One client, nine modules
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient({ timeout: 30 });
+const client = createNHLClient({ timeout: 30 });
 ```
 
-`NHLClient` holds the resolved config and one HTTP client. It exposes nine
-modules. Each module is a group of endpoint methods:
+`createNHLClient` builds a client holding the resolved config and one `get`
+function. It exposes nine modules. Each module is a group of bound endpoint
+functions:
 
 | Module              | What it covers                                                     |
 | ------------------- | ------------------------------------------------------------------ |
@@ -441,7 +434,7 @@ that every status code maps to an error class.
 ## Configuration
 
 ```ts
-new NHLClient({
+createNHLClient({
   debug: false,         // log "GET: <url>" to stderr for each request
   timeout: 10,          // seconds, per request (AbortSignal.timeout)
   followRedirects: true // follow the 307s from "now" endpoints
@@ -475,12 +468,11 @@ The stats API filters with a `cayenneExp` expression
 - The `*Summary` methods build `cayenneExp` from `startSeason`, `endSeason`,
   `gameTypeId` and `franchiseId`. You can replace it entirely with
   `defaultCayenneExp`.
-- `skaterStatsWithQueryContext` takes a `QueryContext` built from typed filters
-  by `QueryBuilder`. See
+- `skaterStatsWithQueryContext` takes a `QueryContext` built from `Filter`
+  values by `buildQuery`. See
   [recipes/filter-skater-stats.md](recipes/filter-skater-stats.md).
 - `sortExpr` is `SortExpr[]` (`{ property, direction }`). Each report type has
-  a default sort, from `SortingOptions.getDefaultSortingForReport` and
-  `goalieStatsSorts`.
+  a default sort, from `defaultSortForReport` and `goalieStatsSorts`.
 
 ## Retries and rate limits
 
@@ -543,13 +535,13 @@ API failure, or a subclass to handle one case:
 
 ```ts
 import {
+  createNHLClient,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ResourceNotFoundException,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 try {
   await client.gameCenter.boxscore({ gameId: 2023020280 });
@@ -672,7 +664,7 @@ catch (err) {
 }
 ```
 
-**Fix:** raise the timeout (`new NHLClient({ timeout: 30 })`). Large stats
+**Fix:** raise the timeout (`createNHLClient({ timeout: 30 })`). Large stats
 reports and play-by-play payloads can be slow.
 
 ## Network failures: `TypeError: fetch failed`
@@ -684,22 +676,17 @@ underlying error is in `err.cause`.
 
 ## Query builder validation
 
-`QueryBuilder.build()` does **not** throw for invalid filters. It skips them
+`buildQuery()` does **not** throw for invalid filters. It skips them
 and collects their messages in `context.errors`:
 
 ```ts
-const context = new QueryBuilder().build([new DecisionQuery('X')]);
-context.isValid(); // false
-context.errors;    // ['Decision value must be one of [W, L, O]']
+const context = buildQuery([filter.decision('X' as Decision)]);
+isValidQuery(context); // false
+context.errors;        // ['Decision value must be one of [W, L, O]']
 ```
 
-Always check `context.isValid()` before you call
+Always check `isValidQuery(context)` before you call
 `skaterStatsWithQueryContext`. A skipped filter silently widens the query.
-
-`InvalidQueryValueException` is the error that filters throw internally
-during validation. The builder catches it, so it never reaches your code from
-`build()`. It is exported so that custom `QueryBase` subclasses can throw it
-from `validate()`.
 
 ## CLI exit codes
 
@@ -723,8 +710,8 @@ description: Fetch NHL data (teams, rosters, schedules, scores, boxscores, play-
 >= 24, ships as ESM only, and has no API key.
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
-const client = new NHLClient(); // options: { debug, timeout (s), followRedirects }
+import { createNHLClient } from 'nhl-api-ts';
+const client = createNHLClient(); // options: { debug, timeout (s), followRedirects }
 ```
 
 For a one-off lookup, the CLI is often faster than writing code:
@@ -747,7 +734,7 @@ npx nhl-api-ts <module> <command> --help
 | Standings                                  | `standings.leagueStandings({ date?, season? })` returns `.standings` |
 | A player's career totals or bio            | `stats.playerCareerStats({ playerId })`                              |
 | A player's game-by-game log                | `stats.playerGameLog({ playerId, seasonId, gameType })`              |
-| Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `QueryBuilder` (see below)     |
+| Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `buildQuery`/`filter.*` (see below) |
 | Simple skater, goalie or team leaderboards | `stats.skaterStatsSummary` / `goalieStatsSummary` / `teamSummary`    |
 | Speed, distance, zone time, shot speed     | `edge.*` (`skaterDetail`, `skaterSkatingSpeedDetail`, `teamDetail`, ...) |
 | Every game id or every player in a season  | `helpers.gameIdsBySeason` / `helpers.allPlayers` (slow, 30+ requests) |
@@ -772,23 +759,23 @@ read `player.firstName.default`, not `player.firstName`.
 ## Filtered stats
 
 ```ts
-import { NHLClient, QueryBuilder, SeasonQuery, PositionQuery, PositionTypes, FranchiseQuery } from 'nhl-api-ts';
+import { buildQuery, filter, isValidQuery, PositionTypes } from 'nhl-api-ts';
 
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-  new PositionQuery(PositionTypes.DEFENSE),
-  new FranchiseQuery(5),
+const queryContext = buildQuery([
+  filter.season(20232024, 20232024),
+  filter.position(PositionTypes.DEFENSE),
+  filter.franchise(5),
 ]);
-if (!queryContext.isValid()) throw new Error(queryContext.errors.join('; '));
+if (!isValidQuery(queryContext)) throw new Error(queryContext.errors.join('; '));
 
 const { data, total } = await client.stats.skaterStatsWithQueryContext({
   queryContext, reportType: 'summary', limit: 100,
 });
 ```
 
-Other filters: `GameTypeQuery`, `NationalityQuery('SWE')`, `DraftQuery(year, round?)`,
-`ExperienceQuery(isRookie)`, `HomeRoadQuery('H'|'R')`, `OpponentQuery(franchiseId)`,
-`ShootCatchesQuery('L'|'R')`, `DecisionQuery('W'|'L'|'O')`, `StatusQuery({ isActive, isHallOfFame })`.
+Other filters: `filter.gameType(type)`, `filter.nationality('SWE')`, `filter.draft(year, round?)`,
+`filter.experience(isRookie)`, `filter.homeRoad('H'|'R')`, `filter.opponent(franchiseId)`,
+`filter.shootCatch('L'|'R')`, `filter.decision('W'|'L'|'O')`, `filter.status({ isActive, isHallOfFame })`.
 Report types: `SKATER_REPORT_TYPES` (`summary`, `realtime`, `timeonice`, `powerplay`, ...).
 An unknown report type makes the API return 500.
 
@@ -806,7 +793,7 @@ An unknown report type makes the API return 500.
 - No built-in retries. On `RateLimitExceededException` (429) or
   `ServerErrorException` (5xx), back off and retry. Don't `Promise.all` over
   all 32 teams.
-- `QueryBuilder.build` drops invalid filters silently. Always check `isValid()`.
+- `buildQuery` drops invalid filters silently. Always check `isValidQuery(context)`.
 
 ## Errors
 
@@ -832,33 +819,30 @@ Mock `globalThis.fetch`. The SDK looks it up on every request:
 
 # Filter skater stats with the query builder
 
-Use `QueryBuilder` with `skaterStatsWithQueryContext` for questions like
+Use `buildQuery` with `skaterStatsWithQueryContext` for questions like
 "Swedish rookie forwards in 2023-24, by points". You don't have to write
 `cayenneExp` strings by hand.
 
 ```ts
 import {
-  ExperienceQuery,
-  GameTypeQuery,
-  NationalityQuery,
-  NHLClient,
-  PositionQuery,
+  buildQuery,
+  createNHLClient,
+  filter,
+  isValidQuery,
   PositionTypes,
-  QueryBuilder,
-  SeasonQuery,
 } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-  new GameTypeQuery(2),
-  new PositionQuery(PositionTypes.ALL_FORWARDS),
-  new NationalityQuery('SWE'),
-  new ExperienceQuery(true),
+const queryContext = buildQuery([
+  filter.season(20232024, 20232024),
+  filter.gameType(2),
+  filter.position(PositionTypes.ALL_FORWARDS),
+  filter.nationality('SWE'),
+  filter.experience(true),
 ]);
 
-if (!queryContext.isValid()) {
+if (!isValidQuery(queryContext)) {
   throw new Error(queryContext.errors.join('; '));
 }
 
@@ -869,7 +853,7 @@ const { data, total } = await client.stats.skaterStatsWithQueryContext({
 });
 ```
 
-`queryContext.queryStr` is the generated `cayenneExp`:
+`queryContext.query` is the generated `cayenneExp`:
 
 ```
 seasonId >= 20232024 and seasonId <= 20232024 and gameTypeId=2 and (positionCode='L' or positionCode='R' or positionCode='C') and nationalityCode='SWE' and isRookie='1'
@@ -877,24 +861,25 @@ seasonId >= 20232024 and seasonId <= 20232024 and gameTypeId=2 and (positionCode
 
 ## Filters
 
-| Filter                                    | Produces                                  | Values                                      |
-| ----------------------------------------- | ----------------------------------------- | ------------------------------------------- |
-| `new SeasonQuery(start, end)`             | `seasonId >= start and seasonId <= end`   | `YYYYYYYY`                                  |
-| `new GameTypeQuery(type)`                 | `gameTypeId=type`                         | `1`, `2`, `3`                               |
-| `new PositionQuery(position)`             | `positionCode='C'` (or an OR group for `F`) | `PositionTypes.CENTER`, `LEFT_WING`, `RIGHT_WING`, `DEFENSE`, `ALL_FORWARDS` |
-| `new FranchiseQuery(id)`                  | `franchiseId=id`                          | franchise id (from `teams.franchises()`)    |
-| `new OpponentQuery(id)`                   | `opponentFranchiseId=id`                  | franchise id                                |
-| `new NationalityQuery(code)`              | `nationalityCode='SWE'`                   | 3-letter code (from `misc.countries()`)     |
-| `new DraftQuery(year, round?)`            | `draftYear=2015 and draftRound=1`         |                                             |
-| `new ExperienceQuery(isRookie)`           | `isRookie='1'` / `'0'`                    | boolean                                     |
-| `new HomeRoadQuery(hr)`                   | `homeRoad='H'`                            | `H`, `R`                                    |
-| `new ShootCatchesQuery(lr)`               | `shootsCatches='L'`                       | `L`, `R`                                    |
-| `new DecisionQuery(d)`                    | `decision='W'`                            | `W`, `L`, `O` (validated)                   |
-| `new StatusQuery({ isActive, isHallOfFame })` | `active=1` / `isInHallOfFame=1`       | Hall of Fame wins if both are set           |
+| Filter                               | Produces                                    | Values                                      |
+| ------------------------------------ | -------------------------------------------- | ------------------------------------------- |
+| `filter.season(start, end)`          | `seasonId >= start and seasonId <= end`      | `YYYYYYYY`                                  |
+| `filter.gameType(type)`              | `gameTypeId=type`                            | `1`, `2`, `3`                               |
+| `filter.position(position)`          | `positionCode='C'` (or an OR group for `F`)  | `PositionTypes.CENTER`, `LEFT_WING`, `RIGHT_WING`, `DEFENSE`, `ALL_FORWARDS` |
+| `filter.franchise(id)`               | `franchiseId=id`                             | franchise id (from `teams.franchises()`)    |
+| `filter.opponent(id)`                | `opponentFranchiseId=id`                     | franchise id                                |
+| `filter.nationality(code)`           | `nationalityCode='SWE'`                      | 3-letter code (from `misc.countries()`)     |
+| `filter.draft(year, round?)`         | `draftYear=2015 and draftRound=1`            |                                              |
+| `filter.experience(isRookie)`        | `isRookie='1'` / `'0'`                       | boolean                                     |
+| `filter.homeRoad(hr)`                | `homeRoad='H'`                                | `H`, `R`                                    |
+| `filter.shootCatch(lr)`              | `shootsCatches='L'`                           | `L`, `R`                                    |
+| `filter.decision(d)`                 | `decision='W'`                                | `W`, `L`, `O` (validated)                   |
+| `filter.status({ isActive, isHallOfFame })` | `active=1` / `isInHallOfFame=1`        | Hall of Fame wins if both are set           |
 
-Filters are joined with `and`. Invalid filters (only `DecisionQuery` validates
-today) are left out and reported in `queryContext.errors`. **Check
-`isValid()`**, or the query silently matches more rows than you meant.
+Filters are joined with `and`. Invalid filters (only `filter.decision`
+validates today) are left out and reported in `queryContext.errors`. **Check
+`isValidQuery(queryContext)`**, or the query silently matches more rows than
+you meant.
 
 ## Report types
 
@@ -920,11 +905,11 @@ An unknown `reportType` makes the API answer `500` (`ServerErrorException`).
 
 ## Aggregate across seasons
 
-With a multi-season `SeasonQuery`, you get one row per player per season. Pass
-`aggregate: true` to get one row per player:
+With a multi-season `filter.season`, you get one row per player per season.
+Pass `aggregate: true` to get one row per player:
 
 ```ts
-const career = new QueryBuilder().build([new SeasonQuery(20182019, 20232024)]);
+const career = buildQuery([filter.season(20182019, 20232024)]);
 await client.stats.skaterStatsWithQueryContext({
   queryContext: career,
   reportType: 'summary',
@@ -962,13 +947,11 @@ This method returns the whole envelope, `{ data, total }`. Advance by the
 number of rows you actually received, not by `limit`:
 
 ```ts
-import { NHLClient, QueryBuilder, SeasonQuery } from 'nhl-api-ts';
+import { buildQuery, createNHLClient, filter } from 'nhl-api-ts';
 import type { JsonObject } from 'nhl-api-ts';
 
-const client = new NHLClient();
-const queryContext = new QueryBuilder().build([
-  new SeasonQuery(20232024, 20232024),
-]);
+const client = createNHLClient();
+const queryContext = buildQuery([filter.season(20232024, 20232024)]);
 
 const rows: JsonObject[] = [];
 while (true) {
@@ -1041,9 +1024,9 @@ Runnable version: [`examples/paginate-stats.mts`](../../examples/paginate-stats.
 ## Today's schedule
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const today = await client.schedule.dailySchedule();
 console.log(today.date, today.numberOfGames ?? 0);
@@ -1120,9 +1103,9 @@ call to take 30 to 60 seconds. Progress messages go to stderr.
 ## Every game id in a season
 
 ```ts
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 
 const ids = await client.helpers.gameIdsBySeason({
   season: 20232024,
@@ -1192,8 +1175,8 @@ over many teams, players or games.
 
 ```ts
 import {
+  createNHLClient,
   NHLApiException,
-  NHLClient,
   RateLimitExceededException,
   ServerErrorException,
 } from 'nhl-api-ts';
@@ -1222,7 +1205,7 @@ export async function withRetry<T>(
   }
 }
 
-const client = new NHLClient();
+const client = createNHLClient();
 const boxscore = await withRetry(() =>
   client.gameCenter.boxscore({ gameId: 2023020280 }),
 );
@@ -1343,7 +1326,7 @@ tests can replace it, so they don't need network access or a special client.
 ```ts
 import assert from 'node:assert/strict';
 import { afterEach, it, mock } from 'node:test';
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
 afterEach(() => mock.restoreAll());
 
@@ -1356,7 +1339,7 @@ it('lists team abbreviations', async () => {
     return Response.json(body);
   });
 
-  const teams = await new NHLClient().teams.teams();
+  const teams = await createNHLClient().teams.teams();
 
   assert.deepEqual(teams.map((team) => team.abbr), ['TOR']);
   assert.equal(teams[0].franchise_id, 5);
@@ -1379,7 +1362,7 @@ mock.method(globalThis, 'fetch', async () =>
   Response.json({ message: 'nope' }, { status: 429 }),
 );
 await assert.rejects(
-  new NHLClient().misc.countries(),
+  createNHLClient().misc.countries(),
   { name: 'RateLimitExceededException', statusCode: 429 },
 );
 ```
@@ -1403,36 +1386,164 @@ await assert.rejects(
 ```ts
 
 // @public
+const allPlayers: (ctx: Context, input: {
+    season: Id;
+    apiSleepRate?: number;
+}) => Promise<JsonObject[]>;
+
+// @public
+const allPlayersSummaryStatistics: (ctx: Context, input: {
+    season: Id;
+    apiSleepRate?: number;
+}) => Promise<JsonObject[]>;
+
+// @public
 export class BadRequestException extends NHLApiException {
     constructor(message: string, statusCode?: number);
 }
 
+// @public
+const boxscore: (ctx: Context, input: {
+    gameId: Id;
+}) => Promise<JsonObject>;
+
+// @public
+export function buildQuery(filters: readonly Filter[], factQuery?: string): QueryContext;
+
 // @public (undocumented)
 export function buildUrl(endpoint: Endpoint, resource: string, queryParams?: QueryParams): string;
 
+// @public
+const calendarSchedule: (ctx: Context, input: {
+    date: string;
+}) => Promise<JsonObject>;
+
+// @public
+const catGoalieDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const catSkaterDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
 // @public (undocumented)
-export class ClientConfig {
-    constructor(input?: ClientOptions);
-    // (undocumented)
-    readonly apiBaseUrl = "https://api.nhle.com";
-    // (undocumented)
-    readonly apiWebApiVer = "/v1/";
-    // (undocumented)
-    readonly apiWebBaseUrl = "https://api-web.nhle.com";
+export interface ClientOptions {
+    debug?: boolean;
+    fetch?: typeof fetch;
+    followRedirects?: boolean;
+    timeout?: number;
+}
+
+// @public (undocumented)
+export interface Config {
     // (undocumented)
     readonly debug: boolean;
+    // (undocumented)
+    readonly fetch?: typeof fetch;
     // (undocumented)
     readonly followRedirects: boolean;
     // (undocumented)
     readonly timeout: number;
 }
 
+// @public
+const config: (ctx: Context) => Promise<JsonObject>;
+
 // @public (undocumented)
-export interface ClientOptions {
-    debug?: boolean;
-    followRedirects?: boolean;
-    timeout?: number;
+export interface Context {
+    // (undocumented)
+    get: Get;
+    // (undocumented)
+    sleep: (seconds: number) => Promise<void>;
 }
+
+// @public
+const countries: (ctx: Context) => Promise<JsonObject[]>;
+
+// @public
+export function createGet(config: Config): Get;
+
+// @public
+export const createNHLClient: (options?: ClientOptions) => {
+    readonly config: Readonly<Config>;
+    readonly teams: Bound<{
+        readonly teams: teams_2;
+        readonly teamRoster: teamRoster;
+        readonly franchises: franchises;
+    }>;
+    readonly standings: Bound<{
+        readonly leagueStandings: leagueStandings;
+        readonly seasonStandingManifest: seasonStandingManifest;
+    }>;
+    readonly schedule: Bound<{
+        readonly dailySchedule: dailySchedule;
+        readonly weeklySchedule: weeklySchedule;
+        readonly teamMonthlySchedule: teamMonthlySchedule;
+        readonly teamWeeklySchedule: teamWeeklySchedule;
+        readonly teamSeasonSchedule: teamSeasonSchedule;
+        readonly calendarSchedule: calendarSchedule;
+        readonly playoffCarousel: playoffCarousel;
+        readonly playoffSeriesSchedule: playoffSeriesSchedule;
+        readonly playoffBracket: playoffBracket;
+    }>;
+    readonly gameCenter: Bound<{
+        readonly boxscore: boxscore;
+        readonly playByPlay: playByPlay;
+        readonly matchUp: matchUp;
+        readonly dailyScores: dailyScores;
+        readonly shiftChartData: shiftChartData;
+        readonly seasonSeriesMatchup: seasonSeriesMatchup;
+        readonly gameStory: gameStory;
+    }>;
+    readonly stats: Bound<{
+        readonly gametypesPerSeasonDirectoryByTeam: gametypesPerSeasonDirectoryByTeam;
+        readonly playerCareerStats: playerCareerStats;
+        readonly playerGameLog: playerGameLog;
+        readonly teamSummary: teamSummary;
+        readonly skaterStatsSummary: skaterStatsSummary;
+        readonly skaterStatsWithQueryContext: skaterStatsWithQueryContext;
+        readonly goalieStatsSummary: goalieStatsSummary;
+    }>;
+    readonly misc: Bound<{
+        readonly glossary: glossary;
+        readonly config: config;
+        readonly countries: countries;
+        readonly seasonSpecificRulesAndInfo: seasonSpecificRulesAndInfo;
+        readonly draftYearAndRounds: draftYearAndRounds;
+    }>;
+    readonly helpers: Bound<{
+        readonly gameIdsBySeason: gameIdsBySeason;
+        readonly allPlayers: allPlayers;
+        readonly allPlayersSummaryStatistics: allPlayersSummaryStatistics;
+    }>;
+    readonly players: Bound<{
+        readonly prospectsByTeam: prospectsByTeam;
+        readonly playersByTeam: playersByTeam;
+    }>;
+    readonly edge: Bound<{
+        readonly skaterDetail: skaterDetail;
+        readonly skaterShotSpeedDetail: skaterShotSpeedDetail;
+        readonly skaterSkatingSpeedDetail: skaterSkatingSpeedDetail;
+        readonly skaterShotLocationDetail: skaterShotLocationDetail;
+        readonly skaterSkatingDistanceDetail: skaterSkatingDistanceDetail;
+        readonly skaterComparison: skaterComparison;
+        readonly skaterZoneTime: skaterZoneTime;
+        readonly skaterLanding: skaterLanding;
+        readonly catSkaterDetail: catSkaterDetail;
+        readonly goalieDetail: goalieDetail;
+        readonly goalieShotLocationDetail: goalieShotLocationDetail;
+        readonly goalie5v5Detail: goalie5v5Detail;
+        readonly goalieComparison: goalieComparison;
+        readonly goalieSavePercentageDetail: goalieSavePercentageDetail;
+        readonly goalieLanding: goalieLanding;
+        readonly catGoalieDetail: catGoalieDetail;
+        readonly teamDetail: teamDetail;
+        readonly teamSkatingDistanceDetail: teamSkatingDistanceDetail;
+        readonly teamZoneTimeDetails: teamZoneTimeDetails;
+        readonly teamShotLocationDetail: teamShotLocationDetail;
+        readonly teamLanding: teamLanding;
+        readonly teamShotSpeedDetail: teamShotSpeedDetail;
+        readonly teamSkatingSpeedDetail: teamSkatingSpeedDetail;
+    }>;
+};
 
 // @public (undocumented)
 export interface DailySchedule {
@@ -1450,61 +1561,83 @@ export interface DailySchedule {
     previousStartDate: string | null;
 }
 
-// @public (undocumented)
-export class DecisionQuery extends QueryBase {
-    constructor(decision: string);
-    // (undocumented)
-    readonly decision: string;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    toString(): string;
-    // (undocumented)
-    validate(): boolean;
-}
-
-// @public (undocumented)
-export class DraftQuery extends QueryBase {
-    constructor(year: Id, draftRound?: Id);
-    // (undocumented)
-    readonly round?: Id;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-    // (undocumented)
-    readonly year: Id;
-}
+// @public
+const dailySchedule: (ctx: Context, input?: {
+    date?: string;
+}) => Promise<DailySchedule>;
 
 // @public
-export class Edge {
-    constructor(httpClient: HttpClient);
-    catGoalieDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    catSkaterDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    // (undocumented)
-    readonly client: HttpClient;
-    goalie5v5Detail(params: EdgePlayerParams): Promise<JsonObject>;
-    goalieComparison(params: EdgePlayerParams): Promise<JsonObject>;
-    goalieDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    goalieLanding(params?: EdgeSeasonParams): Promise<JsonObject>;
-    goalieSavePercentageDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    goalieShotLocationDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterComparison(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterLanding(params?: EdgeSeasonParams): Promise<JsonObject>;
-    skaterShotLocationDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterShotSpeedDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterSkatingDistanceDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterSkatingSpeedDetail(params: EdgePlayerParams): Promise<JsonObject>;
-    skaterZoneTime(params: EdgePlayerParams): Promise<JsonObject>;
-    teamDetail(params: EdgeTeamParams): Promise<JsonObject>;
-    teamLanding(params?: EdgeSeasonParams): Promise<JsonObject>;
-    teamShotLocationDetail(params: EdgeTeamParams): Promise<JsonObject>;
-    teamShotSpeedDetail(params: EdgeTeamParams): Promise<JsonObject>;
-    teamSkatingDistanceDetail(params: EdgeTeamParams): Promise<JsonObject>;
-    teamSkatingSpeedDetail(params: EdgeTeamParams): Promise<JsonObject>;
-    teamZoneTimeDetails(params: EdgeTeamParams): Promise<JsonObject>;
+const dailyScores: (ctx: Context, input?: {
+    date?: string;
+}) => Promise<JsonObject>;
+
+// @public
+export type Decision = 'W' | 'L' | 'O';
+
+// @public
+export function defaultSortForReport(report: string): SortExpr[];
+
+// @public
+const draftYearAndRounds: (ctx: Context) => Promise<JsonObject[]>;
+
+declare namespace edge {
+    export {
+        EdgeSeasonParams,
+        EdgePlayerParams,
+        EdgeTeamParams,
+        skaterDetail,
+        skaterShotSpeedDetail,
+        skaterSkatingSpeedDetail,
+        skaterShotLocationDetail,
+        skaterSkatingDistanceDetail,
+        skaterComparison,
+        skaterZoneTime,
+        skaterLanding,
+        catSkaterDetail,
+        goalieDetail,
+        goalieShotLocationDetail,
+        goalie5v5Detail,
+        goalieComparison,
+        goalieSavePercentageDetail,
+        goalieLanding,
+        catGoalieDetail,
+        teamDetail,
+        teamSkatingDistanceDetail,
+        teamZoneTimeDetails,
+        teamShotLocationDetail,
+        teamLanding,
+        teamShotSpeedDetail,
+        teamSkatingSpeedDetail,
+        edgeApi
+    }
 }
+
+// @public (undocumented)
+const edgeApi: {
+    readonly skaterDetail: typeof skaterDetail;
+    readonly skaterShotSpeedDetail: typeof skaterShotSpeedDetail;
+    readonly skaterSkatingSpeedDetail: typeof skaterSkatingSpeedDetail;
+    readonly skaterShotLocationDetail: typeof skaterShotLocationDetail;
+    readonly skaterSkatingDistanceDetail: typeof skaterSkatingDistanceDetail;
+    readonly skaterComparison: typeof skaterComparison;
+    readonly skaterZoneTime: typeof skaterZoneTime;
+    readonly skaterLanding: typeof skaterLanding;
+    readonly catSkaterDetail: typeof catSkaterDetail;
+    readonly goalieDetail: typeof goalieDetail;
+    readonly goalieShotLocationDetail: typeof goalieShotLocationDetail;
+    readonly goalie5v5Detail: typeof goalie5v5Detail;
+    readonly goalieComparison: typeof goalieComparison;
+    readonly goalieSavePercentageDetail: typeof goalieSavePercentageDetail;
+    readonly goalieLanding: typeof goalieLanding;
+    readonly catGoalieDetail: typeof catGoalieDetail;
+    readonly teamDetail: typeof teamDetail;
+    readonly teamSkatingDistanceDetail: typeof teamSkatingDistanceDetail;
+    readonly teamZoneTimeDetails: typeof teamZoneTimeDetails;
+    readonly teamShotLocationDetail: typeof teamShotLocationDetail;
+    readonly teamLanding: typeof teamLanding;
+    readonly teamShotSpeedDetail: typeof teamShotSpeedDetail;
+    readonly teamSkatingSpeedDetail: typeof teamSkatingSpeedDetail;
+};
 
 // @public (undocumented)
 export interface EdgePlayerParams extends EdgeSeasonParams {
@@ -1533,69 +1666,136 @@ export const Endpoint: {
 export type Endpoint = (typeof Endpoint)[keyof typeof Endpoint];
 
 // @public (undocumented)
-export class ExperienceQuery extends QueryBase {
-    constructor(isRookie: boolean);
-    // (undocumented)
-    readonly isRookie: boolean;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
+export type Filter = {
+    kind: 'decision';
+    decision: Decision;
+} | {
+    kind: 'draft';
+    year: Id;
+    round?: Id;
+} | {
+    kind: 'experience';
+    isRookie: boolean;
+} | {
+    kind: 'franchise';
+    franchiseId: Id;
+} | {
+    kind: 'gameType';
+    gameType: Id;
+} | {
+    kind: 'homeRoad';
+    homeRoad: string;
+} | {
+    kind: 'nationality';
+    nationCode: string;
+} | {
+    kind: 'opponent';
+    opponentId: Id;
+} | {
+    kind: 'position';
+    position: PositionTypes;
+} | {
+    kind: 'season';
+    start: Id;
+    end: Id;
+} | {
+    kind: 'shootCatch';
+    shootCatch: string;
+} | {
+    kind: 'status';
+    isActive: boolean;
+    isHallOfFame: boolean;
+};
+
+// @public (undocumented)
+export const filter: {
+    readonly decision: (decision: Decision) => Filter;
+    readonly draft: (year: Id, round?: Id) => Filter;
+    readonly experience: (isRookie: boolean) => Filter;
+    readonly franchise: (franchiseId: Id) => Filter;
+    readonly gameType: (gameType: Id) => Filter;
+    readonly homeRoad: (homeRoad: string) => Filter;
+    readonly nationality: (nationCode: string) => Filter;
+    readonly opponent: (opponentId: Id) => Filter;
+    readonly position: (position: PositionTypes) => Filter;
+    readonly season: (start: Id, end: Id) => Filter;
+    readonly shootCatch: (shootCatch: string) => Filter;
+    readonly status: (input?: StatusQueryOptions) => Filter;
+};
+
+// @public
+const franchises: (ctx: Context) => Promise<JsonObject[]>;
+
+declare namespace gameCenter {
+    export {
+        boxscore,
+        playByPlay,
+        matchUp,
+        dailyScores,
+        shiftChartData,
+        seasonSeriesMatchup,
+        gameStory,
+        gameCenterApi
+    }
 }
 
 // @public (undocumented)
-export class FranchiseQuery extends QueryBase {
-    constructor(franchiseId: Id);
-    // (undocumented)
-    readonly franchiseId: Id;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+const gameCenterApi: {
+    readonly boxscore: typeof boxscore;
+    readonly playByPlay: typeof playByPlay;
+    readonly matchUp: typeof matchUp;
+    readonly dailyScores: typeof dailyScores;
+    readonly shiftChartData: typeof shiftChartData;
+    readonly seasonSeriesMatchup: typeof seasonSeriesMatchup;
+    readonly gameStory: typeof gameStory;
+};
+
+// @public
+const gameIdsBySeason: (ctx: Context, input: {
+    season: Id;
+    gameTypes?: number[];
+    apiSleepRate?: number;
+}) => Promise<number[]>;
+
+// @public
+const gameStory: (ctx: Context, input: {
+    gameId: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const gametypesPerSeasonDirectoryByTeam: (ctx: Context, input: {
+    teamAbbr: string;
+}) => Promise<JsonObject[]>;
 
 // @public (undocumented)
-export class GameCenter {
-    constructor(httpClient: HttpClient);
-    boxscore(input: {
-        gameId: Id;
-    }): Promise<JsonObject>;
-    // (undocumented)
-    readonly client: HttpClient;
-    dailyScores(input?: {
-        date?: string;
-    }): Promise<JsonObject>;
-    gameStory(input: {
-        gameId: Id;
-    }): Promise<JsonObject>;
-    matchUp(input: {
-        gameId: Id;
-    }): Promise<JsonObject>;
-    playByPlay(input: {
-        gameId: Id;
-    }): Promise<JsonObject>;
-    seasonSeriesMatchup(input: {
-        gameId: Id;
-    }): Promise<JsonObject>;
-    shiftChartData(input: {
-        gameId: Id;
-        excludes?: string[];
-    }): Promise<JsonObject>;
-}
+export type Get = (endpoint: Endpoint, resource: string, params?: QueryParams) => Promise<Response>;
 
-// @public (undocumented)
-export class GameTypeQuery extends QueryBase {
-    constructor(gameType: Id);
-    // (undocumented)
-    readonly gameType: Id;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+// @public
+const glossary: (ctx: Context) => Promise<JsonObject[]>;
+
+// @public
+const goalie5v5Detail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const goalieComparison: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const goalieDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const goalieLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<JsonObject>;
+
+// @public
+const goalieSavePercentageDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const goalieShotLocationDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
 
 // @public
 export function goalieStatsSorts(report: string): SortExpr[];
+
+// @public
+const goalieStatsSummary: (ctx: Context, input: GoalieStatsSummaryParams) => Promise<JsonObject[]>;
 
 // @public (undocumented)
 export interface GoalieStatsSummaryParams {
@@ -1621,80 +1821,61 @@ export interface GoalieStatsSummaryParams {
     statsType?: string;
 }
 
-// @public
-export class Helpers {
-    constructor(httpClient: HttpClient);
-    allPlayers(input: {
-        season: Id;
-        apiSleepRate?: number;
-    }): Promise<JsonObject[]>;
-    allPlayersSummaryStatistics(input: {
-        season: Id;
-        apiSleepRate?: number;
-    }): Promise<JsonObject[]>;
-    // (undocumented)
-    readonly client: HttpClient;
-    gameIdsBySeason(input: {
-        season: Id;
-        gameTypes?: number[];
-        apiSleepRate?: number;
-    }): Promise<number[]>;
-    // @internal
-    sleep(seconds: number): Promise<void>;
+declare namespace helpers {
+    export {
+        gameIdsBySeason,
+        allPlayers,
+        allPlayersSummaryStatistics,
+        helpersApi
+    }
 }
 
 // @public (undocumented)
-export class HomeRoadQuery extends QueryBase {
-    constructor(homeRoad: string);
-    // (undocumented)
-    readonly homeRoad: string;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
-
-// @public (undocumented)
-export class HttpClient {
-    constructor(config: ClientConfig);
-    // (undocumented)
-    readonly config: ClientConfig;
-    get(endpoint: Endpoint, resource: string, queryParams?: QueryParams): Promise<Response>;
-}
+const helpersApi: {
+    readonly gameIdsBySeason: typeof gameIdsBySeason;
+    readonly allPlayers: typeof allPlayers;
+    readonly allPlayersSummaryStatistics: typeof allPlayersSummaryStatistics;
+};
 
 // @public
 export type Id = string | number;
 
-// @public (undocumented)
-export class InvalidQueryValueException extends Error {
-    constructor(message: string);
-}
+// @public
+export function isValidQuery(context: QueryContext): boolean;
 
 // @public (undocumented)
 export type JsonObject = Record<string, any>;
 
-// @public (undocumented)
-export class Misc {
-    constructor(httpClient: HttpClient);
-    // (undocumented)
-    readonly client: HttpClient;
-    config(): Promise<JsonObject>;
-    countries(): Promise<JsonObject[]>;
-    draftYearAndRounds(): Promise<JsonObject[]>;
-    glossary(): Promise<JsonObject[]>;
-    seasonSpecificRulesAndInfo(): Promise<JsonObject[]>;
-}
+// @public
+const leagueStandings: (ctx: Context, input?: {
+    date?: string;
+    season?: Id;
+}) => Promise<JsonObject>;
 
 // @public
-export class NationalityQuery extends QueryBase {
-    constructor(nationCode: string);
-    // (undocumented)
-    readonly nationCode: string;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
+const matchUp: (ctx: Context, input: {
+    gameId: Id;
+}) => Promise<JsonObject>;
+
+declare namespace misc {
+    export {
+        glossary,
+        config,
+        countries,
+        seasonSpecificRulesAndInfo,
+        draftYearAndRounds,
+        miscApi
+    }
 }
+
+// @public (undocumented)
+const miscApi: {
+    readonly glossary: typeof glossary;
+    readonly config: typeof config;
+    readonly countries: typeof countries;
+    readonly seasonSpecificRulesAndInfo: typeof seasonSpecificRulesAndInfo;
+    readonly draftYearAndRounds: typeof draftYearAndRounds;
+};
 
 // @public
 export const NHLApiErrorCode: {
@@ -1717,71 +1898,64 @@ export class NHLApiException extends Error {
     readonly statusCode: number;
 }
 
-// @public
-export class NHLClient {
-    constructor(options?: ClientOptions);
-    // (undocumented)
-    readonly config: ClientConfig;
-    // (undocumented)
-    readonly edge: Edge;
-    // (undocumented)
-    readonly gameCenter: GameCenter;
-    // (undocumented)
-    readonly helpers: Helpers;
-    // (undocumented)
-    readonly httpClient: HttpClient;
-    // (undocumented)
-    readonly misc: Misc;
-    // (undocumented)
-    readonly players: Players;
-    // (undocumented)
-    readonly schedule: Schedule;
-    // (undocumented)
-    readonly standings: Standings;
-    // (undocumented)
-    readonly stats: Stats;
-    // (undocumented)
-    readonly teams: Teams;
-}
+// @public (undocumented)
+export type NHLClient = ReturnType<typeof createNHLClient>;
 
 // @public
 export function normalizeDate(date: string): string;
 
-// @public (undocumented)
-export class OpponentQuery extends QueryBase {
-    constructor(opponentFranchiseId: Id);
-    // (undocumented)
-    readonly opponentId: Id;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
+// @public
+const playByPlay: (ctx: Context, input: {
+    gameId: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const playerCareerStats: (ctx: Context, input: {
+    playerId: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const playerGameLog: (ctx: Context, input: {
+    playerId: Id;
+    seasonId: Id;
+    gameType: number;
+}) => Promise<JsonObject[]>;
+
+declare namespace players {
+    export {
+        prospectsByTeam,
+        playersByTeam,
+        playersApi
+    }
 }
 
 // @public (undocumented)
-export class Players {
-    constructor(httpClient: HttpClient);
-    // (undocumented)
-    readonly client: HttpClient;
-    playersByTeam(input: {
-        teamAbbr: string;
-        season: Id;
-    }): Promise<JsonObject>;
-    prospectsByTeam(input: {
-        teamAbbr: string;
-    }): Promise<JsonObject>;
-}
+const playersApi: {
+    readonly prospectsByTeam: typeof prospectsByTeam;
+    readonly playersByTeam: typeof playersByTeam;
+};
 
-// @public (undocumented)
-export class PositionQuery extends QueryBase {
-    constructor(position: PositionTypes);
-    // (undocumented)
-    readonly position: PositionTypes;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+// @public
+const playersByTeam: (ctx: Context, input: {
+    teamAbbr: string;
+    season: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const playoffBracket: (ctx: Context, input: {
+    year: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const playoffCarousel: (ctx: Context, input: {
+    season: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const playoffSeriesSchedule: (ctx: Context, input: {
+    season: Id;
+    series: string;
+}) => Promise<JsonObject>;
 
 // @public (undocumented)
 export const PositionTypes: {
@@ -1795,42 +1969,21 @@ export const PositionTypes: {
 // @public (undocumented)
 export type PositionTypes = (typeof PositionTypes)[keyof typeof PositionTypes];
 
-// @public (undocumented)
-export abstract class QueryBase {
-    // (undocumented)
-    abstract toQuery(): string;
-    // (undocumented)
-    abstract validate(): boolean | undefined;
-}
+// @public
+const prospectsByTeam: (ctx: Context, input: {
+    teamAbbr: string;
+}) => Promise<JsonObject>;
 
 // @public
-export class QueryBuilder {
-    constructor(input?: {
-        debug?: boolean;
-    });
+export interface QueryContext {
     // (undocumented)
-    build(filters: unknown[]): QueryContext;
-    // (undocumented)
-    readonly debug: boolean;
-}
-
-// @public
-export class QueryContext {
-    constructor(input: {
-        query: string;
-        filters: unknown[];
-        factQuery?: string;
-        errors?: string[];
-    });
-    // (undocumented)
-    readonly errors: string[];
+    readonly errors: readonly string[];
     // (undocumented)
     readonly factQuery: string;
     // (undocumented)
-    readonly filters: unknown[];
-    isValid(): boolean;
+    readonly filters: readonly Filter[];
     // (undocumented)
-    readonly queryStr: string;
+    readonly query: string;
 }
 
 // @public (undocumented)
@@ -1844,82 +1997,92 @@ export class RateLimitExceededException extends NHLApiException {
     constructor(message: string, statusCode?: number);
 }
 
+// @public (undocumented)
+export function resolveConfig(options?: ClientOptions): Readonly<Config>;
+
 // @public
 export class ResourceNotFoundException extends NHLApiException {
     constructor(message: string, statusCode?: number);
 }
 
-// @public (undocumented)
-export class Schedule {
-    constructor(httpClient: HttpClient);
-    calendarSchedule(input: {
-        date: string;
-    }): Promise<JsonObject>;
-    // (undocumented)
-    readonly client: HttpClient;
-    dailySchedule(input?: {
-        date?: string;
-    }): Promise<DailySchedule>;
-    playoffBracket(input: {
-        year: Id;
-    }): Promise<JsonObject>;
-    playoffCarousel(input: {
-        season: Id;
-    }): Promise<JsonObject>;
-    playoffSeriesSchedule(input: {
-        season: Id;
-        series: string;
-    }): Promise<JsonObject>;
-    teamMonthlySchedule(input: {
-        teamAbbr: string;
-        month?: string;
-    }): Promise<JsonObject[]>;
-    teamSeasonSchedule(input: {
-        teamAbbr: string;
-        season: Id;
-    }): Promise<JsonObject>;
-    teamWeeklySchedule(input: {
-        teamAbbr: string;
-        date?: string;
-    }): Promise<JsonObject[]>;
-    weeklySchedule(input?: {
-        date?: string;
-    }): Promise<JsonObject>;
+declare namespace schedule {
+    export {
+        normalizeDate,
+        DailySchedule,
+        dailySchedule,
+        weeklySchedule,
+        teamMonthlySchedule,
+        teamWeeklySchedule,
+        teamSeasonSchedule,
+        calendarSchedule,
+        playoffCarousel,
+        playoffSeriesSchedule,
+        playoffBracket,
+        scheduleApi
+    }
 }
 
 // @public (undocumented)
-export class SeasonQuery extends QueryBase {
-    constructor(seasonStart: Id, seasonEnd: Id);
-    // (undocumented)
-    readonly seasonEnd: Id;
-    // (undocumented)
-    readonly seasonStart: Id;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+const scheduleApi: {
+    readonly dailySchedule: typeof dailySchedule;
+    readonly weeklySchedule: typeof weeklySchedule;
+    readonly teamMonthlySchedule: typeof teamMonthlySchedule;
+    readonly teamWeeklySchedule: typeof teamWeeklySchedule;
+    readonly teamSeasonSchedule: typeof teamSeasonSchedule;
+    readonly calendarSchedule: typeof calendarSchedule;
+    readonly playoffCarousel: typeof playoffCarousel;
+    readonly playoffSeriesSchedule: typeof playoffSeriesSchedule;
+    readonly playoffBracket: typeof playoffBracket;
+};
+
+// @public
+const seasonSeriesMatchup: (ctx: Context, input: {
+    gameId: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const seasonSpecificRulesAndInfo: (ctx: Context) => Promise<JsonObject[]>;
+
+// @public
+const seasonStandingManifest: (ctx: Context) => Promise<JsonObject[]>;
 
 // @public
 export class ServerErrorException extends NHLApiException {
     constructor(message: string, statusCode: number);
 }
 
-// @public (undocumented)
-export class ShootCatchesQuery extends QueryBase {
-    constructor(shootCatch: string);
-    // (undocumented)
-    readonly shootCatch: string;
-    // (undocumented)
-    readonly shootCatchQ = "shootsCatches";
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+// @public
+const shiftChartData: (ctx: Context, input: {
+    gameId: Id;
+    excludes?: string[];
+}) => Promise<JsonObject>;
 
 // @public
 export const SKATER_REPORT_TYPES: string[];
+
+// @public
+const skaterComparison: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<JsonObject>;
+
+// @public
+const skaterShotLocationDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterShotSpeedDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterSkatingDistanceDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterSkatingSpeedDetail: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
+// @public
+const skaterStatsSummary: (ctx: Context, input: SkaterStatsSummaryParams) => Promise<JsonObject[]>;
 
 // @public (undocumented)
 export interface SkaterStatsSummaryParams {
@@ -1941,6 +2104,9 @@ export interface SkaterStatsSummaryParams {
     startSeason: Id;
 }
 
+// @public
+const skaterStatsWithQueryContext: (ctx: Context, input: SkaterStatsWithQueryContextParams) => Promise<JsonObject>;
+
 // @public (undocumented)
 export interface SkaterStatsWithQueryContextParams {
     // (undocumented)
@@ -1954,6 +2120,9 @@ export interface SkaterStatsWithQueryContextParams {
     start?: number;
 }
 
+// @public
+const skaterZoneTime: (ctx: Context, params: EdgePlayerParams) => Promise<JsonObject>;
+
 // @public (undocumented)
 export interface SortExpr {
     // (undocumented)
@@ -1962,57 +2131,47 @@ export interface SortExpr {
     property: string;
 }
 
+declare namespace standings {
+    export {
+        leagueStandings,
+        seasonStandingManifest,
+        standingsApi
+    }
+}
+
 // @public (undocumented)
-export const SortingOptions: {
-    getDefaultSortingForReport(report: string): SortExpr[];
+const standingsApi: {
+    readonly leagueStandings: typeof leagueStandings;
+    readonly seasonStandingManifest: typeof seasonStandingManifest;
 };
 
-// @public (undocumented)
-export class Standings {
-    constructor(httpClient: HttpClient);
-    // (undocumented)
-    readonly client: HttpClient;
-    leagueStandings(input?: {
-        date?: string;
-        season?: Id;
-    }): Promise<JsonObject>;
-    seasonStandingManifest(): Promise<JsonObject[]>;
+declare namespace stats {
+    export {
+        TeamSummaryParams,
+        SkaterStatsSummaryParams,
+        SkaterStatsWithQueryContextParams,
+        GoalieStatsSummaryParams,
+        gametypesPerSeasonDirectoryByTeam,
+        playerCareerStats,
+        playerGameLog,
+        teamSummary,
+        skaterStatsSummary,
+        skaterStatsWithQueryContext,
+        goalieStatsSummary,
+        statsApi
+    }
 }
 
 // @public (undocumented)
-export class Stats {
-    constructor(httpClient: HttpClient);
-    // (undocumented)
-    readonly client: HttpClient;
-    gametypesPerSeasonDirectoryByTeam(input: {
-        teamAbbr: string;
-    }): Promise<JsonObject[]>;
-    goalieStatsSummary(input: GoalieStatsSummaryParams): Promise<JsonObject[]>;
-    playerCareerStats(input: {
-        playerId: Id;
-    }): Promise<JsonObject>;
-    playerGameLog(input: {
-        playerId: Id;
-        seasonId: Id;
-        gameType: number;
-    }): Promise<JsonObject[]>;
-    skaterStatsSummary(input: SkaterStatsSummaryParams): Promise<JsonObject[]>;
-    skaterStatsWithQueryContext(input: SkaterStatsWithQueryContextParams): Promise<JsonObject>;
-    teamSummary(input: TeamSummaryParams): Promise<JsonObject[]>;
-}
-
-// @public (undocumented)
-export class StatusQuery extends QueryBase {
-    constructor(input?: StatusQueryOptions);
-    // (undocumented)
-    readonly isActive: boolean;
-    // (undocumented)
-    readonly isHallOfFame: boolean;
-    // (undocumented)
-    toQuery(): string;
-    // (undocumented)
-    validate(): boolean;
-}
+const statsApi: {
+    readonly gametypesPerSeasonDirectoryByTeam: typeof gametypesPerSeasonDirectoryByTeam;
+    readonly playerCareerStats: typeof playerCareerStats;
+    readonly playerGameLog: typeof playerGameLog;
+    readonly teamSummary: typeof teamSummary;
+    readonly skaterStatsSummary: typeof skaterStatsSummary;
+    readonly skaterStatsWithQueryContext: typeof skaterStatsWithQueryContext;
+    readonly goalieStatsSummary: typeof goalieStatsSummary;
+};
 
 // @public (undocumented)
 export interface StatusQueryOptions {
@@ -2045,19 +2204,67 @@ export interface Team {
 }
 
 // @public
-export class Teams {
-    constructor(httpClient: HttpClient);
-    // (undocumented)
-    readonly client: HttpClient;
-    franchises(): Promise<JsonObject[]>;
-    teamRoster(input: {
-        teamAbbr: string;
-        season: Id;
-    }): Promise<JsonObject>;
-    teams(input?: {
-        date?: string;
-    }): Promise<Team[]>;
+const teamDetail: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public
+const teamLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<JsonObject>;
+
+// @public
+const teamMonthlySchedule: (ctx: Context, input: {
+    teamAbbr: string;
+    month?: string;
+}) => Promise<JsonObject[]>;
+
+// @public
+const teamRoster: (ctx: Context, input: {
+    teamAbbr: string;
+    season: Id;
+}) => Promise<JsonObject>;
+
+declare namespace teams {
+    export {
+        toTeam,
+        withFranchiseIds,
+        Team,
+        teams_2 as teams,
+        teamRoster,
+        franchises,
+        teamsApi
+    }
 }
+
+// @public
+const teams_2: (ctx: Context, input?: {
+    date?: string;
+}) => Promise<Team[]>;
+
+// @public (undocumented)
+const teamsApi: {
+    readonly teams: typeof teams_2;
+    readonly teamRoster: typeof teamRoster;
+    readonly franchises: typeof franchises;
+};
+
+// @public
+const teamSeasonSchedule: (ctx: Context, input: {
+    teamAbbr: string;
+    season: Id;
+}) => Promise<JsonObject>;
+
+// @public
+const teamShotLocationDetail: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public
+const teamShotSpeedDetail: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public
+const teamSkatingDistanceDetail: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public
+const teamSkatingSpeedDetail: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public
+const teamSummary: (ctx: Context, input: TeamSummaryParams) => Promise<JsonObject[]>;
 
 // @public (undocumented)
 export interface TeamSummaryParams {
@@ -2074,9 +2281,39 @@ export interface TeamSummaryParams {
 }
 
 // @public
+const teamWeeklySchedule: (ctx: Context, input: {
+    teamAbbr: string;
+    date?: string;
+}) => Promise<JsonObject[]>;
+
+// @public
+const teamZoneTimeDetails: (ctx: Context, params: EdgeTeamParams) => Promise<JsonObject>;
+
+// @public (undocumented)
+export function toQuery(filter: Filter): string;
+
+// @public
+function toTeam(teamData: JsonObject): Team;
+
+// @public
 export class UnauthorizedException extends NHLApiException {
     constructor(message: string, statusCode?: number);
 }
+
+// @public
+export function validateFilter(filter: Filter): string | undefined;
+
+// @public
+const weeklySchedule: (ctx: Context, input?: {
+    date?: string;
+}) => Promise<JsonObject>;
+
+// @public
+function withFranchiseIds(teams: readonly Team[], franchises: readonly JsonObject[]): Team[];
+
+// Warnings were encountered during analysis:
+//
+// dist/nhl-client.d.mts:16:5 - (ae-forgotten-export) The symbol "Bound" needs to be exported by the entry point index.d.mts
 
 // (No @packageDocumentation comment for this package)
 
@@ -2085,175 +2322,4 @@ export class UnauthorizedException extends NHLApiException {
 <!-- ====================================================================== -->
 <!-- Migration guide: MIGRATION.md -->
 
-# Migration guide
 
-Guides for moving between versions of `nhl-api-ts`, and from the Python
-library it was ported from. Newest first.
-
-- [Unreleased: functional API (planned)](#unreleased-functional-api-planned)
-- [nhl-api-py → nhl-api-ts 0.1](#nhl-api-py--nhl-api-ts-01)
-
----
-
-## Unreleased: functional API (planned)
-
-Not released. A refactor from classes to plain functions is planned in
-[`.claude/plans/functional-refactor.md`](.claude/plans/functional-refactor.md).
-When it lands, its before/after guide goes here. The planned changes:
-
-| 0.1                                           | Planned                                         |
-| --------------------------------------------- | ----------------------------------------------- |
-| `new NHLClient(options)`                      | `createNHLClient(options)`                      |
-| `new QueryBuilder().build([...])`             | `buildQuery([...])`                             |
-| `new SeasonQuery(a, b)`, `new PositionQuery(p)`, ... | `filter.season(a, b)`, `filter.position(p)`, ... |
-| `context.isValid()`                           | `isValidQuery(context)`                         |
-| `context.queryStr`                            | `context.query`                                 |
-| `SortingOptions.getDefaultSortingForReport(r)`| `defaultSortForReport(r)`                       |
-| `InvalidQueryValueException`                  | removed (validation errors stay in `context.errors`) |
-| `HttpClient`, `ClientConfig`                  | `createGet`, `resolveConfig`                    |
-
-`client.<module>.<method>(...)` calls are planned to stay the same.
-
----
-
-## nhl-api-py → nhl-api-ts 0.1
-
-`nhl-api-ts` calls the same endpoints as
-[nhl-api-py](https://github.com/coreyjs/nhl-api-py) and returns the same
-payloads. The changes are in the calling convention.
-
-### Install and import
-
-```diff
-- pip install nhl-api-py
-+ pnpm add nhl-api-ts         # Node.js >= 24, ESM only
-```
-
-```diff
-- from nhlpy import NHLClient
-- client = NHLClient()
-+ import { NHLClient } from 'nhl-api-ts';
-+ const client = new NHLClient();
-```
-
-### Calls are async, camelCase, and take one object
-
-Module and method names go from snake_case to camelCase. Keyword arguments
-become keys of a single options object. Every call returns a promise.
-
-```diff
-- client.game_center.boxscore(game_id="2023020280")
-+ await client.gameCenter.boxscore({ gameId: '2023020280' })
-
-- client.edge.skater_detail(player_id=8478402, season=20232024, game_type=3)
-+ await client.edge.skaterDetail({ playerId: 8478402, season: 20232024, gameType: 3 })
-
-- client.stats.team_summary(start_season="20202021", end_season="20232024", is_aggregate=True)
-+ await client.stats.teamSummary({ startSeason: 20202021, endSeason: 20232024, isAggregate: true })
-
-- client.helpers.all_players(season="20232024", api_sleep_rate=1)
-+ await client.helpers.allPlayers({ season: 20232024, apiSleepRate: 1 })
-```
-
-| Python module            | TypeScript module     |
-| ------------------------ | --------------------- |
-| `client.game_center`     | `client.gameCenter`   |
-| `client.teams`, `client.standings`, `client.schedule`, `client.stats`, `client.edge`, `client.players`, `client.misc`, `client.helpers` | same names |
-
-Method renames follow the same rule (`play_by_play` → `playByPlay`,
-`goalie_5v5_detail` → `goalie5v5Detail`). No method was added, removed or
-renamed beyond the case change.
-
-IDs and seasons accept `string | number`.
-
-### Client options
-
-```diff
-- NHLClient(debug=True, timeout=30, follow_redirects=True, ssl_verify=False)
-+ new NHLClient({ debug: true, timeout: 30, followRedirects: true })
-```
-
-`ssl_verify` was removed. Node's `fetch` has no per-request switch for TLS
-verification. If you need it, set `NODE_TLS_REJECT_UNAUTHORIZED=0` for the
-process. That is a Node setting, not one the SDK reads, and you should only use
-it for local debugging. `debug` logs go to stderr, not the Python `logging`
-module.
-
-### Query builder
-
-Import everything from the package root. The classes and their constructor
-arguments are the same.
-
-```diff
-- from nhlpy.api.query.builder import QueryBuilder
-- from nhlpy.api.query.filters.season import SeasonQuery
-- from nhlpy.api.query.filters.position import PositionQuery, PositionTypes
-- context = QueryBuilder().build(filters=[SeasonQuery(season_start="20232024", season_end="20232024"),
--                                         PositionQuery(position=PositionTypes.CENTER)])
-- if not context.is_valid(): print(context.errors)
-- client.stats.skater_stats_with_query_context(query_context=context, report_type="summary")
-+ import { PositionQuery, PositionTypes, QueryBuilder, SeasonQuery } from 'nhl-api-ts';
-+ const context = new QueryBuilder().build([
-+   new SeasonQuery(20232024, 20232024),
-+   new PositionQuery(PositionTypes.CENTER),
-+ ]);
-+ if (!context.isValid()) console.error(context.errors);
-+ await client.stats.skaterStatsWithQueryContext({ queryContext: context, reportType: 'summary' });
-```
-
-| Python                      | TypeScript                |
-| --------------------------- | ------------------------- |
-| `context.query_str`         | `context.queryStr`        |
-| `context.fact_query`        | `context.factQuery`       |
-| `context.is_valid()`        | `context.isValid()`       |
-| `QueryBuilder(debug=True)`  | `new QueryBuilder({ debug: true })` |
-| `StatusQuery(is_active=True)` | `new StatusQuery({ isActive: true })` |
-
-Behavior fix: in nhl-api-py, `DecisionQuery.validate()` returns `None`, so the
-builder rejects every decision filter, valid ones included. In nhl-api-ts,
-`new DecisionQuery('W')` is accepted, and only values other than `W`, `L` and
-`O` are rejected.
-
-### Errors
-
-The exception class names are the same. They are exported from the package
-root. Python `ValueError` for bad input becomes `RangeError`.
-
-```diff
-- from nhlpy.http_client import ResourceNotFoundException
-- try:
--     client.game_center.boxscore(game_id="1")
-- except ResourceNotFoundException as e:
--     print(e.status_code)
-+ import { ResourceNotFoundException } from 'nhl-api-ts';
-+ try {
-+   await client.gameCenter.boxscore({ gameId: 1 });
-+ } catch (err) {
-+   if (err instanceof ResourceNotFoundException) console.log(err.statusCode);
-+ }
-```
-
-| Python          | TypeScript    |
-| --------------- | ------------- |
-| `e.status_code` | `err.statusCode` |
-| `e.error_code`  | `err.errorCode`  |
-| `ValueError`    | `RangeError`     |
-
-Timeouts surface as a `DOMException` named `TimeoutError`, not
-`httpx.TimeoutException`. See [docs/errors.md](docs/errors.md).
-
-### Payloads
-
-Response bodies are unchanged and keep the NHL's camelCase keys. The shapes
-the SDK builds itself keep their Python key names: `teams.teams()` returns
-`common_name` and `franchise_id`.
-
-### Output
-
-`helpers` progress and warning messages go to **stderr**. The CLI's stdout is
-always pure JSON.
-
-### New in the port
-
-- A CLI: `npx nhl-api-ts <module> <command>`. See the [README](README.md#cli).
-- Full TypeScript types for every parameter object.

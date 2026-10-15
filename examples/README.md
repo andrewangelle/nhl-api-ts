@@ -16,7 +16,7 @@ node examples/query-builder.mts
 | `quick-start.mts`      | Client setup, teams, standings, a roster                 |
 | `todays-games.mts`     | Daily schedule and scores                                |
 | `game-summary.mts`     | Boxscore and play-by-play for one game                   |
-| `query-builder.mts`    | Filtered skater stats with `QueryBuilder`                |
+| `query-builder.mts`    | Filtered skater stats with `buildQuery`                  |
 | `paginate-stats.mts`   | Paging through a stats report with `start` / `limit`     |
 | `edge-tracking.mts`    | NHL EDGE skater tracking data                            |
 | `error-handling.mts`   | Typed exceptions and a retry wrapper                     |

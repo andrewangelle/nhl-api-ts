@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
 import { MODULES } from '#src/cli/commands.mjs';
 import { runCli } from '#src/cli/run.mjs';
-import { type ClientOptions, NHLClient } from '#src/index.mjs';
+import { type ClientOptions, createNHLClient } from '#src/index.mjs';
 import {
   calledUrls,
   mockFetch,
@@ -22,7 +22,7 @@ async function run(argv: string[], responder?: Responder) {
     stderr: (text) => err.push(text),
     createClient: (clientOptions) => {
       options.push(clientOptions);
-      return new NHLClient(clientOptions);
+      return createNHLClient(clientOptions);
     },
   });
   return {
@@ -42,7 +42,7 @@ const kebab = (name: string) =>
 
 describe('cli', () => {
   it('exposes every SDK method as a command', () => {
-    const client = new NHLClient();
+    const client = createNHLClient();
     const sdkModules = [
       'teams',
       'standings',
@@ -58,29 +58,10 @@ describe('cli', () => {
       MODULES.map((moduleSpec) => moduleSpec.name).sort(),
       sdkModules.map(kebab).sort(),
     );
+    // Every module is a plain `<module>Api` object of bound functions, so
+    // `Object.keys` lists the public methods directly.
     for (const name of sdkModules) {
-      const methods = Object.getOwnPropertyNames(
-        Object.getPrototypeOf(client[name]),
-      )
-        .filter(
-          (method) =>
-            method !== 'constructor' &&
-            method !== 'sleep' &&
-            typeof (client[name] as never)[method] === 'function',
-        )
-        .filter(
-          (method) =>
-            ![
-              'getEdge',
-              'getWeb',
-              'getData',
-              'fetchStandingsData',
-              'createTeam',
-              'enrichTeamsWithFranchiseIds',
-            ].includes(method),
-        )
-        .map(kebab)
-        .sort();
+      const methods = Object.keys(client[name]).map(kebab).sort();
       const commands = MODULES.find(
         (moduleSpec) => moduleSpec.name === kebab(name),
       )

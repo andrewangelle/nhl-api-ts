@@ -4,9 +4,9 @@
  *   node examples/todays-games.mts
  *   node examples/todays-games.mts 2024-10-09
  */
-import { NHLClient } from 'nhl-api-ts';
+import { createNHLClient } from 'nhl-api-ts';
 
-const client = new NHLClient();
+const client = createNHLClient();
 const date = process.argv[2];
 
 const schedule = await client.schedule.dailySchedule({ date });
