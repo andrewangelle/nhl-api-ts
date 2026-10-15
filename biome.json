@@ -13,6 +13,8 @@
       "**/src/**",
       "**/test/**",
       "**/.vscode/**",
+      "**/examples/**",
+      "**/scripts/**",
       "!**/build",
       "!**/dist",
       "!**/public",

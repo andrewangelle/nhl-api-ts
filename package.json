@@ -56,12 +56,16 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "typecheck": "pnpm exec tsc --noEmit"
+    "typecheck": "pnpm exec tsc --noEmit",
+    "typecheck:examples": "pnpm exec tsc -p examples",
+    "api:report": "pnpm build && mkdir -p node_modules/.api-extractor && pnpm exec api-extractor run --local && cp node_modules/.api-extractor/nhl-api-ts.api.md api-report.md",
+    "docs:llms": "node scripts/build-llms-full.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
+    "@microsoft/api-extractor": "^7.59.4",
     "@types/node": "^26.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",

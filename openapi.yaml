@@ -1,0 +1,709 @@
+openapi: 3.1.0
+info:
+  title: NHL API (as used by nhl-api-ts)
+  version: 0.1.0
+  summary: The subset of the public NHL web and stats APIs that nhl-api-ts calls.
+  description: |
+    Unofficial description of the public, unauthenticated NHL APIs. The NHL
+    publishes no specification, so this file lists only the paths, parameters
+    and envelopes that `nhl-api-ts` depends on. Response bodies are untyped
+    beyond their top-level envelope and can change without notice.
+
+    Two services are involved:
+
+    - **Web API** `https://api-web.nhle.com/v1`: resource-shaped. Paths that
+      accept `now` answer `307` with a redirect to the dated resource.
+    - **Stats API** `https://api.nhle.com/stats/rest`: report-shaped. Filtered
+      with `cayenneExp`, sorted with a JSON `sort`, and paged with
+      `start`/`limit` (at most 100 rows per page; `limit=-1` returns all).
+
+    Each operation's `x-sdk-method` names the SDK method that calls it.
+  license:
+    name: MIT (this description)
+    identifier: MIT
+servers:
+  - url: https://api-web.nhle.com/v1
+    description: NHL web API
+security: [] # public API, no authentication
+tags:
+  - name: teams
+    description: Teams, rosters and franchises.
+  - name: standings
+    description: League standings.
+  - name: schedule
+    description: Schedules and playoff brackets.
+  - name: gameCenter
+    description: Per-game data and daily scores.
+  - name: stats
+    description: Player and team statistics.
+  - name: edge
+    description: NHL EDGE puck and player tracking.
+  - name: players
+    description: Prospects and rosters.
+  - name: misc
+    description: Reference data.
+
+components:
+  parameters:
+    TeamAbbr:
+      name: teamAbbr
+      in: path
+      required: true
+      description: Three-letter team abbreviation, e.g. TOR.
+      schema: { type: string, pattern: '^[A-Za-z]{3}$', example: TOR }
+    Season:
+      name: season
+      in: path
+      required: true
+      description: Season in YYYYYYYY format.
+      schema: { type: string, pattern: '^\d{8}$', example: '20232024' }
+    DateOrNow:
+      name: date
+      in: path
+      required: true
+      description: 'YYYY-MM-DD, or `now` (redirects to today).'
+      schema: { type: string, example: '2024-10-09' }
+    Date:
+      name: date
+      in: path
+      required: true
+      description: YYYY-MM-DD.
+      schema: { type: string, format: date, example: '2024-10-09' }
+    GameId:
+      name: gameId
+      in: path
+      required: true
+      description: Game id in YYYYTTNNNN format.
+      schema: { type: string, pattern: '^\d{10}$', example: '2023020280' }
+    PlayerId:
+      name: playerId
+      in: path
+      required: true
+      schema: { type: integer, example: 8478402 }
+    EdgeId:
+      name: id
+      in: path
+      required: true
+      description: Player id (skater/goalie reports) or team id (team reports).
+      schema: { type: integer, example: 8478402 }
+    EdgeSeason:
+      name: season
+      in: path
+      required: true
+      schema: { type: string, pattern: '^\d{8}$', example: '20232024' }
+    EdgeGameType:
+      name: gameType
+      in: path
+      required: true
+      description: 2 = regular season, 3 = playoffs.
+      schema: { type: integer, enum: [2, 3], default: 2 }
+    CayenneExp:
+      name: cayenneExp
+      in: query
+      description: >-
+        Filter expression, e.g. `gameTypeId=2 and seasonId<=20232024 and seasonId>=20232024`.
+      schema: { type: string }
+    FactCayenneExp:
+      name: factCayenneExp
+      in: query
+      description: 'Base fact filter, e.g. `gamesPlayed>=1`.'
+      schema: { type: string }
+    Sort:
+      name: sort
+      in: query
+      description: 'JSON array of `{ "property": string, "direction": "ASC" | "DESC" | "ASC_CI" | "DESC_CI" }`.'
+      schema: { type: string, example: '[{"property":"points","direction":"DESC"}]' }
+    Start:
+      name: start
+      in: query
+      schema: { type: integer, default: 0 }
+    Limit:
+      name: limit
+      in: query
+      description: Page size. Capped at 100 by the server; -1 returns all rows.
+      schema: { type: integer }
+    IsAggregate:
+      name: isAggregate
+      in: query
+      description: One row per entity across all matched seasons.
+      schema: { type: boolean }
+    IsGame:
+      name: isGame
+      in: query
+      description: Game-level rows instead of season-level.
+      schema: { type: boolean }
+
+  schemas:
+    JsonObject:
+      type: object
+      additionalProperties: true
+    DataEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/JsonObject' }
+        total: { type: integer }
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+
+  responses:
+    Json:
+      description: JSON object.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/JsonObject' }
+    JsonArray:
+      description: JSON array.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/JsonObject' }
+    Data:
+      description: Stats API envelope.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/DataEnvelope' }
+    Redirect:
+      description: '`now` was resolved; follow `Location` to the dated resource.'
+      headers:
+        Location:
+          schema: { type: string }
+    BadRequest:
+      description: 'Malformed `cayenneExp` or `sort`. Body carries the parser message.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Unknown id, date or season (body is HTML).
+
+paths:
+  # ---------------------------------------------------------------- teams
+  /roster/{teamAbbr}/{season}:
+    get:
+      tags: [teams, players]
+      operationId: teamRoster
+      x-sdk-method: [teams.teamRoster, players.playersByTeam]
+      summary: Team roster for a season, grouped as forwards / defensemen / goalies.
+      parameters:
+        - $ref: '#/components/parameters/TeamAbbr'
+        - $ref: '#/components/parameters/Season'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- standings
+  /standings/{date}:
+    get:
+      tags: [standings, teams]
+      operationId: standings
+      x-sdk-method: [standings.leagueStandings, teams.teams]
+      summary: 'League standings on a date. Body `{ standings: [...] }`.'
+      parameters:
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '307': { $ref: '#/components/responses/Redirect' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /standings-season:
+    get:
+      tags: [standings]
+      operationId: seasonStandingManifest
+      x-sdk-method: [standings.seasonStandingManifest]
+      summary: 'Every season with its standings start/end dates and rules. Body `{ seasons: [...] }`.'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+
+  # ---------------------------------------------------------------- schedule
+  /schedule/{date}:
+    get:
+      tags: [schedule]
+      operationId: schedule
+      x-sdk-method: [schedule.dailySchedule, schedule.weeklySchedule]
+      summary: 'Week of games starting at a date. Body `{ gameWeek: [{ date, games }], ... }`.'
+      parameters:
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '307': { $ref: '#/components/responses/Redirect' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /club-schedule/{teamAbbr}/month/{month}:
+    get:
+      tags: [schedule]
+      operationId: teamMonthlySchedule
+      x-sdk-method: [schedule.teamMonthlySchedule]
+      summary: 'A team''s games in a month. Body `{ games: [...] }`.'
+      parameters:
+        - $ref: '#/components/parameters/TeamAbbr'
+        - name: month
+          in: path
+          required: true
+          description: 'YYYY-MM, or `now`.'
+          schema: { type: string, example: '2023-11' }
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '307': { $ref: '#/components/responses/Redirect' }
+  /club-schedule/{teamAbbr}/week/{date}:
+    get:
+      tags: [schedule]
+      operationId: teamWeeklySchedule
+      x-sdk-method: [schedule.teamWeeklySchedule]
+      summary: 'A team''s games in the week of a date. Body `{ games: [...] }`.'
+      parameters:
+        - $ref: '#/components/parameters/TeamAbbr'
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '307': { $ref: '#/components/responses/Redirect' }
+  /club-schedule-season/{teamAbbr}/{season}:
+    get:
+      tags: [schedule]
+      operationId: teamSeasonSchedule
+      x-sdk-method: [schedule.teamSeasonSchedule, helpers.gameIdsBySeason]
+      summary: 'A team''s full season schedule. Body `{ games: [{ id, gameType, ... }] }`.'
+      parameters:
+        - $ref: '#/components/parameters/TeamAbbr'
+        - $ref: '#/components/parameters/Season'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /schedule-calendar/{date}:
+    get:
+      tags: [schedule]
+      operationId: calendarSchedule
+      summary: Schedule in calendar format for a date.
+      x-sdk-method: [schedule.calendarSchedule]
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /playoff-series/carousel/{season}:
+    get:
+      tags: [schedule]
+      operationId: playoffCarousel
+      summary: Playoff series overview up to the current round.
+      x-sdk-method: [schedule.playoffCarousel]
+      parameters:
+        - $ref: '#/components/parameters/Season'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /schedule/playoff-series/{season}/{series}:
+    get:
+      tags: [schedule]
+      operationId: playoffSeriesSchedule
+      summary: Schedule and results for one playoff series.
+      x-sdk-method: [schedule.playoffSeriesSchedule]
+      parameters:
+        - $ref: '#/components/parameters/Season'
+        - name: series
+          in: path
+          required: true
+          description: 'Series letter, `a` (first round) through `o` (final).'
+          schema: { type: string, pattern: '^[a-o]$' }
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /playoff-bracket/{year}:
+    get:
+      tags: [schedule]
+      operationId: playoffBracket
+      summary: Full playoff bracket for a year.
+      x-sdk-method: [schedule.playoffBracket]
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema: { type: integer, example: 2024 }
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+
+  # ---------------------------------------------------------------- game center
+  /gamecenter/{gameId}/boxscore:
+    get:
+      tags: [gameCenter]
+      operationId: boxscore
+      summary: Boxscore with team totals and per-player stats.
+      x-sdk-method: [gameCenter.boxscore]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /gamecenter/{gameId}/play-by-play:
+    get:
+      tags: [gameCenter]
+      operationId: playByPlay
+      x-sdk-method: [gameCenter.playByPlay]
+      summary: 'Every event. Body `{ plays: [{ typeDescKey, periodDescriptor, timeInPeriod, details }], ... }`.'
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /gamecenter/{gameId}/landing:
+    get:
+      tags: [gameCenter]
+      operationId: matchUp
+      summary: 'Game landing summary: scoring by period, three stars, penalties.'
+      x-sdk-method: [gameCenter.matchUp]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /gamecenter/{gameId}/right-rail:
+    get:
+      tags: [gameCenter]
+      operationId: seasonSeriesMatchup
+      summary: Season series record and context for a game.
+      x-sdk-method: [gameCenter.seasonSeriesMatchup]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /wsc/game-story/{gameId}:
+    get:
+      tags: [gameCenter]
+      operationId: gameStory
+      summary: Narrative game story.
+      x-sdk-method: [gameCenter.gameStory]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /score/{date}:
+    get:
+      tags: [gameCenter]
+      operationId: dailyScores
+      x-sdk-method: [gameCenter.dailyScores]
+      summary: 'Scores and states for a day. Body `{ games: [{ id, gameState, awayTeam, homeTeam }], ... }`.'
+      parameters:
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '307': { $ref: '#/components/responses/Redirect' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- players / stats (web)
+  /prospects/{teamAbbr}:
+    get:
+      tags: [players]
+      operationId: prospectsByTeam
+      summary: Team prospects grouped by position.
+      x-sdk-method: [players.prospectsByTeam]
+      parameters: [{ $ref: '#/components/parameters/TeamAbbr' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /club-stats-season/{teamAbbr}:
+    get:
+      tags: [stats]
+      operationId: gametypesPerSeasonDirectoryByTeam
+      x-sdk-method: [stats.gametypesPerSeasonDirectoryByTeam]
+      summary: Seasons and game types a team has stats for.
+      parameters: [{ $ref: '#/components/parameters/TeamAbbr' }]
+      responses:
+        '200': { $ref: '#/components/responses/JsonArray' }
+  /player/{playerId}/landing:
+    get:
+      tags: [stats]
+      operationId: playerCareerStats
+      summary: Player career stats and bio.
+      x-sdk-method: [stats.playerCareerStats]
+      parameters: [{ $ref: '#/components/parameters/PlayerId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /player/{playerId}/game-log/{season}/{gameType}:
+    get:
+      tags: [stats]
+      operationId: playerGameLog
+      x-sdk-method: [stats.playerGameLog]
+      summary: 'Body `{ gameLog: [...] }`.'
+      parameters:
+        - $ref: '#/components/parameters/PlayerId'
+        - $ref: '#/components/parameters/Season'
+        - name: gameType
+          in: path
+          required: true
+          schema: { type: integer, enum: [1, 2, 3] }
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- EDGE
+  # Every per-entity EDGE path has two forms: `.../{id}/now` (307 to the
+  # current season) and `.../{id}/{season}/{gameType}`. Landing paths have
+  # `.../now` and `.../{season}/{gameType}`.
+  /edge/{report}/{id}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: edgeReport
+      summary: 'Per-player or per-team EDGE report. `id` is a player id for skater/goalie reports and a team id for team reports.'
+      x-sdk-method:
+        - edge.skaterDetail
+        - edge.skaterShotSpeedDetail
+        - edge.skaterSkatingSpeedDetail
+        - edge.skaterShotLocationDetail
+        - edge.skaterSkatingDistanceDetail
+        - edge.skaterComparison
+        - edge.skaterZoneTime
+        - edge.goalieDetail
+        - edge.goalieShotLocationDetail
+        - edge.goalie5v5Detail
+        - edge.goalieComparison
+        - edge.goalieSavePercentageDetail
+        - edge.teamDetail
+        - edge.teamSkatingDistanceDetail
+        - edge.teamZoneTimeDetails
+        - edge.teamShotLocationDetail
+        - edge.teamShotSpeedDetail
+        - edge.teamSkatingSpeedDetail
+      parameters:
+        - name: report
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - skater-detail
+              - skater-shot-speed-detail
+              - skater-skating-speed-detail
+              - skater-shot-location-detail
+              - skater-skating-distance-detail
+              - skater-comparison
+              - skater-zone-time
+              - goalie-detail
+              - goalie-shot-location-detail
+              - goalie-5v5-detail
+              - goalie-comparison
+              - goalie-save-percentage-detail
+              - team-detail
+              - team-skating-distance-detail
+              - team-zone-time-details
+              - team-shot-location-detail
+              - team-shot-speed-detail
+              - team-skating-speed-detail
+        - $ref: '#/components/parameters/EdgeId'
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/{report}/{id}/now:
+    get:
+      tags: [edge]
+      operationId: edgeReportNow
+      summary: Current-season form of any per-player or per-team EDGE report.
+      parameters:
+        - name: report
+          in: path
+          required: true
+          schema: { type: string, example: skater-detail }
+        - $ref: '#/components/parameters/EdgeId'
+      responses:
+        '307': { $ref: '#/components/responses/Redirect' }
+  /cat/edge/{report}/{playerId}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: catEdgePlayerReport
+      x-sdk-method: [edge.catSkaterDetail, edge.catGoalieDetail]
+      summary: 'CAT (Catch All Tracking) variant. `/now` form also available.'
+      parameters:
+        - name: report
+          in: path
+          required: true
+          schema: { type: string, enum: [skater-detail, goalie-detail] }
+        - $ref: '#/components/parameters/PlayerId'
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /edge/{landing}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: edgeLanding
+      x-sdk-method: [edge.skaterLanding, edge.goalieLanding, edge.teamLanding]
+      summary: 'League-wide EDGE leaders. `/edge/{landing}/now` form also available.'
+      parameters:
+        - name: landing
+          in: path
+          required: true
+          schema: { type: string, enum: [skater-landing, goalie-landing, team-landing] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+
+  # ---------------------------------------------------------------- stats API
+  /en/franchise:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [teams]
+      operationId: franchises
+      x-sdk-method: [teams.franchises]
+      summary: 'Every past and current franchise (`id`, `fullName`, ...).'
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+  /en/shiftcharts:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [gameCenter]
+      operationId: shiftChartData
+      summary: Player shifts for a game.
+      x-sdk-method: [gameCenter.shiftChartData]
+      parameters:
+        - name: cayenneExp
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "gameId=2023020280 and ((duration != '00:00' and typeCode = 517) or typeCode != 517 )"
+        - name: exclude
+          in: query
+          description: 'Comma-separated fields to drop, e.g. `eventDetails`.'
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+  /en/team/summary:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: teamSummary
+      summary: Team summary report.
+      x-sdk-method: [stats.teamSummary]
+      parameters:
+        - $ref: '#/components/parameters/CayenneExp'
+        - $ref: '#/components/parameters/FactCayenneExp'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Start'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/IsAggregate'
+        - $ref: '#/components/parameters/IsGame'
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /en/skater/{reportType}:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: skaterReport
+      summary: Skater stats report.
+      x-sdk-method: [stats.skaterStatsSummary, stats.skaterStatsWithQueryContext]
+      parameters:
+        - name: reportType
+          in: path
+          required: true
+          description: Unknown values return 500.
+          schema:
+            type: string
+            enum:
+              - summary
+              - bios
+              - faceoffpercentages
+              - faceoffwins
+              - goalsForAgainst
+              - realtime
+              - penalties
+              - penaltykill
+              - penaltyShots
+              - powerplay
+              - puckPossessions
+              - summaryshooting
+              - percentages
+              - scoringRates
+              - scoringpergame
+              - shootout
+              - shottype
+              - timeonice
+        - $ref: '#/components/parameters/CayenneExp'
+        - $ref: '#/components/parameters/FactCayenneExp'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Start'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/IsAggregate'
+        - $ref: '#/components/parameters/IsGame'
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { description: Unknown report type. }
+  /en/goalie/{reportType}:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: goalieReport
+      summary: Goalie stats report.
+      x-sdk-method: [stats.goalieStatsSummary]
+      parameters:
+        - name: reportType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - summary
+              - advanced
+              - bios
+              - daysrest
+              - penaltyShots
+              - savesByStrength
+              - shootout
+              - startedVsRelieved
+        - $ref: '#/components/parameters/CayenneExp'
+        - $ref: '#/components/parameters/FactCayenneExp'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Start'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/IsAggregate'
+        - $ref: '#/components/parameters/IsGame'
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /en/glossary:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: glossary
+      summary: Glossary of stat terms.
+      x-sdk-method: [misc.glossary]
+      parameters:
+        - name: sort
+          in: query
+          schema: { type: string, example: fullName }
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+  /en/config:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: statsConfig
+      x-sdk-method: [misc.config]
+      summary: Available report types and filters for the stats API.
+      responses:
+        '200': { $ref: '#/components/responses/Json' }
+  /en/country:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: countries
+      summary: Countries recognized by the NHL.
+      x-sdk-method: [misc.countries]
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+  /en/season:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: seasons
+      summary: Rules and metadata for every season.
+      x-sdk-method: [misc.seasonSpecificRulesAndInfo]
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
+  /en/draft:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: draftYearAndRounds
+      summary: Number of rounds per draft year.
+      x-sdk-method: [misc.draftYearAndRounds]
+      responses:
+        '200': { $ref: '#/components/responses/Data' }
