@@ -1,0 +1,129 @@
+# AGENTS.md
+
+Instructions for coding agents working in this repository. Humans should read
+[CONTRIBUTING.md](CONTRIBUTING.md) as well.
+
+## What this is
+
+`nhl-api-ts` is a TypeScript SDK **and** CLI for the public, unauthenticated
+NHL web API (`api-web.nhle.com`) and stats API (`api.nhle.com/stats/rest`).
+It has no runtime dependencies. It runs on Node.js >= 24 and ships as ESM only.
+It is a port of [nhl-api-py](https://github.com/coreyjs/nhl-api-py).
+
+The package is **not yet published**, so breaking changes are allowed. Prefer
+idiomatic TypeScript over parity with the Python original.
+
+## Commands
+
+```bash
+pnpm install
+pnpm test                    # node:test, runs src/*.mts directly (--conditions=source)
+pnpm typecheck               # tsc --noEmit on src/
+pnpm exec tsc -p test        # typecheck the tests
+pnpm typecheck:examples      # typecheck examples/
+pnpm lint:check              # biome; `pnpm lint:fix` to autofix
+pnpm build                   # emits dist/
+pnpm api:report              # regenerate api-report.md (builds first)
+pnpm docs:llms               # regenerate llms-full.txt from llms.txt
+node --conditions=source src/cli.mts --help   # run the CLI from source
+```
+
+Run a single test file with
+`node --conditions=source --test test/teams.test.mts`.
+
+Before you finish a change, run: `pnpm lint:check && pnpm typecheck && pnpm exec tsc -p test && pnpm test`.
+
+## Layout
+
+```
+src/
+  index.mts            public barrel. Everything exported here is public API
+  nhl-client.mts       NHLClient: builds config + HttpClient, wires modules
+  config.mts           ClientOptions / ClientConfig
+  http-client.mts      Endpoint base URLs, buildUrl, HttpClient.get, status -> error mapping
+  errors.mts           NHLApiException hierarchy
+  utils.mts            Id, JsonObject, sleep
+  api/<module>.mts     one class per client.<module> (teams, schedule, edge, ...)
+  api/query/           QueryBuilder, *Query filters, default sorts
+  cli.mts              bin entry (#!/usr/bin/env node)
+  cli/commands.mts     MODULES: the CLI spec for every SDK method
+  cli/run.mts          argument parsing, help, exit codes
+test/                  one *.test.mts per module. fetch-mock.mts mocks globalThis.fetch
+examples/              runnable scripts, typechecked in CI
+docs/                  concepts, errors, recipes
+```
+
+## Conventions
+
+- Source files are `.mts`. Internal imports use the `#src/*.mjs` subpath
+  import, for example `import { Endpoint } from '#src/http-client.mjs'`. Never
+  use relative imports inside `src/`. Tests import from `#src/...` or from
+  `./fetch-mock.mts`.
+- `tsconfig.json` sets `erasableSyntaxOnly` and `verbatimModuleSyntax`. Do not
+  use enums, namespaces or parameter properties. Use `import type` for
+  type-only imports. Model enums as `const X = {...} as const` plus a
+  same-named type (see `Endpoint`, `PositionTypes`, `NHLApiErrorCode`).
+- Biome style: single quotes, 2-space indent, and block statements are required
+  (`if (x) { return; }`). Run `pnpm lint:fix` instead of formatting by hand.
+- Use descriptive names. No single-letter variables.
+- Every endpoint method is `async`, takes **one options object**, and returns
+  parsed JSON (`JsonObject`, `JsonObject[]`, or a small typed shape like
+  `Team`/`DailySchedule`). IDs and seasons are typed `Id` (`string | number`).
+- Endpoints that unwrap an envelope return `response.data ?? []` (stats API)
+  or a named field (`standings`, `games`, `gameLog`, `seasons`).
+- Optional date/season params default to the literal path segment `now`, which
+  the API redirects to the current date or season.
+- Invalid user input throws `RangeError`. HTTP failures throw an
+  `NHLApiException` subclass (see `docs/errors.md`). Don't add new error types
+  without updating `docs/errors.md`.
+- `helpers` write progress to **stderr** (`console.error`) so CLI stdout stays
+  pure JSON. Never `console.log` from `src/`.
+
+## Adding or changing an endpoint
+
+1. Add the method to the module class in `src/api/<module>.mts`, with a JSDoc
+   block that has `@param params.x` lines and an `@example` that shows the
+   real URL or an SDK call.
+2. Add a matching `CommandSpec` in `src/cli/commands.mts`.
+   `test/cli.test.mts` ("exposes every SDK method as a command") fails if an
+   SDK method has no CLI command. That test lists methods from the class
+   prototype, so if you add a **private** helper method, add its name to the
+   exclusion list in the test.
+3. Add a test in `test/<module>.test.mts` that asserts the exact URL using
+   `mockFetch` + `calledUrls`. Assert query params with `queryOf(url)`.
+4. Update the docs: `README.md` (API modules list), `openapi.yaml` (the HTTP
+   path), and `docs/` if behavior is non-obvious.
+5. Regenerate `api-report.md` (`pnpm api:report`) and `llms-full.txt`
+   (`pnpm docs:llms`). CI fails if either is stale.
+6. Add a changeset: `pnpm changeset`.
+
+## Testing rules
+
+- Tests never hit the network. Use `mockFetch(responder)` from
+  `test/fetch-mock.mts` and `afterEach(() => mock.restoreAll())`.
+- Assert on the full URL string. The URL is the contract with the NHL API.
+- CLI tests call `runCli(argv, io)` with captured stdout/stderr and check the
+  exit code: `0` ok, `1` API/network error, `2` usage error.
+
+## Generated files: do not edit by hand
+
+- `api-report.md`: `pnpm api:report` (api-extractor, config in
+  `api-extractor.json`)
+- `llms-full.txt`: `pnpm docs:llms` (script in `scripts/build-llms-full.mts`)
+- `dist/`: `pnpm build`, gitignored
+
+## In-flight work
+
+`.claude/plans/functional-refactor.md` describes a planned move from classes
+to plain functions (`createNHLClient`, `filter.*`, `buildQuery`). If you
+implement any phase of it, update the docs, examples, `MIGRATION.md` and the
+skill in `skills/nhl-api-ts/SKILL.md` in the same change. They currently
+describe the class-based API.
+
+## Things to avoid
+
+- Adding runtime dependencies.
+- Renaming fields in API payloads. Responses pass through untouched. The only
+  SDK-built shapes are `Team` and `DailySchedule`.
+- Calling the live API from tests or CI.
+- Committing `dist/` or `.env`.

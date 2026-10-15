@@ -39,8 +39,20 @@ jobs:
       - name: Lint
         run: pnpm lint:check
 
+      - name: Typecheck
+        run: |
+          pnpm typecheck
+          pnpm exec tsc -p test
+          pnpm typecheck:examples
+
       - name: Build
         run: pnpm build
 
       - name: Test
         run: pnpm test
+
+      - name: Generated files are up to date
+        run: |
+          pnpm api:report
+          pnpm docs:llms
+          git diff --exit-code -- api-report.md llms-full.txt

@@ -8,6 +8,21 @@ Every SDK method is also available as a CLI command.
 - Node.js >= 24, ESM only
 - Fully typed
 
+## Documentation
+
+- [Concepts](docs/concepts.md): ID formats, the two NHL APIs, "now" redirects, pagination, retries
+- [Errors](docs/errors.md): every error, its cause and the fix
+- [Recipes](docs/recipes/): [filtered stats](docs/recipes/filter-skater-stats.md),
+  [pagination](docs/recipes/paginate-stats.md), [live scores](docs/recipes/live-scores.md),
+  [season-wide data](docs/recipes/season-wide-data.md), [retries](docs/recipes/retries.md),
+  [CLI + jq](docs/recipes/cli-and-jq.md), [testing](docs/recipes/testing.md)
+- [Examples](examples/): runnable scripts
+- [API report](api-report.md): the full public TypeScript API
+- [OpenAPI](openapi.yaml): every HTTP path the SDK calls
+- [Migration guide](MIGRATION.md): from nhl-api-py
+- For LLMs and agents: [llms.txt](llms.txt), [llms-full.txt](llms-full.txt),
+  [Agent Skill](skills/nhl-api-ts/SKILL.md)
+
 ## Installation
 
 ```bash
@@ -271,6 +286,9 @@ pnpm lint:check
 pnpm build        # emits dist/
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full set of checks, and
+[AGENTS.md](AGENTS.md) for repository conventions.
+
 Try the CLI from source:
 
 ```bash
@@ -280,3 +298,7 @@ node --conditions=source src/cli.mts --help
 ## Credits
 
 Ported from [nhl-api-py](https://github.com/coreyjs/nhl-api-py).
+
+## License
+
+[MIT](LICENSE)

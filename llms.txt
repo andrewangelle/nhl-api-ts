@@ -1,0 +1,40 @@
+# nhl-api-ts
+
+> TypeScript SDK and CLI for the public NHL web API (api-web.nhle.com) and stats API (api.nhle.com/stats/rest): teams, rosters, schedules, scores, boxscores, play-by-play, standings, player/team/skater/goalie stats, and NHL EDGE tracking. Node.js >= 24, ESM only, zero dependencies, no API key.
+
+Key facts:
+
+- `import { NHLClient } from 'nhl-api-ts'; const client = new NHLClient();` then `await client.<module>.<method>({ ...options })`.
+- Modules: teams, standings, schedule, gameCenter, stats, edge, players, misc, helpers. Every method is async and takes one options object with camelCase keys.
+- Every SDK method is also a CLI command: `npx nhl-api-ts <module-kebab> <method-kebab> [args] --compact` prints JSON.
+- Seasons are `YYYYYYYY` (20232024). Game ids are `YYYYTTNNNN` (2023020280). Game type: 1 preseason, 2 regular, 3 playoffs.
+- Stats API pages are capped at 100 rows. HTTP errors extend `NHLApiException`. Invalid input throws `RangeError`.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/README.md): Install, quick start, the full method list per module, CLI usage
+- [Concepts](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/concepts.md): Client and modules, ID formats, the two APIs, "now" redirects, pagination, filtering, retries
+- [Errors](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/errors.md): Every error class and code, with cause and fix, plus CLI exit codes
+- [Agent skill](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/skills/nhl-api-ts/SKILL.md): Condensed guide to choosing methods and avoiding common mistakes
+
+## Recipes
+
+- [Filter skater stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/filter-skater-stats.md): QueryBuilder filters, report types, sorting, aggregation
+- [Paginate stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/paginate-stats.md): start/limit paging, the 100-row cap, fetching all rows
+- [Today's games and live scores](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/live-scores.md): Daily schedule, scores, game states, polling
+- [Season-wide data](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/season-wide-data.md): Every game id, every player, bulk stats with helpers
+- [Retries](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/retries.md): Backoff on 429/5xx/timeouts, pacing bulk loops
+- [CLI and jq](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/cli-and-jq.md): Command mapping, structured options, jq one-liners
+- [Testing](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/testing.md): Mocking fetch to test code that uses the SDK
+
+## Reference
+
+- [API report](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/api-report.md): Generated public TypeScript API surface (every export and signature)
+- [Migration guide](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/MIGRATION.md): From nhl-api-py, and planned version changes
+
+## Optional
+
+- [OpenAPI description](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/openapi.yaml): Every HTTP path the SDK calls, with x-sdk-method mappings
+- [Examples](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/examples/README.md): Runnable scripts
+- [Contributing](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/CONTRIBUTING.md): Development setup, checks, releases
+- [Agent instructions](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/AGENTS.md): Conventions for working on this repository
