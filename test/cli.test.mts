@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
 import { MODULES } from '#src/cli/commands.mjs';
 import { runCli } from '#src/cli/run.mjs';
-import { type ClientOptions, HttpClient, NHLClient } from '#src/index.mjs';
+import { type ClientOptions, NHLClient } from '#src/index.mjs';
 import {
   calledUrls,
   mockFetch,
@@ -163,7 +163,7 @@ describe('cli', () => {
       start: '0',
       limit: '5',
       factCayenneExp: 'gamesPlayed>1',
-      sort: '[{"property": "wins", "direction": "DESC"}]',
+      sort: '[{"property":"wins","direction":"DESC"}]',
       cayenneExp: 'gameTypeId=3 and seasonId<=20232024 and seasonId>=20202021',
     });
   });
@@ -223,7 +223,7 @@ describe('cli', () => {
     );
     assert.equal(
       query.sort,
-      '[{"property": "hits", "direction": "DESC"}, {"property": "playerId", "direction": "ASC"}]',
+      '[{"property":"hits","direction":"DESC"},{"property":"playerId","direction":"ASC"}]',
     );
 
     const vets = await run([
@@ -236,22 +236,12 @@ describe('cli', () => {
   });
 
   it('maps global options to client options', async () => {
-    // --no-ssl-verify bypasses fetch, so stub the transport entirely
-    mock.method(HttpClient.prototype, 'get', async () => new Response('{}'));
     const { options } = await run(
-      [
-        '--debug',
-        '--timeout',
-        '3',
-        'misc',
-        'config',
-        '--no-follow-redirects',
-        '--no-ssl-verify',
-      ],
+      ['--debug', '--timeout', '3', 'misc', 'config', '--no-follow-redirects'],
       () => ({ body: {} }),
     );
     assert.deepEqual(options, [
-      { debug: true, timeout: 3, followRedirects: false, sslVerify: false },
+      { debug: true, timeout: 3, followRedirects: false },
     ]);
     const defaults = await run(['misc', 'config']);
     assert.deepEqual(defaults.options, [{}]);

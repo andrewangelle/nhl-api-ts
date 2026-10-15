@@ -42,7 +42,6 @@ describe('NHLClient', () => {
     const client = new NHLClient();
     assert.equal(client.config.debug, false);
     assert.equal(client.config.timeout, 10);
-    assert.equal(client.config.sslVerify, true);
     assert.equal(client.config.followRedirects, true);
   });
 });

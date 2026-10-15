@@ -29,7 +29,6 @@ const GLOBAL_OPTIONS = {
   version: { type: 'boolean', short: 'v' },
   debug: { type: 'boolean' },
   timeout: { type: 'string' },
-  'ssl-verify': { type: 'boolean' },
   'follow-redirects': { type: 'boolean' },
   compact: { type: 'boolean' },
 } as const;
@@ -40,7 +39,6 @@ const GLOBAL_HELP = `Global options:
       --compact            Print JSON on a single line
       --debug              Log requests to stderr
       --timeout <seconds>  Request timeout (default: 10)
-      --no-ssl-verify      Skip TLS certificate verification
       --no-follow-redirects  Do not follow HTTP redirects`;
 
 function version(): string {
@@ -227,7 +225,6 @@ interface Parsed {
     version?: boolean;
     debug?: boolean;
     timeout?: string;
-    'ssl-verify'?: boolean;
     'follow-redirects'?: boolean;
     compact?: boolean;
   };
@@ -295,9 +292,6 @@ function clientOptions(globals: Parsed['globals']): ClientOptions {
   const options: ClientOptions = {};
   if (globals.debug) {
     options.debug = true;
-  }
-  if (globals['ssl-verify'] === false) {
-    options.sslVerify = false;
   }
   if (globals['follow-redirects'] === false) {
     options.followRedirects = false;

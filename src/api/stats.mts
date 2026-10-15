@@ -5,7 +5,7 @@ import {
   SortingOptions,
 } from '#src/api/query/sorting/sorting-options.mjs';
 import { Endpoint, type HttpClient } from '#src/http-client.mjs';
-import { type Id, type JsonObject, pyJsonDumps } from '#src/utils.mjs';
+import type { Id, JsonObject } from '#src/utils.mjs';
 
 export interface TeamSummaryParams {
   /** Start season in YYYYYYYY format, e.g. 20202021 */
@@ -180,7 +180,7 @@ export class Stats {
       start,
       limit,
       factCayenneExp,
-      sort: pyJsonDumps(sortExpr),
+      sort: JSON.stringify(sortExpr),
       cayenneExp: defaultCayenneExp,
     };
     const response = await (
@@ -226,7 +226,7 @@ export class Stats {
       start,
       limit,
       factCayenneExp,
-      sort: pyJsonDumps(sortExpr),
+      sort: JSON.stringify(sortExpr),
       cayenneExp: defaultCayenneExp,
     };
     const response = await (
@@ -263,7 +263,7 @@ export class Stats {
       start,
       limit,
       factCayenneExp: queryContext.factQuery,
-      sort: pyJsonDumps(sortExpr),
+      sort: JSON.stringify(sortExpr),
       cayenneExp: queryContext.queryStr,
     };
     return (
@@ -312,7 +312,7 @@ export class Stats {
       start,
       limit,
       factCayenneExp,
-      sort: pyJsonDumps(sortExpr),
+      sort: JSON.stringify(sortExpr),
       cayenneExp: defaultCayenneExp,
     };
     const response = await (

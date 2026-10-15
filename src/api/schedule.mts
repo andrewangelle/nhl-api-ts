@@ -11,9 +11,8 @@ function today(): string {
 }
 
 /**
- * Parses and normalizes a YYYY-MM-DD date the way Python's
- * `strptime(date, "%Y-%m-%d")` does: single-digit months/days are accepted
- * ("2024-10-9" -> "2024-10-09") and impossible dates are rejected.
+ * Parses and normalizes a YYYY-MM-DD date: single-digit months/days are
+ * accepted ("2024-10-9" -> "2024-10-09") and impossible dates are rejected.
  */
 export function normalizeDate(date: string): string {
   const match =

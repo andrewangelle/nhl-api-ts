@@ -1,5 +1,3 @@
-import { request as httpRequest } from 'node:http';
-import { request as httpsRequest } from 'node:https';
 import type { ClientConfig } from '#src/config.mjs';
 import {
   BadRequestException,
@@ -47,70 +45,6 @@ export function buildUrl(
     return url;
   }
   return `${url}${url.includes('?') ? '&' : '?'}${qs}`;
-}
-
-const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
-const MAX_REDIRECTS = 20;
-
-/**
- * Minimal GET over node:https used when TLS verification is disabled, since the
- * global fetch has no per-request way to turn it off.
- */
-async function insecureGet(
-  url: string,
-  init: { signal: AbortSignal; redirect: RequestRedirect },
-  redirects = 0,
-): Promise<Response> {
-  const { status, headers, body } = await new Promise<{
-    status: number;
-    headers: Headers;
-    body: Buffer;
-  }>((resolve, reject) => {
-    const target = new URL(url);
-    const send = target.protocol === 'http:' ? httpRequest : httpsRequest;
-    const req = send(
-      target,
-      { method: 'GET', rejectUnauthorized: false, signal: init.signal },
-      (res) => {
-        const chunks: Buffer[] = [];
-        res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', () => {
-          const headers = new Headers();
-          for (const [name, value] of Object.entries(res.headers)) {
-            if (value !== undefined) {
-              headers.set(
-                name,
-                Array.isArray(value) ? value.join(', ') : value,
-              );
-            }
-          }
-          resolve({
-            status: res.statusCode ?? 0,
-            headers,
-            body: Buffer.concat(chunks),
-          });
-        });
-        res.on('error', reject);
-      },
-    );
-    req.on('error', reject);
-    req.end();
-  });
-
-  const location = headers.get('location');
-  if (
-    init.redirect === 'follow' &&
-    REDIRECT_STATUSES.has(status) &&
-    location &&
-    redirects < MAX_REDIRECTS
-  ) {
-    return insecureGet(new URL(location, url).href, init, redirects + 1);
-  }
-  const nullBody = status === 204 || status === 304 || status < 200;
-  return new Response(nullBody ? null : new Uint8Array(body), {
-    status,
-    headers,
-  });
 }
 
 export class HttpClient {
@@ -182,15 +116,10 @@ export class HttpClient {
     const fullUrl = buildUrl(endpoint, resource, queryParams);
     this.debug(`GET: ${fullUrl}`);
 
-    const init = {
+    const response = await fetch(fullUrl, {
       signal: AbortSignal.timeout(this.config.timeout * 1000),
-      redirect: (this.config.followRedirects
-        ? 'follow'
-        : 'manual') as RequestRedirect,
-    };
-    const response = this.config.sslVerify
-      ? await fetch(fullUrl, init)
-      : await insecureGet(fullUrl, init);
+      redirect: this.config.followRedirects ? 'follow' : 'manual',
+    });
 
     await this.handleResponse(response, resource);
     return response;
