@@ -1,6 +1,7 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type { Franchise, Roster, StandingsEntry } from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 export interface Team {
   conference: { abbr: string; name: string };
@@ -15,7 +16,7 @@ export interface Team {
 async function fetchStandingsData(
   ctx: Context,
   date: string,
-): Promise<JsonObject[]> {
+): Promise<StandingsEntry[]> {
   const response = await (
     await ctx.get(Endpoint.API_WEB_V1, `standings/${date}`)
   ).json();
@@ -23,8 +24,10 @@ async function fetchStandingsData(
 }
 
 /** Converts a raw standings entry into a `Team`. */
-export function toTeam(teamData: JsonObject): Team {
-  const nestedDefault = (key: string): string => teamData[key]?.default ?? '';
+export function toTeam(teamData: Partial<StandingsEntry>): Team {
+  const nestedDefault = (
+    key: 'teamName' | 'teamCommonName' | 'teamAbbrev',
+  ): string => teamData[key]?.default ?? '';
   return {
     conference: {
       abbr: teamData.conferenceAbbrev ?? '',
@@ -70,7 +73,7 @@ function findFranchiseId(
  */
 export function withFranchiseIds(
   teams: readonly Team[],
-  franchises: readonly JsonObject[],
+  franchises: readonly Pick<Franchise, 'id' | 'fullName'>[],
 ): Team[] {
   const lookup = new Map<string, number>();
   for (const franchise of franchises) {
@@ -115,7 +118,7 @@ export const teams = async (
 export const teamRoster = async (
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<JsonObject> =>
+): Promise<Roster> =>
   (await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)).json();
 
 /**
@@ -123,7 +126,7 @@ export const teamRoster = async (
  *
  * @example https://api.nhle.com/stats/rest/en/franchise
  */
-export const franchises = async (ctx: Context): Promise<JsonObject[]> => {
+export const franchises = async (ctx: Context): Promise<Franchise[]> => {
   const response = await (
     await ctx.get(Endpoint.API_STATS, 'en/franchise')
   ).json();

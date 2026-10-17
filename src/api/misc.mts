@@ -1,8 +1,14 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { JsonObject } from '#src/utils.mjs';
+import type {
+  Country,
+  DraftYear,
+  GlossaryEntry,
+  SeasonRules,
+  StatsConfig,
+} from '#src/types/index.mjs';
 
-async function getData(ctx: Context, resource: string): Promise<JsonObject[]> {
+async function getData<Row>(ctx: Context, resource: string): Promise<Row[]> {
   const response = await (await ctx.get(Endpoint.API_CORE, resource)).json();
   return response.data ?? [];
 }
@@ -12,7 +18,7 @@ async function getData(ctx: Context, resource: string): Promise<JsonObject[]> {
  *
  * @example https://api.nhle.com/stats/rest/en/glossary?sort=fullName
  */
-export const glossary = async (ctx: Context): Promise<JsonObject[]> =>
+export const glossary = async (ctx: Context): Promise<GlossaryEntry[]> =>
   getData(ctx, 'stats/rest/en/glossary?sort=fullName');
 
 /**
@@ -21,7 +27,7 @@ export const glossary = async (ctx: Context): Promise<JsonObject[]> =>
  *
  * @example https://api.nhle.com/stats/rest/en/config
  */
-export const config = async (ctx: Context): Promise<JsonObject> =>
+export const config = async (ctx: Context): Promise<StatsConfig> =>
   (await ctx.get(Endpoint.API_CORE, 'stats/rest/en/config')).json();
 
 /**
@@ -29,7 +35,7 @@ export const config = async (ctx: Context): Promise<JsonObject> =>
  *
  * @example https://api.nhle.com/stats/rest/en/country
  */
-export const countries = async (ctx: Context): Promise<JsonObject[]> =>
+export const countries = async (ctx: Context): Promise<Country[]> =>
   getData(ctx, 'stats/rest/en/country');
 
 /**
@@ -39,14 +45,14 @@ export const countries = async (ctx: Context): Promise<JsonObject[]> =>
  */
 export const seasonSpecificRulesAndInfo = async (
   ctx: Context,
-): Promise<JsonObject[]> => getData(ctx, 'stats/rest/en/season');
+): Promise<SeasonRules[]> => getData(ctx, 'stats/rest/en/season');
 
 /**
  * Gets the number of rounds for each NHL draft year.
  *
  * @example https://api.nhle.com/stats/rest/en/draft
  */
-export const draftYearAndRounds = async (ctx: Context): Promise<JsonObject[]> =>
+export const draftYearAndRounds = async (ctx: Context): Promise<DraftYear[]> =>
   getData(ctx, 'stats/rest/en/draft');
 
 export const miscApi = {

@@ -6,57 +6,59 @@ const goalieSummaryDefaultSorting: SortExpr[] = [
   { property: 'playerId', direction: 'ASC' },
 ];
 
+/** Default sort criteria per goalie report type. */
+export const goalieSortingByReport = {
+  summary: goalieSummaryDefaultSorting,
+  advanced: [
+    { property: 'qualityStart', direction: 'DESC' },
+    { property: 'goalsAgainstAverage', direction: 'ASC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  bios: [
+    { property: 'lastName', direction: 'ASC_CI' },
+    { property: 'goalieFullName', direction: 'ASC_CI' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  daysrest: [
+    { property: 'wins', direction: 'DESC' },
+    { property: 'savePct', direction: 'DESC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  penaltyShots: [
+    { property: 'penaltyShotsSaves', direction: 'DESC' },
+    { property: 'penaltyShotSavePct', direction: 'DESC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  savesByStrength: [
+    { property: 'wins', direction: 'DESC' },
+    { property: 'savePct', direction: 'DESC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  shootout: [
+    { property: 'shootoutWins', direction: 'DESC' },
+    { property: 'shootoutSavePct', direction: 'DESC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+  startedVsRelieved: [
+    { property: 'gamesStarted', direction: 'DESC' },
+    { property: 'gamesStartedSavePct', direction: 'DESC' },
+    { property: 'playerId', direction: 'ASC' },
+  ],
+} satisfies Record<string, SortExpr[]>;
+
+/** Goalie report types that have a default sort configured. */
+export type GoalieReportType = keyof typeof goalieSortingByReport;
+
+const sortingLookup: Record<string, SortExpr[]> = goalieSortingByReport;
+
 /**
  * Default sorting criteria for goalie stats reports. Falls back to the
  * goalie summary sort for unknown report types.
  */
 export function goalieStatsSorts(report: string): SortExpr[] {
-  switch (report) {
-    case 'summary':
-      return goalieSummaryDefaultSorting;
-    case 'advanced':
-      return [
-        { property: 'qualityStart', direction: 'DESC' },
-        { property: 'goalsAgainstAverage', direction: 'ASC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'bios':
-      return [
-        { property: 'lastName', direction: 'ASC_CI' },
-        { property: 'goalieFullName', direction: 'ASC_CI' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'daysrest':
-      return [
-        { property: 'wins', direction: 'DESC' },
-        { property: 'savePct', direction: 'DESC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'penaltyShots':
-      return [
-        { property: 'penaltyShotsSaves', direction: 'DESC' },
-        { property: 'penaltyShotSavePct', direction: 'DESC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'savesByStrength':
-      return [
-        { property: 'wins', direction: 'DESC' },
-        { property: 'savePct', direction: 'DESC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'shootout':
-      return [
-        { property: 'shootoutWins', direction: 'DESC' },
-        { property: 'shootoutSavePct', direction: 'DESC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    case 'startedVsRelieved':
-      return [
-        { property: 'gamesStarted', direction: 'DESC' },
-        { property: 'gamesStartedSavePct', direction: 'DESC' },
-        { property: 'playerId', direction: 'ASC' },
-      ];
-    default:
-      return goalieSummaryDefaultSorting;
-  }
+  return (
+    (Object.hasOwn(sortingLookup, report)
+      ? sortingLookup[report]
+      : undefined) ?? goalieSummaryDefaultSorting
+  );
 }

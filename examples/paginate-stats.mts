@@ -7,14 +7,14 @@ import {
   buildQuery,
   createNHLClient,
   filter,
-  type JsonObject,
+  type SkaterReportRows,
 } from 'nhl-api-ts';
 
 const client = createNHLClient();
 const queryContext = buildQuery([filter.season(20232024, 20232024)]);
 
 // The stats API caps pages at 100 rows, so advance by rows received.
-const rows: JsonObject[] = [];
+const rows: SkaterReportRows['summary'][] = [];
 while (true) {
   const page = await client.stats.skaterStatsWithQueryContext({
     queryContext,

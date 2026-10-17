@@ -5,11 +5,20 @@ import { miscApi } from '#src/api/misc.mjs';
 import { playersApi } from '#src/api/players.mjs';
 import { scheduleApi } from '#src/api/schedule.mjs';
 import { standingsApi } from '#src/api/standings.mjs';
-import { statsApi } from '#src/api/stats.mjs';
+import {
+  type GoalieStatsSummaryParams,
+  type SkaterStatsWithQueryContextParams,
+  statsApi,
+} from '#src/api/stats.mjs';
 import { teamsApi } from '#src/api/teams.mjs';
 import { type ClientOptions, resolveConfig } from '#src/config.mjs';
 import type { Context } from '#src/context.mjs';
 import { createGet } from '#src/http-client.mjs';
+import type {
+  GoalieReportRows,
+  SkaterReportRows,
+  StatsApiPage,
+} from '#src/types/index.mjs';
 import { sleep } from '#src/utils.mjs';
 
 type Bound<Module> = {
@@ -20,6 +29,26 @@ type Bound<Module> = {
     ? (...args: Args) => MethodResponse
     : never;
 };
+
+/**
+ * `Bound` erases generic parameters, so the report-typed stats methods are
+ * spelled out here (without `ctx`) to keep `reportType` / `statsType`
+ * flowing into the row type.
+ */
+interface StatsGenericMethods {
+  skaterStatsWithQueryContext<Report extends keyof SkaterReportRows>(
+    params: SkaterStatsWithQueryContextParams<Report>,
+  ): Promise<StatsApiPage<SkaterReportRows[Report]>>;
+  goalieStatsSummary<Report extends keyof GoalieReportRows = 'summary'>(
+    params: GoalieStatsSummaryParams<Report>,
+  ): Promise<GoalieReportRows[Report][]>;
+}
+
+type StatsClient = Omit<
+  Bound<typeof statsApi>,
+  'skaterStatsWithQueryContext' | 'goalieStatsSummary'
+> &
+  StatsGenericMethods;
 
 const bind = <
   Module extends Record<string, (ctx: Context, ...args: never[]) => unknown>,
@@ -52,7 +81,7 @@ export const createNHLClient = (options: ClientOptions = {}) => {
     standings: bind(ctx, standingsApi),
     schedule: bind(ctx, scheduleApi),
     gameCenter: bind(ctx, gameCenterApi),
-    stats: bind(ctx, statsApi),
+    stats: bind(ctx, statsApi) as StatsClient,
     misc: bind(ctx, miscApi),
     helpers: bind(ctx, helpersApi),
     players: bind(ctx, playersApi),

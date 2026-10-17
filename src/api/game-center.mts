@@ -1,8 +1,17 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type {
+  Boxscore,
+  DailyScores,
+  GameLanding,
+  GameStory,
+  PlayByPlay,
+  RightRail,
+  ShiftChart,
+} from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
-async function getWeb(ctx: Context, resource: string): Promise<JsonObject> {
+async function getWeb<Body>(ctx: Context, resource: string): Promise<Body> {
   return (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
 }
 
@@ -16,7 +25,7 @@ async function getWeb(ctx: Context, resource: string): Promise<JsonObject> {
 export const boxscore = async (
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<JsonObject> => getWeb(ctx, `gamecenter/${gameId}/boxscore`);
+): Promise<Boxscore> => getWeb(ctx, `gamecenter/${gameId}/boxscore`);
 
 /**
  * Get the full play-by-play feed for a specific NHL game, containing every
@@ -28,7 +37,7 @@ export const boxscore = async (
 export const playByPlay = async (
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<JsonObject> => getWeb(ctx, `gamecenter/${gameId}/play-by-play`);
+): Promise<PlayByPlay> => getWeb(ctx, `gamecenter/${gameId}/play-by-play`);
 
 /**
  * Get the landing-page summary for a specific NHL game, including scoring by
@@ -40,7 +49,7 @@ export const playByPlay = async (
 export const matchUp = async (
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<JsonObject> => getWeb(ctx, `gamecenter/${gameId}/landing`);
+): Promise<GameLanding> => getWeb(ctx, `gamecenter/${gameId}/landing`);
 
 /**
  * Get scores and game states for all NHL games on a given date. Returns the
@@ -52,7 +61,7 @@ export const matchUp = async (
 export const dailyScores = async (
   ctx: Context,
   { date }: { date?: string } = {},
-): Promise<JsonObject> => getWeb(ctx, `score/${date ? date : 'now'}`);
+): Promise<DailyScores> => getWeb(ctx, `score/${date ? date : 'now'}`);
 
 /**
  * Get individual player shift data for a specific game, including start/end
@@ -65,7 +74,7 @@ export const dailyScores = async (
 export const shiftChartData = async (
   ctx: Context,
   { gameId, excludes = ['eventDetails'] }: { gameId: Id; excludes?: string[] },
-): Promise<JsonObject> => {
+): Promise<ShiftChart> => {
   const excludeP = excludes.join(',');
   const exprP = `gameId=${gameId} and ((duration != '00:00' and typeCode = 517) or typeCode != 517 )`;
   return (
@@ -86,7 +95,7 @@ export const shiftChartData = async (
 export const seasonSeriesMatchup = async (
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<JsonObject> => getWeb(ctx, `gamecenter/${gameId}/right-rail`);
+): Promise<RightRail> => getWeb(ctx, `gamecenter/${gameId}/right-rail`);
 
 /**
  * Get the narrative game story for a specific game, including scoring
@@ -98,7 +107,7 @@ export const seasonSeriesMatchup = async (
 export const gameStory = async (
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<JsonObject> => getWeb(ctx, `wsc/game-story/${gameId}`);
+): Promise<GameStory> => getWeb(ctx, `wsc/game-story/${gameId}`);
 
 export const gameCenterApi = {
   boxscore,

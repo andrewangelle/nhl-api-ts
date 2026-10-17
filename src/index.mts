@@ -35,4 +35,5 @@ export {
   type QueryParamValue,
 } from '#src/http-client.mjs';
 export { createNHLClient, type NHLClient } from '#src/nhl-client.mjs';
-export type { Id, JsonObject } from '#src/utils.mjs';
+export type * from '#src/types/index.mjs';
+export type { Id } from '#src/utils.mjs';

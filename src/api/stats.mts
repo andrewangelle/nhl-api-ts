@@ -1,4 +1,7 @@
-import type { QueryContext } from '#src/api/query/builder.mjs';
+import {
+  DEFAULT_FACT_QUERY,
+  type QueryContext,
+} from '#src/api/query/builder.mjs';
 import { goalieStatsSorts } from '#src/api/query/sorting/goalie-sorts.mjs';
 import {
   defaultSortForReport,
@@ -6,7 +9,22 @@ import {
 } from '#src/api/query/sorting/sorting-options.mjs';
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type {
+  ClubStatsSeason,
+  GameLogEntry,
+  GoalieReportRows,
+  PlayerLanding,
+  SkaterReportRows,
+  StatsApiPage,
+  TeamSummaryRow,
+} from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
+
+/** Skater reports whose rows have no `gamesPlayed`, so the API rejects the default fact filter. */
+const REPORTS_WITHOUT_GAMES_PLAYED: readonly string[] = [
+  'shootout',
+  'penaltyShots',
+];
 
 export interface TeamSummaryParams {
   /** Start season in YYYYYYYY format, e.g. 20202021 */
@@ -19,7 +37,7 @@ export interface TeamSummaryParams {
   isGame?: boolean;
   /** Aggregate stats across the selected seasons. Defaults to false. */
   isAggregate?: boolean;
-  /** Custom sort. Defaults to points DESC, wins DESC, teamId ASC. */
+  /** Custom sort. Defaults to points DESC, wins DESC, teamId ASC (franchiseId ASC when aggregating). */
   sortExpr?: SortExpr[];
   /** Pagination offset. Defaults to 0. */
   start?: number;
@@ -48,7 +66,9 @@ export interface SkaterStatsSummaryParams {
   defaultCayenneExp?: string;
 }
 
-export interface SkaterStatsWithQueryContextParams {
+export interface SkaterStatsWithQueryContextParams<
+  Report extends keyof SkaterReportRows = keyof SkaterReportRows,
+> {
   /** Built with `buildQuery(filters)`. */
   queryContext: QueryContext;
   /**
@@ -57,7 +77,7 @@ export interface SkaterStatsWithQueryContextParams {
    * powerplay, puckPossessions, summaryshooting, percentages, scoringRates,
    * scoringpergame, shootout, shottype, timeonice
    */
-  reportType: string;
+  reportType: Report;
   /** Custom sort. Defaults to the report type's default sort. */
   sortExpr?: SortExpr[];
   aggregate?: boolean;
@@ -65,7 +85,9 @@ export interface SkaterStatsWithQueryContextParams {
   limit?: number;
 }
 
-export interface GoalieStatsSummaryParams {
+export interface GoalieStatsSummaryParams<
+  Report extends keyof GoalieReportRows = keyof GoalieReportRows,
+> {
   startSeason: Id;
   /** Defaults to `startSeason`. */
   endSeason?: Id;
@@ -73,7 +95,7 @@ export interface GoalieStatsSummaryParams {
    * Report type: summary (default), advanced, bios, daysrest, penaltyShots,
    * savesByStrength, shootout, startedVsRelieved
    */
-  statsType?: string;
+  statsType?: Report;
   gameTypeId?: number;
   franchiseId?: Id;
   aggregate?: boolean;
@@ -93,7 +115,7 @@ export interface GoalieStatsSummaryParams {
 export const gametypesPerSeasonDirectoryByTeam = async (
   ctx: Context,
   { teamAbbr }: { teamAbbr: string },
-): Promise<JsonObject[]> =>
+): Promise<ClubStatsSeason[]> =>
   (await ctx.get(Endpoint.API_WEB_V1, `club-stats-season/${teamAbbr}`)).json();
 
 /**
@@ -105,7 +127,7 @@ export const gametypesPerSeasonDirectoryByTeam = async (
 export const playerCareerStats = async (
   ctx: Context,
   { playerId }: { playerId: Id },
-): Promise<JsonObject> =>
+): Promise<PlayerLanding> =>
   (await ctx.get(Endpoint.API_WEB_V1, `player/${playerId}/landing`)).json();
 
 /**
@@ -123,7 +145,7 @@ export const playerGameLog = async (
     seasonId,
     gameType,
   }: { playerId: Id; seasonId: Id; gameType: number },
-): Promise<JsonObject[]> => {
+): Promise<GameLogEntry[]> => {
   const data = await (
     await ctx.get(
       Endpoint.API_WEB_V1,
@@ -152,14 +174,18 @@ export const teamSummary = async (
     factCayenneExp = 'gamesPlayed>1',
     defaultCayenneExp,
   }: TeamSummaryParams,
-): Promise<JsonObject[]> => {
+): Promise<TeamSummaryRow[]> => {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
       : [
           { property: 'points', direction: 'DESC' },
           { property: 'wins', direction: 'DESC' },
-          { property: 'teamId', direction: 'ASC' },
+          // aggregated rows span seasons, so they have no teamId
+          {
+            property: isAggregate ? 'franchiseId' : 'teamId',
+            direction: 'ASC',
+          },
         ];
   const effectiveCayenneExp =
     defaultCayenneExp ??
@@ -199,7 +225,7 @@ export const skaterStatsSummary = async (
     factCayenneExp = 'gamesPlayed>=1',
     defaultCayenneExp,
   }: SkaterStatsSummaryParams,
-): Promise<JsonObject[]> => {
+): Promise<SkaterReportRows['summary'][]> => {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
@@ -234,6 +260,10 @@ export const skaterStatsSummary = async (
  * Retrieves skater statistics using a query context and specified report
  * type. Returns the full response (`{ data, total }`).
  *
+ * The default fact filter (`gamesPlayed>=1`) is dropped for the `shootout` and
+ * `penaltyShots` reports, which have no `gamesPlayed` column. A fact filter
+ * you pass to `buildQuery` is sent as given.
+ *
  * @example
  * const context = buildQuery([
  *   filter.season('20232024', '20232024'),
@@ -241,7 +271,9 @@ export const skaterStatsSummary = async (
  * ]);
  * await client.stats.skaterStatsWithQueryContext({ queryContext: context, reportType: 'summary' });
  */
-export const skaterStatsWithQueryContext = async (
+export const skaterStatsWithQueryContext = async <
+  Report extends keyof SkaterReportRows,
+>(
   ctx: Context,
   {
     queryContext,
@@ -250,8 +282,8 @@ export const skaterStatsWithQueryContext = async (
     aggregate = false,
     start = 0,
     limit = 25,
-  }: SkaterStatsWithQueryContextParams,
-): Promise<JsonObject> => {
+  }: SkaterStatsWithQueryContextParams<Report>,
+): Promise<StatsApiPage<SkaterReportRows[Report]>> => {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
@@ -261,7 +293,11 @@ export const skaterStatsWithQueryContext = async (
     isGame: false,
     start,
     limit,
-    factCayenneExp: queryContext.factQuery,
+    factCayenneExp:
+      queryContext.factQuery === DEFAULT_FACT_QUERY &&
+      REPORTS_WITHOUT_GAMES_PLAYED.includes(reportType)
+        ? ''
+        : queryContext.factQuery,
     sort: JSON.stringify(effectiveSortExpr),
     cayenneExp: queryContext.query,
   };
@@ -276,12 +312,14 @@ export const skaterStatsWithQueryContext = async (
  *
  * @example await client.stats.goalieStatsSummary({ startSeason: '20232024', statsType: 'advanced' })
  */
-export const goalieStatsSummary = async (
+export const goalieStatsSummary = async <
+  Report extends keyof GoalieReportRows = 'summary',
+>(
   ctx: Context,
   {
     startSeason,
     endSeason,
-    statsType = 'summary',
+    statsType,
     gameTypeId = 2,
     franchiseId,
     aggregate = false,
@@ -290,12 +328,13 @@ export const goalieStatsSummary = async (
     limit = 25,
     factCayenneExp,
     defaultCayenneExp,
-  }: GoalieStatsSummaryParams,
-): Promise<JsonObject[]> => {
+  }: GoalieStatsSummaryParams<Report>,
+): Promise<GoalieReportRows[Report][]> => {
+  const report: keyof GoalieReportRows = statsType ?? 'summary';
   const effectiveEndSeason =
     endSeason === undefined || endSeason === null ? startSeason : endSeason;
   const effectiveSortExpr =
-    sortExpr && sortExpr.length > 0 ? sortExpr : goalieStatsSorts(statsType);
+    sortExpr && sortExpr.length > 0 ? sortExpr : goalieStatsSorts(report);
   const baseCayenneExp =
     defaultCayenneExp ??
     `gameTypeId=${gameTypeId} and seasonId<=${effectiveEndSeason} and seasonId>=${startSeason}`;
@@ -312,7 +351,7 @@ export const goalieStatsSummary = async (
     cayenneExp: effectiveCayenneExp,
   };
   const response = await (
-    await ctx.get(Endpoint.API_STATS, `en/goalie/${statsType}`, qParams)
+    await ctx.get(Endpoint.API_STATS, `en/goalie/${report}`, qParams)
   ).json();
   return response.data ?? [];
 };

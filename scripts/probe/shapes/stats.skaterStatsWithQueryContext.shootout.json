@@ -1,0 +1,21 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].careerShootoutGameDecidingGoals": "integer",
+  "[].careerShootoutGamesPlayed": "integer",
+  "[].careerShootoutGoals": "integer",
+  "[].careerShootoutShootingPct": "float",
+  "[].careerShootoutShots": "integer",
+  "[].lastName": "string",
+  "[].playerId": "integer",
+  "[].positionCode": "string",
+  "[].seasonId": "integer?",
+  "[].shootoutGameDecidingGoals": "integer",
+  "[].shootoutGamesPlayed": "integer",
+  "[].shootoutGoals": "integer",
+  "[].shootoutShootingPct": "float",
+  "[].shootoutShots": "integer",
+  "[].shootsCatches": "string",
+  "[].skaterFullName": "string",
+  "[].teamAbbrevs": "string?"
+}

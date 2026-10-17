@@ -1,0 +1,8 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].fullName": "string",
+  "[].id": "integer",
+  "[].teamCommonName": "string",
+  "[].teamPlaceName": "string"
+}

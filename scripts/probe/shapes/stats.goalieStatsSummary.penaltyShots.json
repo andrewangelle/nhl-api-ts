@@ -1,0 +1,19 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].gamesPlayed": "integer",
+  "[].goalieFullName": "string",
+  "[].goalsAgainst": "integer",
+  "[].lastName": "string",
+  "[].penaltyShotsAgainst": "integer",
+  "[].penaltyShotSavePct": "float|integer",
+  "[].penaltyShotsGoalsAgainst": "integer",
+  "[].penaltyShotsSaves": "integer",
+  "[].playerId": "integer",
+  "[].savePct": "float",
+  "[].saves": "integer",
+  "[].seasonId": "integer?",
+  "[].shootsCatches": "string",
+  "[].shotsAgainst": "integer",
+  "[].teamAbbrevs": "string?"
+}

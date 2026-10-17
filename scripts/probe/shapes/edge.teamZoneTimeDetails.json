@@ -1,0 +1,20 @@
+{
+  "$": "object",
+  ".shotDifferential": "object",
+  ".shotDifferential.shotAttemptDifferential": "float",
+  ".shotDifferential.shotAttemptDifferentialRank": "integer",
+  ".shotDifferential.sogDifferential": "float",
+  ".shotDifferential.sogDifferentialRank": "integer",
+  ".zoneTimeDetails": "array",
+  ".zoneTimeDetails[]": "object",
+  ".zoneTimeDetails[].defensiveZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].defensiveZonePctg": "float",
+  ".zoneTimeDetails[].defensiveZoneRank": "integer",
+  ".zoneTimeDetails[].neutralZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].neutralZonePctg": "float",
+  ".zoneTimeDetails[].neutralZoneRank": "integer",
+  ".zoneTimeDetails[].offensiveZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].offensiveZonePctg": "float",
+  ".zoneTimeDetails[].offensiveZoneRank": "integer",
+  ".zoneTimeDetails[].strengthCode": "string"
+}

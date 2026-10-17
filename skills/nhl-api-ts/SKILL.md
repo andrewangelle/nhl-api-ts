@@ -40,7 +40,10 @@ npx nhl-api-ts <module> <command> --help
 | Country codes for nationality filters      | `misc.countries()`                                                   |
 
 Every method is `async` and takes **one options object** with camelCase keys.
-Responses are raw NHL JSON (`JsonObject`). Name fields are localized:
+Responses are the NHL's JSON, passed through untouched and typed with named
+interfaces (`Boxscore`, `PlayByPlay`, `SkaterReportRows['summary']`, ...) that
+you can extend by module augmentation (see the extending-response-types
+recipe). Name fields are localized:
 read `player.firstName.default`, not `player.firstName`.
 
 ## Identifier formats (the most common source of 404s)

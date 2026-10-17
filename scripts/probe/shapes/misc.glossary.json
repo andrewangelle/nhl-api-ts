@@ -1,0 +1,11 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].abbreviation": "string",
+  "[].definition": "string",
+  "[].firstSeasonForStat": "integer|null",
+  "[].fullName": "string",
+  "[].id": "integer",
+  "[].languageCode": "string",
+  "[].lastUpdated": "string"
+}

@@ -34,7 +34,8 @@
       "source": "./src/*.mts",
       "types": "./dist/*.d.mts",
       "default": "./dist/*.mjs"
-    }
+    },
+    "#probe/*.mjs": "./scripts/probe/*.mts"
   },
   "bin": {
     "nhl-api-ts": "dist/cli.mjs"
@@ -59,8 +60,15 @@
     "release": "pnpm build && changeset publish",
     "typecheck": "pnpm exec tsc --noEmit",
     "typecheck:examples": "pnpm exec tsc -p examples",
+    "typecheck:types": "pnpm exec tsc -p test/types",
+    "typecheck:scripts": "pnpm exec tsc -p scripts",
     "api:report": "pnpm build && mkdir -p node_modules/.api-extractor && pnpm exec api-extractor run --local && cp node_modules/.api-extractor/nhl-api-ts.api.md api-report.md",
-    "docs:llms": "node scripts/build-llms-full.mts"
+    "docs:llms": "node scripts/build-llms-full.mts",
+    "probe:fetch": "node --conditions=source scripts/probe/fetch.mts",
+    "probe:infer": "node --conditions=source scripts/probe/infer.mts",
+    "probe:check": "node --conditions=source scripts/probe/check.mts",
+    "probe:fixtures": "node --conditions=source scripts/probe/fixtures.mts",
+    "openapi:schemas": "node --conditions=source scripts/probe/openapi.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",

@@ -33,6 +33,8 @@ pnpm lint:check            # biome (pnpm lint:fix to autofix)
 pnpm typecheck             # src
 pnpm exec tsc -p test      # tests
 pnpm typecheck:examples    # examples
+pnpm typecheck:types       # response-type augmentation test
+pnpm typecheck:scripts     # probe scripts
 pnpm build
 pnpm test
 pnpm api:report            # must leave api-report.md unchanged, or commit the change
@@ -56,6 +58,24 @@ staged files.
    write one line for the changelog. Breaking changes also need a section in
    [MIGRATION.md](MIGRATION.md) with before/after code.
 6. Open a PR against `main`.
+
+### Response types and the probe
+
+Response types in `src/types/` are derived from live API responses. The tools
+live in `scripts/probe/`; none of them run in CI:
+
+```bash
+pnpm probe:fetch       # run the sample matrix, cache raw responses in .probe/
+pnpm probe:infer       # write .probe/report, .probe/draft and scripts/probe/shapes
+pnpm probe:fixtures    # regenerate the typed fixtures in test/fixtures
+pnpm probe:check       # refetch and diff against scripts/probe/shapes
+pnpm openapi:schemas   # regenerate the response schemas in openapi.yaml from src/types
+```
+
+**Maintainers: run `pnpm probe:check` before each release.** It prints new
+fields, removed fields and required/optional flips. Update `src/types/`,
+`scripts/probe/shapes` (`pnpm probe:infer`) and the fixtures to match, then run
+`pnpm openapi:schemas`. A test fails when the schemas in `openapi.yaml` are stale.
 
 ### Adding an endpoint
 

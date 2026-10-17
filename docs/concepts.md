@@ -36,16 +36,16 @@ Every endpoint method:
 
 - is `async`,
 - takes **a single options object** (or nothing), with camelCase keys,
-- returns the parsed JSON body.
+- returns the parsed JSON body, typed with a named interface (see
+  [Response types](#response-types)).
 
 ```ts
 await client.gameCenter.boxscore({ gameId: 2023020280 });
 await client.schedule.dailySchedule(); // all params optional
 ```
 
-Responses pass through as the API returned them, with no renaming. They are
-typed `JsonObject` (`Record<string, any>`) because the NHL does not publish a
-schema. Only two shapes are built by the SDK:
+Responses pass through as the API returned them, with no renaming. Only two
+shapes are built by the SDK:
 
 - `Team` from `teams.teams()`: `{ conference, division, name, common_name, abbr, logo, franchise_id? }`
 - `DailySchedule` from `schedule.dailySchedule()`: `{ date, nextStartDate, previousStartDate, oddsPartners, games?, numberOfGames? }`
@@ -53,6 +53,31 @@ schema. Only two shapes are built by the SDK:
 Some methods unwrap an envelope for you: `franchises()` returns `data`,
 `teamMonthlySchedule()` returns `games`, `playerGameLog()` returns `gameLog`.
 The JSDoc on each method says what you get back.
+
+## Response types
+
+Every method returns a named, exported interface (`Boxscore`, `PlayByPlay`,
+`RosterPlayer`, `SkaterReportRows['summary']`, ...). The NHL does not publish
+a schema, so the types are derived from real responses (see
+`pnpm probe:fetch`, `probe:infer` and `probe:check` in
+[CONTRIBUTING.md](../CONTRIBUTING.md)). Nothing is validated at runtime: a
+type describes what the API returned when the SDK was released.
+
+- **Optional fields** (`field?: T`) are absent in some responses. The JSDoc
+  says when, for example `Absent when player=retired`. A game that hasn't been
+  played has no score, a retired player has no current team.
+- **Nullable fields** (`field: T | null`) are present with a `null` value.
+- **Open enums.** Values such as `gameState`, `periodType` and `positionCode`
+  are typed as `OpenUnion<'REG' | 'OT' | 'SO'>`: autocomplete lists the known
+  values, and a new value from the NHL still compiles.
+- **Tagged unions.** Play-by-play events are a union keyed by `typeDescKey`,
+  so `if (play.typeDescKey === 'goal')` narrows `play.details` to goal details.
+- **Report rows.** `skaterStatsWithQueryContext({ reportType: 'bios' })` and
+  `goalieStatsSummary({ statsType: 'advanced' })` return rows typed for that
+  report.
+
+To add a field the SDK doesn't know about, or a new event or report type,
+augment the interface. See [Extending response types](recipes/extending-response-types.md).
 
 ## Identifier formats
 

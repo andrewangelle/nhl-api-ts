@@ -44,6 +44,8 @@ jobs:
           pnpm typecheck
           pnpm exec tsc -p test
           pnpm typecheck:examples
+          pnpm typecheck:types
+          pnpm typecheck:scripts
 
       - name: Build
         run: pnpm build

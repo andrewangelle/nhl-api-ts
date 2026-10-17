@@ -42,7 +42,8 @@ src/
   config.mts           ClientOptions / ClientConfig
   http-client.mts      Endpoint base URLs, buildUrl, HttpClient.get, status -> error mapping
   errors.mts           NHLApiException hierarchy
-  utils.mts            Id, JsonObject, sleep
+  utils.mts            Id, sleep
+  types/               response interfaces, one file per module. Public API (see below)
   api/<module>.mts     one class per client.<module> (teams, schedule, edge, ...)
   api/query/           QueryBuilder, *Query filters, default sorts
   cli.mts              bin entry (#!/usr/bin/env node)
@@ -67,8 +68,16 @@ docs/                  concepts, errors, recipes
   (`if (x) { return; }`). Run `pnpm lint:fix` instead of formatting by hand.
 - Use descriptive names. No single-letter variables.
 - Every endpoint method is `async`, takes **one options object**, and returns
-  parsed JSON (`JsonObject`, `JsonObject[]`, or a small typed shape like
-  `Team`/`DailySchedule`). IDs and seasons are typed `Id` (`string | number`).
+  parsed JSON typed with a named interface from `src/types/` (or `Team` /
+  `DailySchedule`). IDs and seasons are typed `Id` (`string | number`).
+- Response types in `src/types/` come from real responses (`pnpm probe:fetch`,
+  `probe:infer`, `probe:check`). Rules: every object type is an `interface`
+  (never a `type` alias, consumers augment them); unions are built from
+  registries (`PlayTypes`, `SkaterReportRows`, `GoalieReportRows`); enum-like
+  strings use `OpenUnion<...>`; no index signatures; a field is optional only if
+  some response lacks it, nullable only if some response sends `null`. Export
+  new types from `src/types/index.mts` by file. Add a trimmed fixture
+  (`pnpm probe:fixtures`) and run `pnpm typecheck:types`.
 - Endpoints that unwrap an envelope return `response.data ?? []` (stats API)
   or a named field (`standings`, `games`, `gameLog`, `seasons`).
 - Optional date/season params default to the literal path segment `now`, which
@@ -92,7 +101,9 @@ docs/                  concepts, errors, recipes
 3. Add a test in `test/<module>.test.mts` that asserts the exact URL using
    `mockFetch` + `calledUrls`. Assert query params with `queryOf(url)`.
 4. Update the docs: `README.md` (API modules list), `openapi.yaml` (the HTTP
-   path), and `docs/` if behavior is non-obvious.
+   path and its named response; response schemas are generated, run
+   `pnpm openapi:schemas` after changing `src/types/`), and `docs/` if behavior
+   is non-obvious.
 5. Regenerate `api-report.md` (`pnpm api:report`) and `llms-full.txt`
    (`pnpm docs:llms`). CI fails if either is stale.
 6. Add a changeset: `pnpm changeset`.

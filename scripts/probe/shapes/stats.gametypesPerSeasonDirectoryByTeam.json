@@ -1,0 +1,7 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].gameTypes": "array",
+  "[].gameTypes[]": "integer",
+  "[].season": "integer"
+}

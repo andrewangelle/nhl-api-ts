@@ -53,7 +53,7 @@ const rosterData = (): Record<string, object> => ({
         id: 1,
         firstName: { default: 'Auston' },
         lastName: { default: 'Matthews' },
-        position: 'C',
+        positionCode: 'C',
       },
     ],
     defensemen: [],
@@ -206,7 +206,7 @@ describe('allPlayers', () => {
         id: 1,
         firstName: 'Auston',
         lastName: 'Matthews',
-        position: 'C',
+        positionCode: 'C',
         team: 'TOR',
       },
       { id: 2, firstName: 'Mike', lastName: 'Matheson', team: 'MTL' },
@@ -221,7 +221,7 @@ describe('allPlayersSummaryStatistics', () => {
       roster: rosterData(),
       statsSummary: {
         data: [
-          { playerId: 1, goals: 50, position: 'F' },
+          { playerId: 1, goals: 50, positionCode: 'F' },
           { playerId: 999, goals: 10 },
         ],
       },
@@ -236,7 +236,7 @@ describe('allPlayersSummaryStatistics', () => {
     const matched = result.filter((entry) => entry.playerId === 1);
     assert.ok(matched.length >= 1);
     // Stat fields overwrite player fields on collision
-    assert.equal(matched[0].position, 'F');
+    assert.equal(matched[0].positionCode, 'F');
     assert.equal(matched[0].goals, 50);
     assert.equal(matched[0].firstName, 'Auston');
 
