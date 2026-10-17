@@ -14,12 +14,12 @@ number of rows you actually received, not by `limit`:
 
 ```ts
 import { buildQuery, createNHLClient, filter } from 'nhl-api-ts';
-import type { JsonObject } from 'nhl-api-ts';
+import type { GoalieReportRows, SkaterReportRows } from 'nhl-api-ts';
 
 const client = createNHLClient();
 const queryContext = buildQuery([filter.season(20232024, 20232024)]);
 
-const rows: JsonObject[] = [];
+const rows: SkaterReportRows['summary'][] = [];
 while (true) {
   const page = await client.stats.skaterStatsWithQueryContext({
     queryContext,
@@ -43,7 +43,7 @@ shorter than `limit`:
 
 ```ts
 const limit = 100;
-const goalies: JsonObject[] = [];
+const goalies: GoalieReportRows['summary'][] = [];
 while (true) {
   const page = await client.stats.goalieStatsSummary({
     startSeason: 20232024,

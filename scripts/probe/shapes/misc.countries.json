@@ -1,0 +1,15 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].country3Code": "string",
+  "[].countryCode": "string",
+  "[].countryName": "string",
+  "[].hasPlayerStats": "integer",
+  "[].id": "string",
+  "[].imageUrl": "null|string",
+  "[].iocCode": "string",
+  "[].isActive": "integer",
+  "[].nationalityName": "string",
+  "[].olympicUrl": "null|string",
+  "[].thumbnailUrl": "null|string"
+}

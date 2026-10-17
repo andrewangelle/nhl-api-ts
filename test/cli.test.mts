@@ -216,6 +216,28 @@ describe('cli', () => {
     assert.equal(queryOf(vets.urls[0]).cayenneExp, "isRookie='0'");
   });
 
+  it('passes an unknown report type through to the API', async () => {
+    const { code, urls } = await run(
+      ['stats', 'skater-stats-with-query-context', 'brandNewReport'],
+      () => ({ body: { data: [], total: 0 } }),
+    );
+    assert.equal(code, 0);
+    assert.match(urls[0], /\/en\/skater\/brandNewReport\?/);
+
+    const goalies = await run(
+      [
+        'stats',
+        'goalie-stats-summary',
+        '20232024',
+        '--stats-type',
+        'brandNewReport',
+      ],
+      () => ({ body: { data: [] } }),
+    );
+    assert.equal(goalies.code, 0);
+    assert.match(goalies.urls[0], /\/en\/goalie\/brandNewReport\?/);
+  });
+
   it('maps global options to client options', async () => {
     const { options } = await run(
       ['--debug', '--timeout', '3', 'misc', 'config', '--no-follow-redirects'],

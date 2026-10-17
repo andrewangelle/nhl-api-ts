@@ -1,6 +1,7 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type { Prospects, Roster } from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 /**
  * Gets prospects for a specific team, grouped by position.
@@ -11,7 +12,7 @@ import type { Id, JsonObject } from '#src/utils.mjs';
 export const prospectsByTeam = async (
   ctx: Context,
   { teamAbbr }: { teamAbbr: string },
-): Promise<JsonObject> =>
+): Promise<Prospects> =>
   (await ctx.get(Endpoint.API_WEB_V1, `prospects/${teamAbbr}`)).json();
 
 /**
@@ -25,7 +26,7 @@ export const prospectsByTeam = async (
 export const playersByTeam = async (
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<JsonObject> =>
+): Promise<Roster> =>
   (await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)).json();
 
 export const playersApi = { prospectsByTeam, playersByTeam } as const;

@@ -1,0 +1,15 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].lastName": "string",
+  "[].penaltyShotAttempts": "integer",
+  "[].penaltyShotsFailed": "integer",
+  "[].penaltyShotsGoals": "integer",
+  "[].penaltyShotShootingPct": "float|integer",
+  "[].playerId": "integer",
+  "[].positionCode": "string",
+  "[].seasonId": "integer?",
+  "[].shootsCatches": "string",
+  "[].skaterFullName": "string",
+  "[].teamAbbrevs": "string?"
+}

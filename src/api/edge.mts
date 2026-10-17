@@ -1,6 +1,31 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type {
+  CatGoalieDetail,
+  CatSkaterDetail,
+  Goalie5v5Detail,
+  GoalieComparison,
+  GoalieDetail,
+  GoalieLanding,
+  GoalieSavePercentageDetail,
+  GoalieShotLocationDetail,
+  SkaterComparison,
+  SkaterDetail,
+  SkaterLanding,
+  SkaterShotLocationDetail,
+  SkaterShotSpeedDetail,
+  SkaterSkatingDistanceDetail,
+  SkaterSkatingSpeedDetail,
+  SkaterZoneTime,
+  TeamDetail,
+  TeamLanding,
+  TeamShotLocationDetail,
+  TeamShotSpeedDetail,
+  TeamSkatingDistanceDetail,
+  TeamSkatingSpeedDetail,
+  TeamZoneTimeDetails,
+} from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 export interface EdgeSeasonParams {
   /** Season in YYYYYYYY format, e.g. 20232024. Defaults to the current season ("now"). */
@@ -32,12 +57,12 @@ function edgeResource(
   return `${base}/${season}/${gameType}`;
 }
 
-async function getEdge(
+async function getEdge<Body>(
   ctx: Context,
   path: string,
   id: Id | undefined,
   params: EdgeSeasonParams,
-): Promise<JsonObject> {
+): Promise<Body> {
   return (
     await ctx.get(Endpoint.API_WEB_V1, edgeResource(path, id, params))
   ).json();
@@ -55,7 +80,7 @@ async function getEdge(
 export const skaterDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterDetail> =>
   getEdge(ctx, 'edge/skater-detail', params.playerId, params);
 
 /**
@@ -66,7 +91,7 @@ export const skaterDetail = async (
 export const skaterShotSpeedDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterShotSpeedDetail> =>
   getEdge(ctx, 'edge/skater-shot-speed-detail', params.playerId, params);
 
 /**
@@ -77,7 +102,7 @@ export const skaterShotSpeedDetail = async (
 export const skaterSkatingSpeedDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterSkatingSpeedDetail> =>
   getEdge(ctx, 'edge/skater-skating-speed-detail', params.playerId, params);
 
 /**
@@ -88,7 +113,7 @@ export const skaterSkatingSpeedDetail = async (
 export const skaterShotLocationDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterShotLocationDetail> =>
   getEdge(ctx, 'edge/skater-shot-location-detail', params.playerId, params);
 
 /**
@@ -99,7 +124,7 @@ export const skaterShotLocationDetail = async (
 export const skaterSkatingDistanceDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterSkatingDistanceDetail> =>
   getEdge(ctx, 'edge/skater-skating-distance-detail', params.playerId, params);
 
 /**
@@ -110,7 +135,7 @@ export const skaterSkatingDistanceDetail = async (
 export const skaterComparison = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterComparison> =>
   getEdge(ctx, 'edge/skater-comparison', params.playerId, params);
 
 /**
@@ -121,7 +146,7 @@ export const skaterComparison = async (
 export const skaterZoneTime = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<SkaterZoneTime> =>
   getEdge(ctx, 'edge/skater-zone-time', params.playerId, params);
 
 /**
@@ -132,7 +157,7 @@ export const skaterZoneTime = async (
 export const skaterLanding = async (
   ctx: Context,
   params: EdgeSeasonParams = {},
-): Promise<JsonObject> =>
+): Promise<SkaterLanding> =>
   getEdge(ctx, 'edge/skater-landing', undefined, params);
 
 /**
@@ -143,7 +168,7 @@ export const skaterLanding = async (
 export const catSkaterDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<CatSkaterDetail> =>
   getEdge(ctx, 'cat/edge/skater-detail', params.playerId, params);
 
 // ========================
@@ -158,7 +183,7 @@ export const catSkaterDetail = async (
 export const goalieDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<GoalieDetail> =>
   getEdge(ctx, 'edge/goalie-detail', params.playerId, params);
 
 /**
@@ -169,7 +194,7 @@ export const goalieDetail = async (
 export const goalieShotLocationDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<GoalieShotLocationDetail> =>
   getEdge(ctx, 'edge/goalie-shot-location-detail', params.playerId, params);
 
 /**
@@ -180,7 +205,7 @@ export const goalieShotLocationDetail = async (
 export const goalie5v5Detail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<Goalie5v5Detail> =>
   getEdge(ctx, 'edge/goalie-5v5-detail', params.playerId, params);
 
 /**
@@ -191,7 +216,7 @@ export const goalie5v5Detail = async (
 export const goalieComparison = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<GoalieComparison> =>
   getEdge(ctx, 'edge/goalie-comparison', params.playerId, params);
 
 /**
@@ -202,7 +227,7 @@ export const goalieComparison = async (
 export const goalieSavePercentageDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<GoalieSavePercentageDetail> =>
   getEdge(ctx, 'edge/goalie-save-percentage-detail', params.playerId, params);
 
 /**
@@ -213,7 +238,7 @@ export const goalieSavePercentageDetail = async (
 export const goalieLanding = async (
   ctx: Context,
   params: EdgeSeasonParams = {},
-): Promise<JsonObject> =>
+): Promise<GoalieLanding> =>
   getEdge(ctx, 'edge/goalie-landing', undefined, params);
 
 /**
@@ -224,7 +249,7 @@ export const goalieLanding = async (
 export const catGoalieDetail = async (
   ctx: Context,
   params: EdgePlayerParams,
-): Promise<JsonObject> =>
+): Promise<CatGoalieDetail> =>
   getEdge(ctx, 'cat/edge/goalie-detail', params.playerId, params);
 
 // ========================
@@ -239,7 +264,7 @@ export const catGoalieDetail = async (
 export const teamDetail = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamDetail> =>
   getEdge(ctx, 'edge/team-detail', params.teamId, params);
 
 /**
@@ -250,7 +275,7 @@ export const teamDetail = async (
 export const teamSkatingDistanceDetail = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamSkatingDistanceDetail> =>
   getEdge(ctx, 'edge/team-skating-distance-detail', params.teamId, params);
 
 /**
@@ -261,7 +286,7 @@ export const teamSkatingDistanceDetail = async (
 export const teamZoneTimeDetails = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamZoneTimeDetails> =>
   getEdge(ctx, 'edge/team-zone-time-details', params.teamId, params);
 
 /**
@@ -272,7 +297,7 @@ export const teamZoneTimeDetails = async (
 export const teamShotLocationDetail = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamShotLocationDetail> =>
   getEdge(ctx, 'edge/team-shot-location-detail', params.teamId, params);
 
 /**
@@ -283,7 +308,7 @@ export const teamShotLocationDetail = async (
 export const teamLanding = async (
   ctx: Context,
   params: EdgeSeasonParams = {},
-): Promise<JsonObject> => getEdge(ctx, 'edge/team-landing', undefined, params);
+): Promise<TeamLanding> => getEdge(ctx, 'edge/team-landing', undefined, params);
 
 /**
  * Get NHL EDGE shot speed details for a specific team.
@@ -293,7 +318,7 @@ export const teamLanding = async (
 export const teamShotSpeedDetail = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamShotSpeedDetail> =>
   getEdge(ctx, 'edge/team-shot-speed-detail', params.teamId, params);
 
 /**
@@ -304,7 +329,7 @@ export const teamShotSpeedDetail = async (
 export const teamSkatingSpeedDetail = async (
   ctx: Context,
   params: EdgeTeamParams,
-): Promise<JsonObject> =>
+): Promise<TeamSkatingSpeedDetail> =>
   getEdge(ctx, 'edge/team-skating-speed-detail', params.teamId, params);
 
 export const edgeApi = {

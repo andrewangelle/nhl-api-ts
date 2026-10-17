@@ -18,9 +18,12 @@ export interface QueryContext {
  * filters are skipped and their errors collected; valid filters are joined
  * with " and ".
  */
+/** Fact filter `buildQuery` applies unless told otherwise. */
+export const DEFAULT_FACT_QUERY = 'gamesPlayed>=1';
+
 export function buildQuery(
   filters: readonly Filter[],
-  factQuery = 'gamesPlayed>=1',
+  factQuery = DEFAULT_FACT_QUERY,
 ): QueryContext {
   const outputFilters: string[] = [];
   const errors: string[] = [];

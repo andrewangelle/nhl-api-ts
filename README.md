@@ -6,7 +6,7 @@ Every SDK method is also available as a CLI command.
 
 - Zero runtime dependencies (uses the built-in `fetch`)
 - Node.js >= 24, ESM only
-- Fully typed
+- Fully typed: every response has a named interface you can [extend](docs/recipes/extending-response-types.md)
 
 ## Documentation
 
@@ -15,7 +15,8 @@ Every SDK method is also available as a CLI command.
 - [Recipes](docs/recipes/): [filtered stats](docs/recipes/filter-skater-stats.md),
   [pagination](docs/recipes/paginate-stats.md), [live scores](docs/recipes/live-scores.md),
   [season-wide data](docs/recipes/season-wide-data.md), [retries](docs/recipes/retries.md),
-  [CLI + jq](docs/recipes/cli-and-jq.md), [testing](docs/recipes/testing.md)
+  [CLI + jq](docs/recipes/cli-and-jq.md), [testing](docs/recipes/testing.md),
+  [extending response types](docs/recipes/extending-response-types.md)
 - [Examples](examples/): runnable scripts
 - [API report](api-report.md): the full public TypeScript API
 - [OpenAPI](openapi.yaml): every HTTP path the SDK calls
@@ -180,6 +181,25 @@ Skater report types: `summary`, `bios`, `faceoffpercentages`, `faceoffwins`,
 `goalsForAgainst`, `realtime`, `penalties`, `penaltykill`, `penaltyShots`,
 `powerplay`, `puckPossessions`, `summaryshooting`, `percentages`,
 `scoringRates`, `scoringpergame`, `shootout`, `shottype`, `timeonice`.
+
+## Extending the types
+
+Response types come from real API responses, and the NHL adds fields without
+notice. Every object type is an `interface`, so you can add what's missing with
+module augmentation:
+
+```ts
+declare module 'nhl-api-ts' {
+  interface Boxscore {
+    someNewField?: string;
+  }
+}
+```
+
+New play types and report types are added through registries (`PlayTypes`,
+`SkaterReportRows`, `GoalieReportRows`). See
+[Extending response types](docs/recipes/extending-response-types.md) for those
+and for the one-off cast.
 
 ## Errors
 

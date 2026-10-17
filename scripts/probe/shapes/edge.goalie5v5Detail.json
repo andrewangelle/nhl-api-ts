@@ -1,0 +1,22 @@
+{
+  "$": "object",
+  ".savePctg5v5Details": "object",
+  ".savePctg5v5Details.savePctg": "object",
+  ".savePctg5v5Details.savePctg.leagueAvg": "float",
+  ".savePctg5v5Details.savePctg.percentile": "float",
+  ".savePctg5v5Details.savePctg.value": "float",
+  ".savePctg5v5Details.savePctgClose": "object",
+  ".savePctg5v5Details.savePctgClose.leagueAvg": "float",
+  ".savePctg5v5Details.savePctgClose.percentile": "float",
+  ".savePctg5v5Details.savePctgClose.value": "float",
+  ".savePctg5v5Details.shots": "object",
+  ".savePctg5v5Details.shots.leagueAvg": "integer",
+  ".savePctg5v5Details.shots.percentile": "float",
+  ".savePctg5v5Details.shots.value": "integer",
+  ".savePctg5v5Details.shotsPer60": "object",
+  ".savePctg5v5Details.shotsPer60.leagueAvg": "float",
+  ".savePctg5v5Details.shotsPer60.percentile": "float|integer",
+  ".savePctg5v5Details.shotsPer60.value": "float",
+  ".savePctg5v5Last10": "array",
+  ".savePctg5v5Last10[]": ""
+}

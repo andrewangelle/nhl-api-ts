@@ -1,6 +1,17 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type {
+  CalendarSchedule,
+  ClubScheduleGame,
+  OddsPartner,
+  PlayoffBracket,
+  PlayoffCarousel,
+  PlayoffSeriesSchedule,
+  ScheduleGame,
+  TeamSeasonSchedule,
+  WeeklySchedule,
+} from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 const pad = (value: number, width = 2): string =>
   String(value).padStart(width, '0');
@@ -36,8 +47,8 @@ export interface DailySchedule {
   nextStartDate: string | null;
   previousStartDate: string | null;
   date: string;
-  oddsPartners: JsonObject[] | null;
-  games?: JsonObject[];
+  oddsPartners: OddsPartner[] | null;
+  games?: ScheduleGame[];
   numberOfGames?: number;
 }
 
@@ -65,10 +76,10 @@ export const dailySchedule = async (
     oddsPartners: scheduleData.oddsPartners ?? null,
   };
 
-  const gameWeek: JsonObject[] = scheduleData.gameWeek ?? [];
+  const gameWeek: WeeklySchedule['gameWeek'] = scheduleData.gameWeek ?? [];
   const matchingDay = gameWeek.find((day) => day.date === resolvedDate);
   if (matchingDay) {
-    const games: JsonObject[] = matchingDay.games ?? [];
+    const games: ScheduleGame[] = matchingDay.games ?? [];
     responsePayload.games = games;
     responsePayload.numberOfGames = games.length;
   }
@@ -84,7 +95,7 @@ export const dailySchedule = async (
 export const weeklySchedule = async (
   ctx: Context,
   { date }: { date?: string } = {},
-): Promise<JsonObject> => {
+): Promise<WeeklySchedule> => {
   const res = date ? date : 'now';
   return (await ctx.get(Endpoint.API_WEB_V1, `schedule/${res}`)).json();
 };
@@ -99,7 +110,7 @@ export const weeklySchedule = async (
 export const teamMonthlySchedule = async (
   ctx: Context,
   { teamAbbr, month }: { teamAbbr: string; month?: string },
-): Promise<JsonObject[]> => {
+): Promise<ClubScheduleGame[]> => {
   const resource = `club-schedule/${teamAbbr}/month/${month ? month : 'now'}`;
   const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
   return response.games ?? [];
@@ -115,7 +126,7 @@ export const teamMonthlySchedule = async (
 export const teamWeeklySchedule = async (
   ctx: Context,
   { teamAbbr, date }: { teamAbbr: string; date?: string },
-): Promise<JsonObject[]> => {
+): Promise<ClubScheduleGame[]> => {
   const resource = `club-schedule/${teamAbbr}/week/${date ? date : 'now'}`;
   const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
   return response.games ?? [];
@@ -131,7 +142,7 @@ export const teamWeeklySchedule = async (
 export const teamSeasonSchedule = async (
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<JsonObject> =>
+): Promise<TeamSeasonSchedule> =>
   (
     await ctx.get(
       Endpoint.API_WEB_V1,
@@ -148,7 +159,7 @@ export const teamSeasonSchedule = async (
 export const calendarSchedule = async (
   ctx: Context,
   { date }: { date: string },
-): Promise<JsonObject> =>
+): Promise<CalendarSchedule> =>
   (await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)).json();
 
 /**
@@ -160,7 +171,7 @@ export const calendarSchedule = async (
 export const playoffCarousel = async (
   ctx: Context,
   { season }: { season: Id },
-): Promise<JsonObject> =>
+): Promise<PlayoffCarousel> =>
   (
     await ctx.get(Endpoint.API_WEB_V1, `playoff-series/carousel/${season}`)
   ).json();
@@ -175,7 +186,7 @@ export const playoffCarousel = async (
 export const playoffSeriesSchedule = async (
   ctx: Context,
   { season, series }: { season: Id; series: string },
-): Promise<JsonObject> =>
+): Promise<PlayoffSeriesSchedule> =>
   (
     await ctx.get(
       Endpoint.API_WEB_V1,
@@ -192,7 +203,7 @@ export const playoffSeriesSchedule = async (
 export const playoffBracket = async (
   ctx: Context,
   { year }: { year: Id },
-): Promise<JsonObject> =>
+): Promise<PlayoffBracket> =>
   (await ctx.get(Endpoint.API_WEB_V1, `playoff-bracket/${year}`)).json();
 
 export const scheduleApi = {

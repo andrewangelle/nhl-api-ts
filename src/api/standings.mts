@@ -1,6 +1,7 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type { LeagueStandings, StandingsSeason } from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 /**
  * Gets NHL league standings for a specific date or season.
@@ -16,7 +17,7 @@ import type { Id, JsonObject } from '#src/utils.mjs';
 export const leagueStandings = async (
   ctx: Context,
   { date, season }: { date?: string; season?: Id } = {},
-): Promise<JsonObject> => {
+): Promise<LeagueStandings> => {
   if (season) {
     const seasons = await seasonStandingManifest(ctx);
     const seasonData = seasons.find(
@@ -40,7 +41,7 @@ export const leagueStandings = async (
  */
 export const seasonStandingManifest = async (
   ctx: Context,
-): Promise<JsonObject[]> => {
+): Promise<StandingsSeason[]> => {
   const response = await (
     await ctx.get(Endpoint.API_WEB_V1, 'standings-season')
   ).json();

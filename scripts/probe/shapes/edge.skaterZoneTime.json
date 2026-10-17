@@ -1,0 +1,22 @@
+{
+  "$": "object",
+  ".zoneStarts": "object",
+  ".zoneStarts.defensiveZoneStartsPctg": "float",
+  ".zoneStarts.defensiveZoneStartsPctgPercentile": "float",
+  ".zoneStarts.neutralZoneStartsPctg": "float",
+  ".zoneStarts.neutralZoneStartsPctgPercentile": "float",
+  ".zoneStarts.offensiveZoneStartsPctg": "float",
+  ".zoneStarts.offensiveZoneStartsPctgPercentile": "float",
+  ".zoneTimeDetails": "array",
+  ".zoneTimeDetails[]": "object",
+  ".zoneTimeDetails[].defensiveZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].defensiveZonePctg": "float",
+  ".zoneTimeDetails[].defensiveZonePercentile": "float|integer",
+  ".zoneTimeDetails[].neutralZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].neutralZonePctg": "float",
+  ".zoneTimeDetails[].neutralZonePercentile": "float",
+  ".zoneTimeDetails[].offensiveZoneLeagueAvg": "float",
+  ".zoneTimeDetails[].offensiveZonePctg": "float",
+  ".zoneTimeDetails[].offensiveZonePercentile": "float|integer",
+  ".zoneTimeDetails[].strengthCode": "string"
+}

@@ -1,0 +1,14 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].conferencesInUse": "boolean",
+  "[].divisionsInUse": "boolean",
+  "[].id": "integer",
+  "[].pointForOTlossInUse": "boolean",
+  "[].regulationWinsInUse": "boolean",
+  "[].rowInUse": "boolean",
+  "[].standingsEnd": "string",
+  "[].standingsStart": "string",
+  "[].tiesInUse": "boolean",
+  "[].wildcardInUse": "boolean"
+}

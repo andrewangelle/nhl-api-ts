@@ -5,5 +5,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["./**/*.mts", "../src/**/*.mts"]
+  "include": ["./**/*.mts", "../src/**/*.mts"],
+  "exclude": ["./types/**"]
 }

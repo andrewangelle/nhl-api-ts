@@ -4,7 +4,12 @@ import { teamSeasonSchedule } from '#src/api/schedule.mjs';
 import { skaterStatsWithQueryContext } from '#src/api/stats.mjs';
 import { teams as fetchTeams, teamRoster } from '#src/api/teams.mjs';
 import type { Context } from '#src/context.mjs';
-import type { Id, JsonObject } from '#src/utils.mjs';
+import type {
+  AllPlayersEntry,
+  PlayerSummaryStatistics,
+  SkaterReportRows,
+} from '#src/types/index.mjs';
+import type { Id } from '#src/utils.mjs';
 
 /**
  * Gets all game IDs for a specified season by querying every team's
@@ -34,7 +39,7 @@ export const gameIdsBySeason = async (
 
     await ctx.sleep(apiSleepRate);
     const schedule = await teamSeasonSchedule(ctx, { teamAbbr, season });
-    const games: JsonObject[] = schedule.games ?? [];
+    const games = schedule.games ?? [];
     for (const game of games) {
       const gameType = game.gameType;
       const gameId = game.id;
@@ -60,11 +65,11 @@ export const gameIdsBySeason = async (
 export const allPlayers = async (
   ctx: Context,
   { season, apiSleepRate = 0.5 }: { season: Id; apiSleepRate?: number },
-): Promise<JsonObject[]> => {
+): Promise<AllPlayersEntry[]> => {
   const teams = await fetchTeams(ctx);
   console.error('Fetching all player base stats. This may take a while...');
 
-  const outData: JsonObject[] = [];
+  const outData: AllPlayersEntry[] = [];
   for (const team of teams) {
     await ctx.sleep(apiSleepRate);
     const players = await teamRoster(ctx, { teamAbbr: team.abbr, season });
@@ -96,14 +101,14 @@ export const allPlayers = async (
 export const allPlayersSummaryStatistics = async (
   ctx: Context,
   { season, apiSleepRate = 1 }: { season: Id; apiSleepRate?: number },
-): Promise<JsonObject[]> => {
+): Promise<PlayerSummaryStatistics[]> => {
   console.error(
     'WARNING: This method will take a while to run.  In the event of rate limiting, you may need to increase the api_sleep_rate.',
   );
   const players = await allPlayers(ctx, { season, apiSleepRate });
   const teams = await fetchTeams(ctx);
 
-  const outData: JsonObject[] = [];
+  const outData: SkaterReportRows['summary'][] = [];
 
   for (const team of teams) {
     await ctx.sleep(apiSleepRate);
@@ -119,7 +124,7 @@ export const allPlayersSummaryStatistics = async (
     outData.push(...(data.data ?? []));
   }
 
-  const playerById = new Map<unknown, JsonObject>(
+  const playerById = new Map<number, AllPlayersEntry>(
     players.map((player) => [player.id, player]),
   );
   return outData.map((statEntry) => {

@@ -68,8 +68,10 @@ you meant.
 `faceoffwins`, `goalsForAgainst`, `realtime`, `penalties`, `penaltykill`,
 `penaltyShots`, `powerplay`, `puckPossessions`, `summaryshooting`,
 `percentages`, `scoringRates`, `scoringpergame`, `shootout`, `shottype`,
-`timeonice`. The list is exported as `SKATER_REPORT_TYPES`. Each report has a
-default sort. Pass `sortExpr` to override it:
+`timeonice`. The SDK type-checks the name against `SkaterReportRows`, which
+also types the rows, and you can add a report the SDK doesn't know yet by
+augmenting that interface (see [Extending response types](extending-response-types.md)).
+The list is exported as `SKATER_REPORT_TYPES`. Each report has a default sort. Pass `sortExpr` to override it:
 
 ```ts
 await client.stats.skaterStatsWithQueryContext({
@@ -82,7 +84,8 @@ await client.stats.skaterStatsWithQueryContext({
 });
 ```
 
-An unknown `reportType` makes the API answer `500` (`ServerErrorException`).
+From the CLI, an unknown `reportType` is passed through to the API, which
+answers `500` (`ServerErrorException`).
 
 ## Aggregate across seasons
 

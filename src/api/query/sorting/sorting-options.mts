@@ -9,7 +9,7 @@ const skaterSummaryDefaultSorting: SortExpr[] = [
   { property: 'playerId', direction: 'ASC' },
 ];
 
-const defaultSortingByReport: Record<string, SortExpr[]> = {
+const defaultSortingByReport = {
   summary: skaterSummaryDefaultSorting,
   bios: [
     { property: 'lastName', direction: 'ASC_CI' },
@@ -85,7 +85,12 @@ const defaultSortingByReport: Record<string, SortExpr[]> = {
     { property: 'timeOnIce', direction: 'DESC' },
     { property: 'playerId', direction: 'ASC' },
   ],
-};
+} satisfies Record<string, SortExpr[]>;
+
+/** Skater report types that have a default sort configured. */
+export type SkaterReportType = keyof typeof defaultSortingByReport;
+
+const sortingLookup: Record<string, SortExpr[]> = defaultSortingByReport;
 
 /** Skater report types that have a default sort configured. */
 export const SKATER_REPORT_TYPES = Object.keys(defaultSortingByReport);
@@ -96,8 +101,8 @@ export const SKATER_REPORT_TYPES = Object.keys(defaultSortingByReport);
  */
 export function defaultSortForReport(report: string): SortExpr[] {
   return (
-    (Object.hasOwn(defaultSortingByReport, report)
-      ? defaultSortingByReport[report]
+    (Object.hasOwn(sortingLookup, report)
+      ? sortingLookup[report]
       : undefined) ?? skaterSummaryDefaultSorting
   );
 }

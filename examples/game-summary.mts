@@ -14,9 +14,7 @@ console.log(
 );
 
 const pbp = await client.gameCenter.playByPlay({ gameId });
-const goals = pbp.plays.filter(
-  (play: { typeDescKey: string }) => play.typeDescKey === 'goal',
-);
+const goals = pbp.plays.filter((play) => play.typeDescKey === 'goal');
 for (const goal of goals) {
   console.log(
     `  P${goal.periodDescriptor.number} ${goal.timeInPeriod}  goal by player ${goal.details.scoringPlayerId}`,

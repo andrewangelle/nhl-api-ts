@@ -23,6 +23,7 @@ Key facts:
 - [Paginate stats](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/paginate-stats.md): start/limit paging, the 100-row cap, fetching all rows
 - [Today's games and live scores](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/live-scores.md): Daily schedule, scores, game states, polling
 - [Season-wide data](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/season-wide-data.md): Every game id, every player, bulk stats with helpers
+- [Extending response types](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/extending-response-types.md): Module augmentation for fields, play types and report rows, and the per-call cast
 - [Retries](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/retries.md): Backoff on 429/5xx/timeouts, pacing bulk loops
 - [CLI and jq](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/cli-and-jq.md): Command mapping, structured options, jq one-liners
 - [Testing](https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/docs/recipes/testing.md): Mocking fetch to test code that uses the SDK
