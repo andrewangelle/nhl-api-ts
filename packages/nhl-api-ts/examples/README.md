@@ -7,8 +7,8 @@ Run one from the repo root:
 
 ```bash
 pnpm build                                  # examples import 'nhl-api-ts', which resolves to dist/
-node examples/quick-start.mts
-node examples/query-builder.mts
+node packages/nhl-api-ts/examples/quick-start.mts
+node packages/nhl-api-ts/examples/query-builder.mts
 ```
 
 | Script                 | Shows                                                    |

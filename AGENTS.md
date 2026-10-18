@@ -30,20 +30,30 @@ Run these from the repository root. They forward to the packages with
 ```bash
 pnpm install
 pnpm test                    # node:test in every package, runs src/*.mts directly (--conditions=source)
-pnpm typecheck               # tsc --noEmit on every package's src/
+pnpm typecheck               # tsc --noEmit on every package
 pnpm typecheck:test          # typecheck the SDK tests
-pnpm typecheck:examples      # typecheck examples/
+pnpm typecheck:examples      # typecheck the SDK examples/
+pnpm typecheck:types         # typecheck the response-type augmentation test (test/types)
+pnpm typecheck:scripts       # typecheck the SDK build scripts (scripts/)
 pnpm lint:check              # biome; `pnpm lint:fix` to autofix
-pnpm build                   # emits dist/
+pnpm build                   # emits packages/nhl-api-ts/dist/
 pnpm api:report              # regenerate api-report.md (builds first)
 pnpm docs:llms               # regenerate llms-full.txt from llms.txt
+pnpm api-types:fetch         # api-types-infer: cache live responses (network; never in CI)
+pnpm api-types:infer         # api-types-infer: write reports, drafts and shapes/
+pnpm api-types:fixtures      # api-types-infer: regenerate the SDK's test/fixtures
+pnpm api-types:check         # api-types-infer: refetch and diff against shapes/ (network)
+pnpm openapi:schemas         # api-types-infer: regenerate openapi.yaml response schemas
 node --conditions=source packages/nhl-api-ts/src/cli.mts --help   # run the CLI from source
 ```
 
 Run a single test file from `packages/nhl-api-ts` with
 `node --conditions=source --test test/teams.test.mts`.
 
-Before you finish a change, run (from the root): `pnpm lint:check && pnpm typecheck && pnpm typecheck:test && pnpm test`.
+Before you finish a change, run (from the root):
+`pnpm lint:check && pnpm typecheck && pnpm typecheck:test && pnpm typecheck:examples && pnpm typecheck:types && pnpm typecheck:scripts && pnpm test`.
+CI also runs `pnpm build`, `pnpm api:report` and `pnpm docs:llms` and fails if
+`api-report.md` or `llms-full.txt` changes.
 
 ## Layout
 
@@ -56,25 +66,32 @@ packages/api-types-infer/
   test/                openapi.yaml staleness test
   .api-types/          cached raw responses, reports, drafts (gitignored)
 packages/nhl-api-ts/
-src/
-  index.mts            public barrel. Everything exported here is public API
-  nhl-client.mts       NHLClient: builds config + HttpClient, wires modules
-  config.mts           ClientOptions / ClientConfig
-  http-client.mts      Endpoint base URLs, buildUrl, HttpClient.get, status -> error mapping
-  errors.mts           NHLApiException hierarchy
-  utils.mts            Id, sleep
-  types/               response interfaces, one file per module. Public API (see below)
-  api/<module>.mts     one class per client.<module> (teams, schedule, edge, ...)
-  api/query/           QueryBuilder, *Query filters, default sorts
-  cli.mts              bin entry (#!/usr/bin/env node)
-  cli/commands.mts     MODULES: the CLI spec for every SDK method
-  cli/run.mts          argument parsing, help, exit codes
-test/                  one *.test.mts per module. fetch-mock.mts mocks globalThis.fetch
-examples/              runnable scripts, typechecked in CI
-docs/                  concepts, errors, recipes
+  src/
+    index.mts          public barrel. Everything exported here is public API
+    nhl-client.mts     NHLClient: builds config + HttpClient, wires modules
+    config.mts         ClientOptions / ClientConfig
+    http-client.mts    Endpoint base URLs, buildUrl, HttpClient.get, status -> error mapping
+    errors.mts         NHLApiException hierarchy
+    utils.mts          Id, sleep
+    types/             response interfaces, one file per module. Public API (see below)
+    api/<module>.mts   one class per client.<module> (teams, schedule, edge, ...)
+    api/query/         QueryBuilder, *Query filters, default sorts
+    cli.mts            bin entry (#!/usr/bin/env node)
+    cli/commands.mts   MODULES: the CLI spec for every SDK method
+    cli/run.mts        argument parsing, help, exit codes
+  test/                one *.test.mts per module. fetch-mock.mts mocks globalThis.fetch
+    fixtures/          typed fixtures written by `pnpm api-types:fixtures`
+    types/             response-type augmentation test (`pnpm typecheck:types`)
+  examples/            runnable scripts, typechecked in CI
+  docs/                concepts, errors, recipes
+  scripts/             build-llms-full.mts (`pnpm docs:llms`)
+  skills/nhl-api-ts/   SKILL.md, the agent skill (linked from llms.txt)
+  openapi.yaml         every HTTP path the SDK calls; response schemas are generated
+  llms.txt             index for LLMs; llms-full.txt is generated from it
 ```
 
-Everything from `src/` down is inside `packages/nhl-api-ts/`.
+Paths in the rest of this file (`src/`, `test/`, `docs/`, ...) are relative to
+`packages/nhl-api-ts/`.
 
 ## Conventions
 

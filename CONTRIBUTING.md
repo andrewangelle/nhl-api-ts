@@ -60,10 +60,11 @@ staged files.
    API. See `packages/nhl-api-ts/test/fetch-mock.mts` and any existing
    `test/*.test.mts`.
 3. If the public API changed, run `pnpm api:report` and commit the updated
-   `api-report.md`. Reviewers read its diff to see API changes.
-4. Update the docs that cover your change: `README.md`, `docs/`,
-   `openapi.yaml` for new HTTP paths, `examples/` if they're affected, and
-   `skills/nhl-api-ts/SKILL.md` for usage guidance. Then run `pnpm docs:llms`.
+   `packages/nhl-api-ts/api-report.md`. Reviewers read its diff to see API changes.
+4. Update the docs that cover your change, all under `packages/nhl-api-ts/`:
+   `README.md`, `docs/`, `openapi.yaml` for new HTTP paths, `examples/` if
+   they're affected, and `skills/nhl-api-ts/SKILL.md` for usage guidance. Then
+   run `pnpm docs:llms`.
 5. Add a changeset: `pnpm changeset`. Pick `patch`, `minor` or `major` and
    write one line for the changelog. Breaking changes also need a section in
    [MIGRATION.md](packages/nhl-api-ts/MIGRATION.md) with before/after code.
@@ -72,28 +73,32 @@ staged files.
 ### Response types and api-types-infer
 
 Response types in `packages/nhl-api-ts/src/types/` are derived from live API
-responses. The tools live in `packages/api-types-infer`; none of them call the
-API in CI. Paths below are relative to that package, except where noted:
+responses. The tools live in `packages/api-types-infer` and are run from the
+repository root. None of them call the API in CI. `.api-types/` and `shapes/`
+are in `packages/api-types-infer`; `src/types/`, `test/fixtures/` and
+`openapi.yaml` are in `packages/nhl-api-ts`:
 
 ```bash
 pnpm api-types:fetch       # run the sample matrix, cache raw responses in .api-types/
 pnpm api-types:infer       # write .api-types/report, .api-types/draft and shapes/
-pnpm api-types:fixtures    # regenerate the SDK's typed fixtures in test/fixtures
+pnpm api-types:fixtures    # regenerate the SDK's typed fixtures in test/fixtures/
 pnpm api-types:check       # refetch and diff against shapes/
-pnpm openapi:schemas       # regenerate the response schemas in the SDK's openapi.yaml from src/types
+pnpm openapi:schemas       # regenerate the response schemas in openapi.yaml from src/types/
 ```
 
 **Maintainers: run `pnpm api-types:check` before each release.** It prints new
-fields, removed fields and required/optional flips. Update `src/types/`,
-`packages/api-types-infer/shapes` (`pnpm api-types:infer`) and the fixtures to
-match, then run `pnpm openapi:schemas`. A test in `api-types-infer` fails when the schemas in
-`openapi.yaml` are stale.
+fields, removed fields and required/optional flips. Update
+`packages/nhl-api-ts/src/types/`, `packages/api-types-infer/shapes/`
+(`pnpm api-types:infer`) and the fixtures (`pnpm api-types:fixtures`) to
+match, then run `pnpm openapi:schemas` and `pnpm typecheck:test`. A test in
+`api-types-infer` fails when the schemas in `openapi.yaml` are stale.
 
 ### Adding an endpoint
 
 See "Adding or changing an endpoint" in [AGENTS.md](AGENTS.md#adding-or-changing-an-endpoint).
-In short: SDK method + JSDoc, CLI command in `src/cli/commands.mts`, a URL
-test, README entry, `openapi.yaml` path, and the regenerated reports.
+In short (paths under `packages/nhl-api-ts/`): SDK method + JSDoc, CLI
+command in `src/cli/commands.mts`, a URL test, README entry, `openapi.yaml`
+path, and the regenerated reports.
 
 ## Code style
 

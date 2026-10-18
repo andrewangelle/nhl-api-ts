@@ -307,21 +307,26 @@ nhl-api-ts teams teams --compact | jq -r '.[].abbr'
 
 ## Development
 
+This package lives in a pnpm workspace. Run these from the
+[repository root](https://github.com/andrewangelle/nhl-api-ts):
+
 ```bash
 pnpm install
 pnpm test         # node:test, runs the TypeScript sources directly
 pnpm typecheck
 pnpm lint:check
-pnpm build        # emits dist/
+pnpm build        # emits packages/nhl-api-ts/dist/
 ```
 
-See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the full set of checks, and
-[AGENTS.md](../../AGENTS.md) for repository conventions.
+See [CONTRIBUTING.md](https://github.com/andrewangelle/nhl-api-ts/blob/main/CONTRIBUTING.md)
+for the full set of checks, and
+[AGENTS.md](https://github.com/andrewangelle/nhl-api-ts/blob/main/AGENTS.md) for
+repository conventions.
 
 Try the CLI from source:
 
 ```bash
-node --conditions=source src/cli.mts --help
+node --conditions=source packages/nhl-api-ts/src/cli.mts --help
 ```
 
 ## Credits
