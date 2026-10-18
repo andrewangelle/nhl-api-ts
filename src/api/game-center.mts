@@ -22,10 +22,12 @@ async function getWeb<Body>(ctx: Context, resource: string): Promise<Body> {
  * @param params.gameId Game id, e.g. 2023020280
  * @example https://api-web.nhle.com/v1/gamecenter/2023020280/boxscore
  */
-export const boxscore = async (
+export async function boxscore(
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<Boxscore> => getWeb(ctx, `gamecenter/${gameId}/boxscore`);
+): Promise<Boxscore> {
+  return getWeb(ctx, `gamecenter/${gameId}/boxscore`);
+}
 
 /**
  * Get the full play-by-play feed for a specific NHL game, containing every
@@ -34,10 +36,12 @@ export const boxscore = async (
  * @param params.gameId Game id, e.g. 2023020280
  * @example https://api-web.nhle.com/v1/gamecenter/2023020280/play-by-play
  */
-export const playByPlay = async (
+export async function playByPlay(
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<PlayByPlay> => getWeb(ctx, `gamecenter/${gameId}/play-by-play`);
+): Promise<PlayByPlay> {
+  return getWeb(ctx, `gamecenter/${gameId}/play-by-play`);
+}
 
 /**
  * Get the landing-page summary for a specific NHL game, including scoring by
@@ -46,10 +50,12 @@ export const playByPlay = async (
  * @param params.gameId Game id, e.g. 2023020280
  * @example https://api-web.nhle.com/v1/gamecenter/2023020280/landing
  */
-export const matchUp = async (
+export async function matchUp(
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<GameLanding> => getWeb(ctx, `gamecenter/${gameId}/landing`);
+): Promise<GameLanding> {
+  return getWeb(ctx, `gamecenter/${gameId}/landing`);
+}
 
 /**
  * Get scores and game states for all NHL games on a given date. Returns the
@@ -58,10 +64,12 @@ export const matchUp = async (
  * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
  * @example https://api-web.nhle.com/v1/score/2023-10-15
  */
-export const dailyScores = async (
+export async function dailyScores(
   ctx: Context,
   { date }: { date?: string } = {},
-): Promise<DailyScores> => getWeb(ctx, `score/${date ? date : 'now'}`);
+): Promise<DailyScores> {
+  return getWeb(ctx, `score/${date ? date : 'now'}`);
+}
 
 /**
  * Get individual player shift data for a specific game, including start/end
@@ -71,10 +79,10 @@ export const dailyScores = async (
  * @param params.excludes Fields to exclude from the response. Defaults to ["eventDetails"].
  * @example https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId=2023020280 and ...
  */
-export const shiftChartData = async (
+export async function shiftChartData(
   ctx: Context,
   { gameId, excludes = ['eventDetails'] }: { gameId: Id; excludes?: string[] },
-): Promise<ShiftChart> => {
+): Promise<ShiftChart> {
   const excludeP = excludes.join(',');
   const exprP = `gameId=${gameId} and ((duration != '00:00' and typeCode = 517) or typeCode != 517 )`;
   return (
@@ -83,7 +91,7 @@ export const shiftChartData = async (
       `en/shiftcharts?cayenneExp=${exprP}&exclude=${excludeP}`,
     )
   ).json();
-};
+}
 
 /**
  * Get the season-series record and contextual stats for a specific game,
@@ -92,10 +100,12 @@ export const shiftChartData = async (
  * @param params.gameId Game id, e.g. 2023020280
  * @example https://api-web.nhle.com/v1/gamecenter/2023020280/right-rail
  */
-export const seasonSeriesMatchup = async (
+export async function seasonSeriesMatchup(
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<RightRail> => getWeb(ctx, `gamecenter/${gameId}/right-rail`);
+): Promise<RightRail> {
+  return getWeb(ctx, `gamecenter/${gameId}/right-rail`);
+}
 
 /**
  * Get the narrative game story for a specific game, including scoring
@@ -104,10 +114,12 @@ export const seasonSeriesMatchup = async (
  * @param params.gameId Game id, e.g. 2023020280
  * @example https://api-web.nhle.com/v1/wsc/game-story/2023020280
  */
-export const gameStory = async (
+export async function gameStory(
   ctx: Context,
   { gameId }: { gameId: Id },
-): Promise<GameStory> => getWeb(ctx, `wsc/game-story/${gameId}`);
+): Promise<GameStory> {
+  return getWeb(ctx, `wsc/game-story/${gameId}`);
+}
 
 export const gameCenterApi = {
   boxscore,

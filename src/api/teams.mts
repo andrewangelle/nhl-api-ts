@@ -25,9 +25,11 @@ async function fetchStandingsData(
 
 /** Converts a raw standings entry into a `Team`. */
 export function toTeam(teamData: Partial<StandingsEntry>): Team {
-  const nestedDefault = (
+  function nestedDefault(
     key: 'teamName' | 'teamCommonName' | 'teamAbbrev',
-  ): string => teamData[key]?.default ?? '';
+  ): string {
+    return teamData[key]?.default ?? '';
+  }
   return {
     conference: {
       abbr: teamData.conferenceAbbrev ?? '',
@@ -99,14 +101,14 @@ export function withFranchiseIds(
  * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
  * @example await client.teams.teams()
  */
-export const teams = async (
+export async function teams(
   ctx: Context,
   { date = 'now' }: { date?: string } = {},
-): Promise<Team[]> => {
+): Promise<Team[]> {
   const standingsData = await fetchStandingsData(ctx, date);
   const franchiseData = await franchises(ctx);
   return withFranchiseIds(standingsData.map(toTeam), franchiseData);
-};
+}
 
 /**
  * Get the roster for the given team and season.
@@ -115,22 +117,25 @@ export const teams = async (
  * @param params.season Season in YYYYYYYY format, e.g. 20232024
  * @example https://api-web.nhle.com/v1/roster/BUF/20232024
  */
-export const teamRoster = async (
+export async function teamRoster(
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<Roster> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)).json();
+): Promise<Roster> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)
+  ).json();
+}
 
 /**
  * Get a list of all past and current NHL franchises.
  *
  * @example https://api.nhle.com/stats/rest/en/franchise
  */
-export const franchises = async (ctx: Context): Promise<Franchise[]> => {
+export async function franchises(ctx: Context): Promise<Franchise[]> {
   const response = await (
     await ctx.get(Endpoint.API_STATS, 'en/franchise')
   ).json();
   return response.data ?? [];
-};
+}
 
 export const teamsApi = { teams, teamRoster, franchises } as const;

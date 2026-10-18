@@ -13,8 +13,9 @@ import type {
 } from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
 
-const pad = (value: number, width = 2): string =>
-  String(value).padStart(width, '0');
+function pad(value: number, width = 2): string {
+  return String(value).padStart(width, '0');
+}
 
 /** Today's date (local time) as YYYY-MM-DD. */
 function today(): string {
@@ -59,10 +60,10 @@ export interface DailySchedule {
  * @throws RangeError If the date is not a valid YYYY-MM-DD date
  * @example await client.schedule.dailySchedule({ date: '2024-10-09' })
  */
-export const dailySchedule = async (
+export async function dailySchedule(
   ctx: Context,
   { date }: { date?: string } = {},
-): Promise<DailySchedule> => {
+): Promise<DailySchedule> {
   const resolvedDate = date ? normalizeDate(date) : today();
 
   const scheduleData = await (
@@ -84,7 +85,7 @@ export const dailySchedule = async (
     responsePayload.numberOfGames = games.length;
   }
   return responsePayload;
-};
+}
 
 /**
  * Gets NHL schedule for a week starting from the specified date.
@@ -92,13 +93,13 @@ export const dailySchedule = async (
  * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
  * @example https://api-web.nhle.com/v1/schedule/2024-10-09
  */
-export const weeklySchedule = async (
+export async function weeklySchedule(
   ctx: Context,
   { date }: { date?: string } = {},
-): Promise<WeeklySchedule> => {
+): Promise<WeeklySchedule> {
   const res = date ? date : 'now';
   return (await ctx.get(Endpoint.API_WEB_V1, `schedule/${res}`)).json();
-};
+}
 
 /**
  * Gets monthly schedule for a specified team.
@@ -107,14 +108,14 @@ export const weeklySchedule = async (
  * @param params.month Month in YYYY-MM format. Defaults to "now".
  * @example https://api-web.nhle.com/v1/club-schedule/BUF/month/2023-11
  */
-export const teamMonthlySchedule = async (
+export async function teamMonthlySchedule(
   ctx: Context,
   { teamAbbr, month }: { teamAbbr: string; month?: string },
-): Promise<ClubScheduleGame[]> => {
+): Promise<ClubScheduleGame[]> {
   const resource = `club-schedule/${teamAbbr}/month/${month ? month : 'now'}`;
   const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
   return response.games ?? [];
-};
+}
 
 /**
  * Gets weekly schedule for a specified team.
@@ -123,14 +124,14 @@ export const teamMonthlySchedule = async (
  * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
  * @example https://api-web.nhle.com/v1/club-schedule/BUF/week/2024-02-10
  */
-export const teamWeeklySchedule = async (
+export async function teamWeeklySchedule(
   ctx: Context,
   { teamAbbr, date }: { teamAbbr: string; date?: string },
-): Promise<ClubScheduleGame[]> => {
+): Promise<ClubScheduleGame[]> {
   const resource = `club-schedule/${teamAbbr}/week/${date ? date : 'now'}`;
   const response = await (await ctx.get(Endpoint.API_WEB_V1, resource)).json();
   return response.games ?? [];
-};
+}
 
 /**
  * Gets the full season schedule for a specified team.
@@ -139,16 +140,17 @@ export const teamWeeklySchedule = async (
  * @param params.season Season in YYYYYYYY format, e.g. 20232024
  * @example https://api-web.nhle.com/v1/club-schedule-season/BUF/20232024
  */
-export const teamSeasonSchedule = async (
+export async function teamSeasonSchedule(
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<TeamSeasonSchedule> =>
-  (
+): Promise<TeamSeasonSchedule> {
+  return (
     await ctx.get(
       Endpoint.API_WEB_V1,
       `club-schedule-season/${teamAbbr}/${season}`,
     )
   ).json();
+}
 
 /**
  * Gets the schedule in calendar format for a specified date.
@@ -156,11 +158,14 @@ export const teamSeasonSchedule = async (
  * @param params.date Date in YYYY-MM-DD format
  * @example https://api-web.nhle.com/v1/schedule-calendar/2023-11-08
  */
-export const calendarSchedule = async (
+export async function calendarSchedule(
   ctx: Context,
   { date }: { date: string },
-): Promise<CalendarSchedule> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)).json();
+): Promise<CalendarSchedule> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)
+  ).json();
+}
 
 /**
  * Gets all playoff series information up to the current round.
@@ -168,13 +173,14 @@ export const calendarSchedule = async (
  * @param params.season Season in YYYYYYYY format, e.g. 20232024
  * @example https://api-web.nhle.com/v1/playoff-series/carousel/20232024
  */
-export const playoffCarousel = async (
+export async function playoffCarousel(
   ctx: Context,
   { season }: { season: Id },
-): Promise<PlayoffCarousel> =>
-  (
+): Promise<PlayoffCarousel> {
+  return (
     await ctx.get(Endpoint.API_WEB_V1, `playoff-series/carousel/${season}`)
   ).json();
+}
 
 /**
  * Returns the schedule and results for a specified playoff series matchup.
@@ -183,16 +189,17 @@ export const playoffCarousel = async (
  * @param params.series Series letter, e.g. "a" (first round) through "o" (final)
  * @example https://api-web.nhle.com/v1/schedule/playoff-series/20232024/a
  */
-export const playoffSeriesSchedule = async (
+export async function playoffSeriesSchedule(
   ctx: Context,
   { season, series }: { season: Id; series: string },
-): Promise<PlayoffSeriesSchedule> =>
-  (
+): Promise<PlayoffSeriesSchedule> {
+  return (
     await ctx.get(
       Endpoint.API_WEB_V1,
       `schedule/playoff-series/${season}/${series}`,
     )
   ).json();
+}
 
 /**
  * Returns the full playoff bracket for a given year.
@@ -200,11 +207,12 @@ export const playoffSeriesSchedule = async (
  * @param params.year Year the playoffs took place, e.g. 2024
  * @example https://api-web.nhle.com/v1/playoff-bracket/2024
  */
-export const playoffBracket = async (
+export async function playoffBracket(
   ctx: Context,
   { year }: { year: Id },
-): Promise<PlayoffBracket> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `playoff-bracket/${year}`)).json();
+): Promise<PlayoffBracket> {
+  return (await ctx.get(Endpoint.API_WEB_V1, `playoff-bracket/${year}`)).json();
+}
 
 export const scheduleApi = {
   dailySchedule,

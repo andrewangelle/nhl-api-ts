@@ -22,14 +22,20 @@ export function mockFetch(responder: Responder = () => ({})) {
 }
 
 /** URLs requested through the mocked fetch, in order. */
-export const calledUrls = (fetchMock: ReturnType<typeof mockFetch>): string[] =>
-  fetchMock.mock.calls.map((call) => String(call.arguments[0]));
+export function calledUrls(fetchMock: ReturnType<typeof mockFetch>): string[] {
+  return fetchMock.mock.calls.map((call) => String(call.arguments[0]));
+}
 
 /** Query params of a requested URL as a plain object. */
-export const queryOf = (url: string): Record<string, string> =>
-  Object.fromEntries(new URL(url).searchParams);
+export function queryOf(url: string): Record<string, string> {
+  return Object.fromEntries(new URL(url).searchParams);
+}
 
 /** The URL without its query string. */
-export const pathOf = (url: string): string => url.split('?')[0];
+export function pathOf(url: string): string {
+  return url.split('?')[0];
+}
 
-export const newClient = (): NHLClient => createNHLClient();
+export function newClient(): NHLClient {
+  return createNHLClient();
+}

@@ -4,4 +4,6 @@ import { setTimeout as delay } from 'node:timers/promises';
 export type Id = string | number;
 
 /** Sleeps for the given number of seconds. */
-export const sleep = (seconds: number): Promise<void> => delay(seconds * 1000);
+export function sleep(seconds: number): Promise<void> {
+  return delay(seconds * 1000);
+}

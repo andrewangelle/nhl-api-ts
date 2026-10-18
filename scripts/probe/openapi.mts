@@ -37,19 +37,23 @@ const SKIPPED = new Set([
   'PlayerSummaryStatistics',
 ]);
 
-const squash = (text: string): string => text.replace(/\s+/g, ' ').trim();
+function squash(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
 
 /** Splits `body` at top-level occurrences of `separator` (outside <>, (), {}). */
 function splitTop(body: string, separator: string): string[] {
   const parts: string[] = [];
   let depth = 0;
   let current = '';
+
   for (const char of body) {
     if ('<({['.includes(char)) {
       depth += 1;
     } else if ('>)}]'.includes(char)) {
       depth -= 1;
     }
+
     if (char === separator && depth === 0) {
       parts.push(current);
       current = '';
@@ -57,7 +61,9 @@ function splitTop(body: string, separator: string): string[] {
       current += char;
     }
   }
+
   parts.push(current);
+
   return parts;
 }
 
@@ -66,15 +72,19 @@ function parseFields(body: string): Field[] {
   let pendingDescription: string | undefined;
   let statement = '';
   let depth = 0;
+
   for (const line of body.split('\n')) {
     const trimmed = line.trim();
+
     if (statement === '' && trimmed.startsWith('/**')) {
       pendingDescription = trimmed.replace(/^\/\*\*\s*|\s*\*\/$/g, '');
       continue;
     }
+
     if (statement === '' && trimmed === '') {
       continue;
     }
+
     statement += ` ${trimmed}`;
     for (const char of trimmed) {
       if ('<({['.includes(char)) {
@@ -83,6 +93,7 @@ function parseFields(body: string): Field[] {
         depth -= 1;
       }
     }
+
     if (depth === 0 && trimmed.endsWith(';')) {
       const match = /^\s*('?[\w-]+'?)(\?)?:\s*([\s\S]+);$/.exec(statement);
       if (match) {
@@ -97,6 +108,7 @@ function parseFields(body: string): Field[] {
       pendingDescription = undefined;
     }
   }
+
   return fields;
 }
 
@@ -106,11 +118,14 @@ function loadDeclarations(): {
 } {
   const interfaces = new Map<string, Declaration>();
   const aliases = new Map<string, string>();
+
   for (const file of readdirSync(TYPES_DIR).sort()) {
     if (file === 'index.mts' || file === 'helpers.mts') {
       continue;
     }
+
     const text = readFileSync(`${TYPES_DIR}/${file}`, 'utf8');
+
     for (const match of text.matchAll(
       /export interface (\w+)(<[^>]*>)? \{\n([\s\S]*?)\n\}/g,
     )) {
@@ -118,10 +133,12 @@ function loadDeclarations(): {
         interfaces.set(match[1], { fields: parseFields(match[3]) });
       }
     }
+
     for (const match of text.matchAll(/export type (\w+) =([\s\S]*?);\n/g)) {
       aliases.set(match[1], squash(match[2]));
     }
   }
+
   return { interfaces, aliases };
 }
 
@@ -134,33 +151,42 @@ function typeToSchema(
 ): Schema {
   const text = squash(type);
   const members = splitTop(text, '|').map(squash).filter(Boolean);
+
   if (members.length > 1) {
     const nullable = members.includes('null');
     const rest = members.filter((member) => member !== 'null');
     const schemas = rest.map((member) =>
       typeToSchema(member, aliases, interfaces),
     );
+
     if (schemas.length === 1) {
       return nullable ? { oneOf: [schemas[0], { type: 'null' }] } : schemas[0];
     }
+
     return { oneOf: nullable ? [...schemas, { type: 'null' }] : schemas };
   }
+
   if (text.endsWith('[]')) {
     const inner = text.slice(0, -2).replace(/^\(([\s\S]*)\)$/, '$1');
     return { type: 'array', items: typeToSchema(inner, aliases, interfaces) };
   }
+
   const openUnion = OPEN_UNION.exec(text);
+
   if (openUnion) {
     const known = splitTop(openUnion[1], '|')
       .map(squash)
       .filter(Boolean)
       .map((literal) => literal.replace(/^'|'$/g, ''));
+
     return {
       type: 'string',
       description: `Known values: ${known.join(', ')}. Others may appear.`,
     };
   }
+
   const record = /^Record<string, ([\s\S]+)>$/.exec(text);
+
   if (record) {
     return record[1] === 'never'
       ? { type: 'object', maxProperties: 0 }
@@ -169,9 +195,11 @@ function typeToSchema(
           additionalProperties: typeToSchema(record[1], aliases, interfaces),
         };
   }
+
   if (/^'.*'$/.test(text)) {
     return { const: text.slice(1, -1) };
   }
+
   switch (text) {
     case 'string':
       return { type: 'string' };
@@ -195,13 +223,17 @@ function typeToSchema(
     default:
       break;
   }
+
   const alias = aliases.get(text);
+
   if (alias !== undefined) {
     return typeToSchema(alias, aliases, interfaces);
   }
+
   if (interfaces.has(text)) {
     return { $ref: `#/components/schemas/${text}` };
   }
+
   throw new Error(`openapi: cannot map type '${text}'`);
 }
 
@@ -212,18 +244,23 @@ function interfaceSchema(
 ): Schema {
   const properties: Record<string, Schema> = {};
   const required: string[] = [];
+
   for (const field of declaration.fields) {
     const schema = typeToSchema(field.type, aliases, interfaces);
+
     if (field.description && !('$ref' in schema)) {
       schema.description = schema.description
         ? `${field.description} ${schema.description}`
         : field.description;
     }
+
     properties[field.name] = schema;
+
     if (!field.optional) {
       required.push(field.name);
     }
   }
+
   return {
     type: 'object',
     ...(required.length > 0 ? { required } : {}),
@@ -231,21 +268,36 @@ function interfaceSchema(
   };
 }
 
-const ref = (name: string): Schema => ({
-  $ref: `#/components/schemas/${name}`,
-});
-const arrayOf = (name: string): Schema => ({ type: 'array', items: ref(name) });
-const page = (name: string): Schema => ({
-  type: 'object',
-  required: ['data', 'total'],
-  properties: { data: arrayOf(name), total: { type: 'integer' } },
-});
-const wrapped = (key: string, name: string): Schema => ({
-  type: 'object',
-  required: [key],
-  properties: { [key]: arrayOf(name) },
-});
-const oneOf = (names: string[]): Schema => ({ oneOf: names.map(ref) });
+function ref(name: string): Schema {
+  return {
+    $ref: `#/components/schemas/${name}`,
+  };
+}
+
+function arrayOf(name: string): Schema {
+  return { type: 'array', items: ref(name) };
+}
+
+function page(name: string): Schema {
+  return {
+    type: 'object',
+    required: ['data', 'total'],
+    properties: { data: arrayOf(name), total: { type: 'integer' } },
+  };
+}
+
+function wrapped(key: string, name: string): Schema {
+  return {
+    type: 'object',
+    required: [key],
+    properties: { [key]: arrayOf(name) },
+  };
+}
+
+function oneOf(names: string[]): Schema {
+  return { oneOf: names.map(ref) };
+}
+
 const SKATER_ROWS = [
   'SkaterSummaryRow',
   'SkaterBiosRow',
@@ -266,6 +318,7 @@ const SKATER_ROWS = [
   'SkaterShotTypeRow',
   'SkaterTimeOnIceRow',
 ];
+
 const GOALIE_ROWS = [
   'GoalieSummaryRow',
   'GoalieAdvancedRow',
@@ -276,6 +329,7 @@ const GOALIE_ROWS = [
   'GoalieShootoutRow',
   'GoalieStartedVsRelievedRow',
 ];
+
 const EDGE_REPORTS = [
   'SkaterDetail',
   'SkaterShotSpeedDetail',
@@ -413,16 +467,16 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
 };
 
 // ----- YAML -----
-
 const SAFE_KEY = /^[A-Za-z_][\w-]*$/;
-const yamlScalar = (value: unknown): string => {
+
+function yamlScalar(value: unknown): string {
   if (typeof value === 'string') {
     return /^[\w./ -]+$/.test(value) && !/^(true|false|null|\d.*)$/.test(value)
       ? value
       : `'${value.replace(/'/g, "''")}'`;
   }
   return String(value);
-};
+}
 
 function toYaml(value: unknown, indent: number): string[] {
   const pad = ' '.repeat(indent);
@@ -435,7 +489,9 @@ function toYaml(value: unknown, indent: number): string[] {
       return [`${pad}- ${yamlScalar(item)}`];
     });
   }
+
   const lines: string[] = [];
+
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
     const name = SAFE_KEY.test(key) ? key : `'${key}'`;
     if (child !== null && typeof child === 'object') {
@@ -457,11 +513,13 @@ function toYaml(value: unknown, indent: number): string[] {
 export function generatedBlocks(): { schemas: string; responses: string } {
   const { interfaces, aliases } = loadDeclarations();
   const schemas: Record<string, Schema> = {};
+
   for (const [name, declaration] of [...interfaces].sort(([a], [b]) =>
     a.localeCompare(b),
   )) {
     schemas[name] = interfaceSchema(declaration, aliases, interfaces);
   }
+
   // `Play` is a union over the PlayTypes registry.
   const playTypes = interfaces.get('PlayTypes');
   if (playTypes) {
@@ -471,6 +529,7 @@ export function generatedBlocks(): { schemas: string; responses: string } {
       discriminator: { propertyName: 'typeDescKey' },
     };
   }
+
   const responses: Record<string, Schema> = {};
   for (const [name, { description, schema }] of Object.entries(RESPONSES)) {
     responses[name] = {
@@ -478,20 +537,23 @@ export function generatedBlocks(): { schemas: string; responses: string } {
       content: { 'application/json': { schema } },
     };
   }
+
   return {
     schemas: toYaml(schemas, 4).join('\n'),
     responses: toYaml(responses, 4).join('\n'),
   };
 }
 
-const marker = (kind: string, edge: 'BEGIN' | 'END') =>
-  `    # ${edge} GENERATED ${kind} (pnpm openapi:schemas)`;
+function marker(kind: string, edge: 'BEGIN' | 'END') {
+  return `    # ${edge} GENERATED ${kind} (pnpm openapi:schemas)`;
+}
 
 export function applyBlocks(
   document: string,
   blocks: { schemas: string; responses: string },
 ): string {
   let output = document;
+
   for (const [kind, body] of [
     ['SCHEMAS', blocks.schemas],
     ['RESPONSES', blocks.responses],
@@ -505,6 +567,7 @@ export function applyBlocks(
     }
     output = `${output.slice(0, from)}${start}\n${body}\n${output.slice(to)}`;
   }
+
   return output;
 }
 

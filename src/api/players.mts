@@ -9,11 +9,12 @@ import type { Id } from '#src/utils.mjs';
  * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
  * @example https://api-web.nhle.com/v1/prospects/BUF
  */
-export const prospectsByTeam = async (
+export async function prospectsByTeam(
   ctx: Context,
   { teamAbbr }: { teamAbbr: string },
-): Promise<Prospects> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `prospects/${teamAbbr}`)).json();
+): Promise<Prospects> {
+  return (await ctx.get(Endpoint.API_WEB_V1, `prospects/${teamAbbr}`)).json();
+}
 
 /**
  * Gets the roster for a given team and season, grouped by position
@@ -23,10 +24,13 @@ export const prospectsByTeam = async (
  * @param params.season Season in YYYYYYYY format, e.g. 20232024
  * @example https://api-web.nhle.com/v1/roster/BUF/20232024
  */
-export const playersByTeam = async (
+export async function playersByTeam(
   ctx: Context,
   { teamAbbr, season }: { teamAbbr: string; season: Id },
-): Promise<Roster> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)).json();
+): Promise<Roster> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)
+  ).json();
+}
 
 export const playersApi = { prospectsByTeam, playersByTeam } as const;

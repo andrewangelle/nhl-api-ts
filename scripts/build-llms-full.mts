@@ -9,8 +9,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const REPO_RAW =
   'https://raw.githubusercontent.com/andrewangelle/nhl-api-ts/main/';
 const root = new URL('../', import.meta.url);
-const read = (path: string): string =>
-  readFileSync(new URL(path, root), 'utf8');
+function read(path: string): string {
+  return readFileSync(new URL(path, root), 'utf8');
+}
 
 const index = read('llms.txt');
 const required = index.split(/^## Optional$/m)[0];

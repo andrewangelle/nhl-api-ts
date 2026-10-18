@@ -20,14 +20,14 @@ import type { Id } from '#src/utils.mjs';
  * @param params.apiSleepRate Seconds to sleep between team requests. Defaults to 1.
  * @example await client.helpers.gameIdsBySeason({ season: '20232024', gameTypes: [2] })
  */
-export const gameIdsBySeason = async (
+export async function gameIdsBySeason(
   ctx: Context,
   {
     season,
     gameTypes,
     apiSleepRate = 1,
   }: { season: Id; gameTypes?: number[]; apiSleepRate?: number },
-): Promise<number[]> => {
+): Promise<number[]> {
   const teams = await fetchTeams(ctx);
   const gameIds: number[] = [];
 
@@ -52,7 +52,7 @@ export const gameIdsBySeason = async (
     }
   }
   return gameIds;
-};
+}
 
 /**
  * Gets every rostered player across all NHL teams for a given season. Each
@@ -62,10 +62,10 @@ export const gameIdsBySeason = async (
  * @param params.apiSleepRate Seconds to sleep between team requests. Defaults to 0.5.
  * @example await client.helpers.allPlayers({ season: '20232024' })
  */
-export const allPlayers = async (
+export async function allPlayers(
   ctx: Context,
   { season, apiSleepRate = 0.5 }: { season: Id; apiSleepRate?: number },
-): Promise<AllPlayersEntry[]> => {
+): Promise<AllPlayersEntry[]> {
   const teams = await fetchTeams(ctx);
   console.error('Fetching all player base stats. This may take a while...');
 
@@ -87,7 +87,7 @@ export const allPlayers = async (
     }
   }
   return outData;
-};
+}
 
 /**
  * Gets summary statistics for every skater in a given season, merged with
@@ -98,10 +98,10 @@ export const allPlayers = async (
  * @param params.apiSleepRate Seconds to sleep between team requests. Defaults to 1.
  * @example await client.helpers.allPlayersSummaryStatistics({ season: '20232024' })
  */
-export const allPlayersSummaryStatistics = async (
+export async function allPlayersSummaryStatistics(
   ctx: Context,
   { season, apiSleepRate = 1 }: { season: Id; apiSleepRate?: number },
-): Promise<PlayerSummaryStatistics[]> => {
+): Promise<PlayerSummaryStatistics[]> {
   console.error(
     'WARNING: This method will take a while to run.  In the event of rate limiting, you may need to increase the api_sleep_rate.',
   );
@@ -133,7 +133,7 @@ export const allPlayersSummaryStatistics = async (
       : undefined;
     return player ? { ...player, ...statEntry } : statEntry;
   });
-};
+}
 
 export const helpersApi = {
   gameIdsBySeason,

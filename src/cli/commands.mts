@@ -42,7 +42,9 @@ export class UsageError extends Error {}
 
 // ---- Reusable argument specs ------------------------------------------------
 
-const req = (spec: ArgSpec): ArgSpec => ({ ...spec, required: true });
+function req(spec: ArgSpec): ArgSpec {
+  return { ...spec, required: true };
+}
 
 const teamAbbr: ArgSpec = req({
   name: 'teamAbbr',
@@ -64,11 +66,13 @@ const playerId: ArgSpec = req({
   type: 'string',
   description: 'NHL player id, e.g. 8478402',
 });
-const date = (description = 'Date in YYYY-MM-DD format'): ArgSpec => ({
-  name: 'date',
-  type: 'string',
-  description,
-});
+function date(description = 'Date in YYYY-MM-DD format'): ArgSpec {
+  return {
+    name: 'date',
+    type: 'string',
+    description,
+  };
+}
 const gameTypeId: ArgSpec = {
   name: 'gameTypeId',
   type: 'int',
@@ -87,29 +91,35 @@ const start: ArgSpec = {
   description: 'Pagination offset',
   default: '0',
 };
-const limit = (def: string): ArgSpec => ({
-  name: 'limit',
-  type: 'int',
-  description: 'Max results',
-  default: def,
-});
-const factCayenneExp = (def?: string): ArgSpec => ({
-  name: 'factCayenneExp',
-  type: 'string',
-  description: 'Base fact filter expression',
-  default: def,
-});
+function limit(def: string): ArgSpec {
+  return {
+    name: 'limit',
+    type: 'int',
+    description: 'Max results',
+    default: def,
+  };
+}
+function factCayenneExp(def?: string): ArgSpec {
+  return {
+    name: 'factCayenneExp',
+    type: 'string',
+    description: 'Base fact filter expression',
+    default: def,
+  };
+}
 const defaultCayenneExp: ArgSpec = {
   name: 'defaultCayenneExp',
   type: 'string',
   description: 'Overrides the generated cayenneExp filter entirely',
 };
-const apiSleepRate = (def: string): ArgSpec => ({
-  name: 'apiSleepRate',
-  type: 'number',
-  description: 'Seconds to sleep between per-team requests',
-  default: def,
-});
+function apiSleepRate(def: string): ArgSpec {
+  return {
+    name: 'apiSleepRate',
+    type: 'number',
+    description: 'Seconds to sleep between per-team requests',
+    default: def,
+  };
+}
 
 // ---- Edge -------------------------------------------------------------------
 
@@ -125,12 +135,12 @@ const edgeSeasonArgs: ArgSpec[] = [
 
 type EdgeMethod = keyof NHLClient['edge'] & string;
 
-const edgeCommand = (
+function edgeCommand(
   name: string,
   method: EdgeMethod,
   idKind: 'player' | 'team' | 'none',
   description: string,
-): CommandSpec => {
+): CommandSpec {
   const idArg: ArgSpec[] =
     idKind === 'player'
       ? [playerId]
@@ -151,7 +161,7 @@ const edgeCommand = (
       // biome-ignore lint/suspicious/noExplicitAny: dispatch by method name
       (client.edge[method] as any).call(client.edge, values),
   };
-};
+}
 
 // ---- Stats query-context filters --------------------------------------------
 

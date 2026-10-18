@@ -14,10 +14,10 @@ import type { Id } from '#src/utils.mjs';
  * @throws RangeError If the season id is not found in the standings manifest
  * @example await client.standings.leagueStandings({ season: '20222023' })
  */
-export const leagueStandings = async (
+export async function leagueStandings(
   ctx: Context,
   { date, season }: { date?: string; season?: Id } = {},
-): Promise<LeagueStandings> => {
+): Promise<LeagueStandings> {
   if (season) {
     const seasons = await seasonStandingManifest(ctx);
     const seasonData = seasons.find(
@@ -31,7 +31,7 @@ export const leagueStandings = async (
 
   const res = date ? date : 'now';
   return (await ctx.get(Endpoint.API_WEB_V1, `standings/${res}`)).json();
-};
+}
 
 /**
  * Gets metadata for every historical NHL season: start/end dates and which
@@ -39,14 +39,14 @@ export const leagueStandings = async (
  *
  * @example https://api-web.nhle.com/v1/standings-season
  */
-export const seasonStandingManifest = async (
+export async function seasonStandingManifest(
   ctx: Context,
-): Promise<StandingsSeason[]> => {
+): Promise<StandingsSeason[]> {
   const response = await (
     await ctx.get(Endpoint.API_WEB_V1, 'standings-season')
   ).json();
   return response.seasons ?? [];
-};
+}
 
 export const standingsApi = {
   leagueStandings,

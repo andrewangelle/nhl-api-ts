@@ -42,9 +42,10 @@ const landingEndpoints: [EdgeMethod, string][] = [
 ];
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic dispatch over edge methods
-const call = (client: NHLClient, method: EdgeMethod, params?: any) =>
+function call(client: NHLClient, method: EdgeMethod, params?: any) {
   // biome-ignore lint/suspicious/noExplicitAny: dynamic dispatch over edge methods
-  (client.edge[method] as any).call(client.edge, params);
+  return (client.edge[method] as any).call(client.edge, params);
+}
 
 async function urlFor(method: EdgeMethod, params?: object): Promise<string> {
   const fetchSpy = mockFetch();

@@ -206,7 +206,9 @@ type Equals<Left, Right> = [Left] extends [Right]
     ? true
     : false
   : false;
-const assertType = <Value extends true>(): Value | undefined => undefined;
+function assertType<Value extends true>(): Value | undefined {
+  return undefined;
+}
 
 // The row registries and the default-sort tables list the same reports.
 assertType<Equals<keyof SkaterReportRows, SkaterReportType>>();

@@ -12,11 +12,14 @@ import {
   ServerErrorException,
 } from 'nhl-api-ts';
 
-const isRetryable = (err: unknown): boolean =>
-  err instanceof RateLimitExceededException ||
-  err instanceof ServerErrorException ||
-  (err instanceof DOMException && err.name === 'TimeoutError') ||
-  (err instanceof TypeError && err.message === 'fetch failed');
+function isRetryable(err: unknown): boolean {
+  return (
+    err instanceof RateLimitExceededException ||
+    err instanceof ServerErrorException ||
+    (err instanceof DOMException && err.name === 'TimeoutError') ||
+    (err instanceof TypeError && err.message === 'fetch failed')
+  );
+}
 
 async function withRetry<T>(
   call: () => Promise<T>,

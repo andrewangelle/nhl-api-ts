@@ -23,21 +23,30 @@ export function diffSnapshots(
   after: Snapshot,
 ): string[] {
   const lines: string[] = [];
+
   for (const path of Object.keys(after)) {
     if (!(path in before)) {
       lines.push(`+ ${name} ${path}  ${after[path]}`);
     }
   }
+
   for (const path of Object.keys(before)) {
     if (!(path in after)) {
       lines.push(`- ${name} ${path}  ${before[path]}`);
     } else if (before[path] !== after[path]) {
-      const flip =
-        before[path].replace('?', '') === after[path].replace('?', '')
-          ? before[path].endsWith('?')
-            ? 'optional -> required'
-            : 'required -> optional'
-          : 'kinds changed';
+      function flipValue() {
+        if (before[path].replace('?', '') === after[path].replace('?', '')) {
+          if (before[path].endsWith('?')) {
+            return 'optional -> required';
+          }
+          return 'required -> optional';
+        }
+
+        return 'kinds changed';
+      }
+
+      const flip = flipValue();
+
       lines.push(
         `~ ${name} ${path}  ${before[path]} -> ${after[path]} (${flip})`,
       );
@@ -63,17 +72,21 @@ if (import.meta.main) {
       ? readdirSync(SHAPES_DIR).map((file) => file.replace(/\.json$/, ''))
       : [],
   );
+
   const report: string[] = [];
   for (const [key, after] of current) {
     if (!committed.has(key)) {
       report.push(`+ ${key}  (new endpoint shape)`);
       continue;
     }
+
     const before: Snapshot = JSON.parse(
       readFileSync(`${SHAPES_DIR}/${key}.json`, 'utf8'),
     );
+
     report.push(...diffSnapshots(key, before, after));
   }
+
   for (const key of committed) {
     if (!current.has(key)) {
       report.push(`- ${key}  (shape no longer produced)`);
