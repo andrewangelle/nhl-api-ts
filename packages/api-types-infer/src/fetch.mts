@@ -59,7 +59,10 @@ export async function runFetch(
       timeout: 60,
       fetch: async (input, init) => {
         const response = await globalThis.fetch(input, init);
-        const text = await response.clone().text();
+        // Read the body once and hand the SDK a fresh Response. Returning the
+        // original after reading a clone() intermittently fails with "Body is
+        // unusable: Body has already been read".
+        const text = await response.text();
         let body: unknown = text;
         try {
           body = JSON.parse(text);
@@ -67,7 +70,12 @@ export async function runFetch(
           // keep the raw text
         }
         capture = { url: String(input), status: response.status, body };
-        return response;
+        const nullBody = [101, 204, 205, 304].includes(response.status);
+        return new Response(nullBody ? null : text, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
       },
     });
 
