@@ -22,7 +22,7 @@ export interface BoxscoreGoalie {
   sweaterNumber: number;
   name: LocalizedString;
   position: string;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games */
   starter?: boolean;
   evenStrengthShotsAgainst?: string;
   powerPlayShotsAgainst?: string;
@@ -32,7 +32,7 @@ export interface BoxscoreGoalie {
   evenStrengthGoalsAgainst?: number;
   powerPlayGoalsAgainst?: number;
   shorthandedGoalsAgainst?: number;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games */
   pim?: number;
   goalsAgainst?: number;
   toi?: string;
@@ -160,34 +160,35 @@ export interface DailyScoresGame {
   awayTeam: DailyScoresTeam;
   homeTeam: DailyScoresTeam;
   gameCenterLink: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   threeMinRecap?: string;
-  /** Absent when date=now; date=playoff. Low sample count */
+  /** Absent before the game is played */
   threeMinRecapFr?: string;
-  /** Absent when date=now; date=playoff; date=regular. Low sample count */
+  /** Absent before the game is played */
   condensedGame?: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   clock?: GameClock;
   neutralSite: boolean;
   venueTimezone: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   period?: number;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   periodDescriptor?: PeriodDescriptor;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   gameOutcome?: GameOutcome;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   goals?: GameGoal[];
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   ticketsLink?: string;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   ticketsLinkFr?: string;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   teamLeaders?: GameTeamLeader[];
-  /** Absent when date=regular. Low sample count */
+  /** Playoff games only */
   seriesStatus?: SeriesStatus;
-  /** Absent when date=regular. Low sample count */
+  /** Playoff games only */
   seriesUrl?: string;
+  condensedGameFr?: string;
 }
 
 export interface DailyScoresGameWeek {
@@ -209,9 +210,7 @@ export interface DailyScoresTvBroadcast {
   network: string;
   sequenceNumber: number;
   logoUrls?: TeamLogo;
-  /** Absent when date=regular */
   parentId?: number;
-  /** Absent when date=regular. Low sample count */
   languageCode?: string;
 }
 
@@ -258,14 +257,14 @@ export interface DailyScoresTeam {
   id: number;
   name: LocalizedString;
   abbrev: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   score?: number;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   sog?: number;
   logo: string;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   record?: string;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   odds?: TeamOdd[];
 }
 
@@ -281,7 +280,6 @@ export interface GameEndPlay {
   periodDescriptor: PeriodDescriptor;
   timeInPeriod: string;
   timeRemaining: string;
-  /** Absent when game=preseason; game=shootout */
   situationCode?: OpenUnion<'0440' | '1551'>;
   homeTeamDefendingSide: OpenUnion<'right' | 'left'>;
   typeCode: number;
@@ -309,9 +307,7 @@ export interface GameGoal {
   highlightClipSharingUrlFr?: string;
   highlightClip?: number;
   highlightClipFr?: number;
-  /** Absent when date=regular. Low sample count */
   discreteClip?: number;
-  /** Absent when date=regular. Low sample count */
   discreteClipFr?: number;
   goalInGame?: number;
 }
@@ -344,16 +340,16 @@ export interface GameLanding {
   awayTeam: GameLandingAwayTeam;
   homeTeam: GameLandingAwayTeam;
   shootoutInUse: boolean;
-  /** Absent when game=playoff */
+  /** Absent for playoff games */
   maxPeriods?: number;
   regPeriods: number;
   otInUse: boolean;
   tiesInUse: boolean;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   ticketsLink?: string;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   ticketsLinkFr?: string;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   matchup?: GameLandingMatchup;
   periodDescriptor?: PeriodDescriptor;
   summary?: GameLandingSummary;
@@ -368,7 +364,7 @@ export interface GameLandingAwayTeam {
   placeNameWithPreposition: LocalizedString;
   logo: string;
   darkLogo: string;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   record?: string;
   score?: number;
   sog?: number;
@@ -402,22 +398,17 @@ export interface GameLandingScoringGoal {
   assists: GoalAssist[];
   isHome: boolean;
   situationCode?: OpenUnion<'1551' | '0651' | '1331' | '0101' | '1451'>;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClipSharingUrl?: string;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClip?: number;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   pptReplayUrl?: string;
   homeTeamDefendingSide?: OpenUnion<'left' | 'right'>;
-  /** Absent when game=playoff; game=preseason; game=shootout. Low sample count */
   goalInGame?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClip?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClipFr?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipSharingUrlFr?: string;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipFr?: number;
 }
 
@@ -425,7 +416,7 @@ export interface GameLandingSummary {
   scoring: GameLandingSummaryScoring[];
   threeStars: GameLandingSummaryThreeStar[];
   penalties: SummaryPenalty[];
-  /** Absent when game=regular. Low sample count */
+  /** Only for games decided by a shootout */
   shootout?: SummaryShootout;
 }
 
@@ -445,9 +436,9 @@ export interface GameLandingSummaryThreeStar {
   goals?: number;
   assists?: number;
   points?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Goalies only */
   goalsAgainstAverage?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Goalies only */
   savePctg?: number;
 }
 
@@ -469,12 +460,12 @@ export interface GameStory {
   awayTeam: GameStoryAwayTeam;
   homeTeam: GameStoryAwayTeam;
   shootoutInUse: boolean;
-  /** Absent when game=playoff */
+  /** Absent for playoff games */
   maxPeriods?: number;
   regPeriods: number;
   otInUse: boolean;
   tiesInUse: boolean;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   preGameMatchup?: PreGameMatchup;
   summary?: GameStorySummary;
   periodDescriptor?: PeriodDescriptor;
@@ -487,7 +478,7 @@ export interface GameStoryAwayTeam {
   abbrev: string;
   placeName: LocalizedString;
   logo: string;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   record?: string;
   score?: number;
   sog?: number;
@@ -512,7 +503,6 @@ export interface GameStoryTvBroadcast {
   countryCode: string;
   network: string;
   sequenceNumber: number;
-  /** Absent when game=regular */
   logoUrls?: TeamLogo;
 }
 
@@ -561,37 +551,31 @@ export interface GoalAssist {
 export interface GoalDetails {
   shotType: ShotType;
   scoringPlayerId: number;
-  /** Absent when game=preseason; game=shootout */
   scoringPlayerTotal?: number;
-  /** Absent when game=preseason; game=regular; game=shootout */
+  /** Absent for unassisted goals */
   assist1PlayerId?: number;
-  /** Absent when game=preseason; game=regular; game=shootout */
+  /** Absent for unassisted goals */
   assist1PlayerTotal?: number;
-  /** Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout */
+  /** Absent unless the goal had two assists */
   assist2PlayerId?: number;
-  /** Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout */
+  /** Absent unless the goal had two assists */
   assist2PlayerTotal?: number;
   eventOwnerTeamId: number;
-  /** Absent when game=playoff */
+  /** Absent when the net was empty */
   goalieInNetId?: number;
   awayScore: number;
   homeScore: number;
   xCoord?: number;
   yCoord?: number;
   zoneCode?: ZoneCode;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClipSharingUrl?: string;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClip?: number;
-  /** Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
   goalInGame?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClip?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClipFr?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipSharingUrlFr?: string;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipFr?: number;
 }
 
@@ -605,27 +589,16 @@ export interface SeasonStatsGoalie {
   teamId: number;
   sweaterNumber: number;
   name: LocalizedString;
-  /** Low sample count */
   gamesPlayed?: number;
-  /** Low sample count */
   wins?: number;
-  /** Low sample count */
   losses?: number;
-  /** Low sample count */
   otLosses?: number;
-  /** Low sample count */
   shotsAgainst?: number;
-  /** Low sample count */
   goalsAgainst?: number;
-  /** Low sample count */
   goalsAgainstAvg?: number;
-  /** Low sample count */
   savePctg?: number;
-  /** Low sample count */
   shutouts?: number;
-  /** Low sample count */
   saves?: number;
-  /** Low sample count */
   toi?: string;
 }
 
@@ -642,7 +615,7 @@ export interface GoalPlay {
     '1551' | '0651' | '1331' | '1010' | '0101' | '1451'
   >;
   homeTeamDefendingSide?: OpenUnion<'left' | 'right'>;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   pptReplayUrl?: string;
 }
 
@@ -676,17 +649,11 @@ export interface GoalieLeader {
   sweaterNumber: number;
   headshot: string;
   positionCode: PositionCode;
-  /** Low sample count */
   gamesPlayed?: number;
-  /** Low sample count */
   seasonPoints?: number;
-  /** Low sample count */
   record?: string;
-  /** Low sample count */
   gaa?: number;
-  /** Low sample count */
   savePctg?: number;
-  /** Low sample count */
   shutouts?: number;
 }
 
@@ -932,7 +899,7 @@ export interface PlayByPlay {
   otInUse: boolean;
   clock: GameClock;
   displayPeriod: number;
-  /** Absent when game=playoff */
+  /** Absent for playoff games */
   maxPeriods?: number;
   plays: Play[];
   rosterSpots: PlayByPlayRosterSpot[];
@@ -994,17 +961,16 @@ export interface RightRail {
   seasonSeries: RightRailSeasonSeries[];
   seasonSeriesWins: RightRailSeasonSeriesWins;
   gameInfo: RightRailGameInfo;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   teamSeasonStats?: RightRailTeamSeasonStats;
-  /** Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count */
+  /** Only present before the game starts */
   last10Record?: RightRailLast10Record;
   linescore?: RightRailLinescore;
   shotsByPeriod?: LinescoreByPeriod[];
   teamGameStats?: SummaryTeamGameStat[];
   gameReports?: RightRailGameReports;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Playoff games only */
   seasonSeriesFullCoverageUrl?: GameFullCoverageUrls;
-  /** Absent when game=preseason; game=shootout. Low sample count */
   gameVideo?: RightRailGameVideo;
 }
 
@@ -1023,17 +989,16 @@ export interface RightRailGameReports {
   faceoffComparison: string;
   rosters: string;
   shotSummary: string;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games */
   shiftChart?: string;
   toiAway: string;
   toiHome: string;
-  /** Absent when game=regular. Low sample count */
+  /** Only for games decided by a shootout */
   shootoutSummary?: string;
 }
 
 export interface RightRailGameVideo {
   threeMinRecap: number;
-  /** Low sample count */
   condensedGame?: number;
 }
 
@@ -1047,7 +1012,7 @@ export interface RightRailLast10Record {
 export interface RightRailLinescore {
   byPeriod: LinescoreByPeriod[];
   totals: LinescoreTotals;
-  /** Absent when game=regular. Low sample count */
+  /** Only for games decided by a shootout */
   shootout?: LinescoreShootout;
 }
 
@@ -1082,7 +1047,7 @@ export interface GameFullCoverageUrls {
 export interface RightRailSeasonSeriesWins {
   awayTeamWins: number;
   homeTeamWins: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Playoff games only */
   neededToWin?: number;
 }
 
@@ -1112,20 +1077,15 @@ export interface ScoringGoal {
   assists: GoalAssist[];
   isHome: boolean;
   situationCode?: OpenUnion<'1551' | '0651' | '1331' | '0101' | '1451'>;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClipSharingUrl?: string;
-  /** Absent when game=preseason; game=shootout */
+  /** Absent for preseason games and older seasons */
   highlightClip?: number;
   homeTeamDefendingSide?: OpenUnion<'left' | 'right'>;
-  /** Absent when game=playoff; game=preseason; game=shootout. Low sample count */
   goalInGame?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClip?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   discreteClipFr?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipSharingUrlFr?: string;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
   highlightClipFr?: number;
 }
 
@@ -1160,7 +1120,6 @@ export interface ShiftEntry {
   teamId: number;
   teamName: string;
   typeCode: number;
-  /** Low sample count */
   eventDetails?: string | null;
 }
 
@@ -1228,35 +1187,20 @@ export interface SeasonStatsSkater {
   sweaterNumber: number;
   name: LocalizedString;
   position: string;
-  /** Low sample count */
   gamesPlayed?: number;
-  /** Low sample count */
   goals?: number;
-  /** Low sample count */
   assists?: number;
-  /** Low sample count */
   points?: number;
-  /** Low sample count */
   plusMinus?: number;
-  /** Low sample count */
   pim?: number;
-  /** Low sample count */
   avgPoints?: number;
-  /** Low sample count */
   avgTimeOnIce?: string;
-  /** Low sample count */
   gameWinningGoals?: number;
-  /** Low sample count */
   shots?: number;
-  /** Low sample count */
   shootingPctg?: number;
-  /** Low sample count */
   faceoffWinningPctg?: number;
-  /** Low sample count */
   powerPlayGoals?: number;
-  /** Low sample count */
   blockedShots?: number;
-  /** Low sample count */
   hits?: number;
 }
 
@@ -1283,7 +1227,6 @@ export interface StoppageDetails {
     | 'visitor-timeout'
     | 'objects-on-ice'
   >;
-  /** Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout */
   secondaryReason?: OpenUnion<'tv-timeout' | 'visitor-timeout'>;
 }
 
@@ -1332,9 +1275,9 @@ export interface SummaryThreeStar {
   goals?: number;
   assists?: number;
   points?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Goalies only */
   goalsAgainstAverage?: number;
-  /** Absent when game=preseason; game=regular; game=shootout. Low sample count */
+  /** Goalies only */
   savePctg?: number;
 }
 

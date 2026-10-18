@@ -207,10 +207,10 @@ export interface GoalieDetailStats {
 
 export interface GoalieLanding {
   seasonsWithEdgeStats: EdgeSeasonAvailability[];
-  /** Absent when variant=playoffs. Low sample count */
+  /** Regular season only */
   minimumGamesPlayed?: number;
   leaders: GoalieLandingLeaders;
-  /** Absent when variant=regular. Low sample count */
+  /** Playoffs only */
   minimumMinutesPlayed?: number;
 }
 

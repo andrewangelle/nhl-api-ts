@@ -4,7 +4,7 @@ import type { GameType, LocalizedString } from '#src/types/common.mjs';
 export interface LeagueStandings {
   wildCardIndicator: boolean;
   standings: StandingsEntry[];
-  /** Absent when variant=season-2005; variant=season. Low sample count */
+  /** Only present for the current standings */
   standingsDateTimeUtc?: string;
 }
 
@@ -90,7 +90,6 @@ export interface StandingsEntry {
   conferenceName?: string;
   divisionAbbrev?: string;
   divisionName?: string;
-  /** Low sample count */
   clinchIndicator?: string;
 }
 

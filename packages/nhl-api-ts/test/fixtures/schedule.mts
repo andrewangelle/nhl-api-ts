@@ -50,7 +50,7 @@ export const weeklyScheduleFixture: WeeklySchedule = {
           easternUTCOffset: '-04:00',
           venueUTCOffset: '-04:00',
           venueTimezone: 'US/Eastern',
-          gameState: 'FUT',
+          gameState: 'OFF',
           gameScheduleState: 'OK',
           tvBroadcasts: [
             {
@@ -73,9 +73,7 @@ export const weeklyScheduleFixture: WeeklySchedule = {
             logo: 'https://assets.nhle.com/logos/nhl/svg/NJD_light.svg',
             darkLogo: 'https://assets.nhle.com/logos/nhl/svg/NJD_dark.svg',
             awaySplitSquad: false,
-            radioLink:
-              'https://d2igy0yla8zi0u.cloudfront.net/NJD/20262027/NJD-radio.m3u8',
-            odds: [{ providerId: 3, value: '1.96' }],
+            score: 2,
           },
           homeTeam: {
             id: 15,
@@ -90,19 +88,28 @@ export const weeklyScheduleFixture: WeeklySchedule = {
             darkLogo:
               'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_dark.svg',
             homeSplitSquad: false,
-            radioLink:
-              'https://d2igy0yla8zi0u.cloudfront.net/WSH/20262027/WSH-radio.m3u8',
-            odds: [{ providerId: 3, value: '1.88' }],
+            score: 4,
           },
           periodDescriptor: {
-            number: 1,
+            number: 3,
             periodType: 'REG',
             maxRegulationPeriods: 3,
           },
-          ticketsLink:
-            'https://www.ticketmaster.com/event/150064F03466E291?brand=nhl&wt.mc_id=NHL_LEAGUE_WSH_SCHED_PG_GM5&utm_source=league_schedulepage&utm_medium=web_organic&utm_campaign=2627sgb_ca1017nd',
-          ticketsLinkFr:
-            'https://www.ticketmaster.com/event/150064F03466E291?brand=nhl&wt.mc_id=NHL_LEAGUE_WSH_SCHED_PG_GM5&utm_source=league_schedulepage&utm_medium=web_organic&utm_campaign=2627sgb_ca1017nd',
+          gameOutcome: { lastPeriodType: 'REG' },
+          winningGoalie: {
+            playerId: 8480313,
+            firstInitial: { default: 'L.' },
+            lastName: { default: 'Thompson' },
+          },
+          winningGoalScorer: {
+            playerId: 8478440,
+            firstInitial: { default: 'D.' },
+            lastName: { default: 'Strome' },
+          },
+          threeMinRecap: '/video/njd-at-wsh-recap-6407021399112',
+          threeMinRecapFr:
+            '/fr/video/njd-vs-wsh-17-10-2026-resume-6407020619112',
+          condensedGame: '/video/njd-at-wsh-condensed-game-6407021598112',
           gameCenterLink: '/gamecenter/njd-vs-wsh/2026/10/17/2026020121',
         },
       ],
