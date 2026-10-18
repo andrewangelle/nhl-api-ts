@@ -10,7 +10,7 @@ NHL web API (`api-web.nhle.com`) and stats API (`api.nhle.com/stats/rest`).
 It has no runtime dependencies. It runs on Node.js >= 24 and ships as ESM only.
 It is a port of [nhl-api-py](https://github.com/coreyjs/nhl-api-py).
 
-The package is **not yet published**, so breaking changes are allowed. Prefer
+The package is **not yet published with a major version**, so breaking changes are allowed. Prefer
 idiomatic TypeScript over parity with the Python original.
 
 The repository is a pnpm workspace:
