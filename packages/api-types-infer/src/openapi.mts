@@ -1,7 +1,7 @@
 /**
- * Generates the response schemas and named responses in `openapi.yaml` from
- * the interfaces in `src/types/`, so the HTTP description and the TypeScript
- * types can't drift apart.
+ * Generates the response schemas and named responses in the SDK's
+ * `openapi.yaml` from the interfaces in its `src/types/`, so the HTTP
+ * description and the TypeScript types can't drift apart.
  *
  *   pnpm openapi:schemas
  *

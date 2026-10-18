@@ -1,7 +1,7 @@
 /**
- * Turns a shape tree into draft TypeScript interfaces that follow the rules
- * in .claude/plans/live-response-types.md (optionality, open enums,
- * discriminated unions, dynamic-key maps, localized strings).
+ * Turns a shape tree into draft TypeScript interfaces that follow the
+ * response-type rules in AGENTS.md (optionality, open enums, discriminated
+ * unions, dynamic-key maps, localized strings).
  */
 import {
   type Element,

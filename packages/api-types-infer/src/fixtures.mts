@@ -1,8 +1,9 @@
 /**
- * Writes trimmed, typed fixtures from the cached raw samples to
+ * Writes trimmed, typed fixtures from the cached raw samples to the SDK's
  * `test/fixtures/<module>.mts`. Each fixture is real data cut down to one item
  * per array (one per variant for tagged unions), declared with its response
- * type so `tsc -p test` flags a type that no longer matches the payload.
+ * type so `pnpm typecheck:test` flags a type that no longer matches the
+ * payload.
  *
  *   pnpm api-types:fixtures
  */
