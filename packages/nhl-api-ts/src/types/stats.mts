@@ -7,18 +7,18 @@ import type {
 } from '#src/types/common.mjs';
 
 export interface AwardSeason {
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   gaa?: number;
   gameTypeId: GameType;
   gamesPlayed: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   losses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   otLosses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   savePctg?: number;
   seasonId: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   wins?: number;
   assists?: number;
   goals?: number;
@@ -32,27 +32,27 @@ export interface AwardSeason {
 export interface CareerTotalsRegularSeason {
   assists: number;
   gamesPlayed: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   gamesStarted?: number;
   goals: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainst?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainstAvg?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   losses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   otLosses?: number;
   pim: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   savePctg?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shotsAgainst?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shutouts?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   timeOnIce?: string;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   wins?: number;
   gameWinningGoals?: number;
   otGoals?: number;
@@ -64,9 +64,7 @@ export interface CareerTotalsRegularSeason {
   shorthandedGoals?: number;
   shorthandedPoints?: number;
   shots?: number;
-  /** Low sample count */
   avgToi?: string;
-  /** Low sample count */
   faceoffWinningPctg?: number;
 }
 
@@ -89,17 +87,17 @@ export interface GameLogEntry {
   assists: number;
   commonName: LocalizedString;
   opponentCommonName: LocalizedString;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   gamesStarted?: number;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   decision?: string;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   shotsAgainst?: number;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   goalsAgainst?: number;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   savePctg?: number;
-  /** Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count */
+  /** Goalies only */
   shutouts?: number;
   pim: number;
   toi: string;
@@ -134,11 +132,11 @@ export interface GoalieAdvancedRow {
   regulationLosses: number;
   regulationWins: number;
   savePct: number;
-  /** Absent when statsType=advanced,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   shotsAgainstPer60: number;
-  /** Absent when statsType=advanced,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIce: number;
 }
@@ -148,7 +146,7 @@ export interface GoalieBiosRow {
   birthCountryCode: string;
   birthDate: string;
   birthStateProvinceCode: string | null;
-  /** Absent when statsType=bios,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   currentTeamAbbrev?: string | null;
   draftOverall: number | null;
   draftRound: number | null;
@@ -189,10 +187,10 @@ export interface GoalieDaysRestRow {
   savePctDaysRest2: number;
   savePctDaysRest3: number;
   savePctDaysRest4Plus: number;
-  /** Absent when statsType=daysrest,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
-  /** Absent when statsType=daysrest,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   ties: number | null;
   wins: number;
@@ -210,11 +208,11 @@ export interface GoaliePenaltyShotsRow {
   playerId: number;
   savePct: number;
   saves: number;
-  /** Absent when statsType=penaltyShots,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   shotsAgainst: number;
-  /** Absent when statsType=penaltyShots,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -237,7 +235,7 @@ export interface GoalieSavesByStrengthRow {
   ppShotsAgainst: number;
   savePct: number;
   saves: number;
-  /** Absent when statsType=savesByStrength,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shGoalsAgainst: number;
   shSavePct: number;
@@ -245,7 +243,7 @@ export interface GoalieSavesByStrengthRow {
   shShotsAgainst: number;
   shootsCatches: ShootsCatches;
   shotsAgainst: number;
-  /** Absent when statsType=savesByStrength,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   ties: number | null;
   wins: number;
@@ -263,7 +261,7 @@ export interface GoalieShootoutRow {
   goalieFullName: string;
   lastName: string;
   playerId: number;
-  /** Absent when statsType=shootout,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootoutGoalsAgainst: number;
   shootoutLosses: number;
@@ -272,7 +270,7 @@ export interface GoalieShootoutRow {
   shootoutShotsAgainst: number;
   shootoutWins: number;
   shootsCatches: ShootsCatches;
-  /** Absent when statsType=shootout,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -302,10 +300,10 @@ export interface GoalieStartedVsRelievedRow {
   otLosses: number;
   playerId: number;
   savePct: number;
-  /** Absent when statsType=startedVsRelieved,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
-  /** Absent when statsType=startedVsRelieved,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   ties: number | null;
   wins: number;
@@ -327,12 +325,12 @@ export interface GoalieSummaryRow {
   points: number;
   savePct: number;
   saves: number;
-  /** Absent when statsType=summary,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   shotsAgainst: number;
   shutouts: number;
-  /** Absent when statsType=summary,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   ties: number | null;
   timeOnIce: number;
@@ -342,20 +340,20 @@ export interface GoalieSummaryRow {
 export interface PlayerLanding {
   playerId: number;
   isActive: boolean;
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   currentTeamId?: number;
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   currentTeamAbbrev?: string;
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   fullTeamName?: LocalizedString;
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   teamCommonName?: LocalizedString;
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   teamPlaceNameWithPreposition?: LocalizedString;
   firstName: LocalizedString;
   lastName: LocalizedString;
   badges: PlayerLandingBadge[];
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   teamLogo?: string;
   sweaterNumber: number;
   position: string;
@@ -367,7 +365,7 @@ export interface PlayerLanding {
   weightInKilograms: number;
   birthDate: string;
   birthCity: LocalizedString;
-  /** Absent when player=retired; player=veteran. Low sample count */
+  /** Only for players born in the USA or Canada */
   birthStateProvince?: LocalizedString;
   birthCountry: string;
   shootsCatches: ShootsCatches;
@@ -383,7 +381,7 @@ export interface PlayerLanding {
   last5Games: PlayerLandingLast5Game[];
   seasonTotals: PlayerLandingSeasonTotal[];
   awards: PlayerLandingAward[];
-  /** Absent when player=retired */
+  /** Absent for inactive players (`isActive: false`) */
   currentTeamRoster?: PlayerLandingCurrentTeamRoster[];
 }
 
@@ -423,22 +421,22 @@ export interface PlayerLandingFeaturedStats {
 }
 
 export interface PlayerLandingLast5Game {
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   decision?: string;
   gameDate: string;
   gameId: number;
   gameTypeId: GameType;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   gamesStarted?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainst?: number;
   homeRoadFlag: string;
   opponentAbbrev: string;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   penaltyMins?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   savePctg?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shotsAgainst?: number;
   teamAbbrev: string;
   toi: string;
@@ -456,32 +454,32 @@ export interface PlayerLandingLast5Game {
 export interface PlayerLandingSeasonTotal {
   gameTypeId: GameType;
   gamesPlayed: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainstAvg?: number;
   leagueAbbrev: string;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   savePctg?: number;
   season: number;
   sequence: number;
   teamName: LocalizedString;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainst?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   losses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shutouts?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   ties?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   timeOnIce?: string;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   wins?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shotsAgainst?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   otLosses?: number;
   assists?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   gamesStarted?: number;
   goals?: number;
   teamCommonName?: LocalizedString;
@@ -503,17 +501,17 @@ export interface PlayerLandingSeasonTotal {
 
 export interface SeasonStatLine {
   gamesPlayed: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   goalsAgainstAvg?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   losses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   otLosses?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   savePctg?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   shutouts?: number;
-  /** Absent when player=retired; player=skater; player=veteran. Low sample count */
+  /** Goalies only */
   wins?: number;
   assists?: number;
   gameWinningGoals?: number;
@@ -536,9 +534,9 @@ export interface SkaterBiosRow {
   birthCountryCode: string;
   birthDate: string;
   birthStateProvinceCode: string | null;
-  /** Absent when reportType=bios,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   currentTeamAbbrev?: string | null;
-  /** Absent when reportType=bios,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   currentTeamName?: string | null;
   draftOverall: number | null;
   draftRound: number | null;
@@ -574,13 +572,13 @@ export interface SkaterFaceoffPercentagesRow {
   positionCode: PositionCode;
   ppFaceoffPct: number;
   ppFaceoffs: number;
-  /** Absent when reportType=faceoffpercentages,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shFaceoffPct: number;
   shFaceoffs: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=faceoffpercentages,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame: number;
   totalFaceoffs: number;
@@ -607,13 +605,13 @@ export interface SkaterFaceoffWinsRow {
   ppFaceoffs: number;
   ppFaceoffsLost: number;
   ppFaceoffsWon: number;
-  /** Absent when reportType=faceoffwins,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shFaceoffs: number;
   shFaceoffsLost: number;
   shFaceoffsWon: number;
   skaterFullName: string;
-  /** Absent when reportType=faceoffwins,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   totalFaceoffLosses: number;
   totalFaceoffWins: number;
@@ -636,13 +634,13 @@ export interface SkaterGoalsForAgainstRow {
   powerPlayGoalFor: number;
   powerPlayGoalsAgainst: number;
   powerPlayTimeOnIcePerGame: number;
-  /** Absent when reportType=goalsForAgainst,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shortHandedGoalsAgainst: number;
   shortHandedGoalsFor: number;
   shortHandedTimeOnIcePerGame: number;
   skaterFullName: string;
-  /** Absent when reportType=goalsForAgainst,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -668,10 +666,10 @@ export interface SkaterPenaltiesRow {
   playerId: number;
   points: number;
   positionCode: PositionCode;
-  /** Absent when reportType=penalties,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   skaterFullName: string;
-  /** Absent when reportType=penalties,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame: number;
 }
@@ -682,7 +680,7 @@ export interface SkaterPenaltyKillRow {
   playerId: number;
   positionCode: PositionCode;
   ppGoalsAgainstPer60: number;
-  /** Absent when reportType=penaltykill,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shAssists: number;
   shGoals: number;
@@ -702,7 +700,7 @@ export interface SkaterPenaltyKillRow {
   shTimeOnIcePctPerGame: number;
   shTimeOnIcePerGame: number;
   skaterFullName: string;
-  /** Absent when reportType=penaltykill,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -714,11 +712,11 @@ export interface SkaterPenaltyShotsRow {
   penaltyShotsGoals: number;
   playerId: number;
   positionCode: PositionCode;
-  /** Absent when reportType=penaltyShots,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=penaltyShots,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -733,14 +731,14 @@ export interface SkaterPercentagesRow {
   satPercentageClose: number;
   satPercentageTied: number | null;
   satRelative: number;
-  /** Absent when reportType=percentages,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootingPct5v5: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
   skaterSavePct5v5: number | null;
   skaterShootingPlusSavePct5v5: number | null;
-  /** Absent when reportType=percentages,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame5v5: number;
   usatPercentage: number;
@@ -775,10 +773,10 @@ export interface SkaterPowerPlayRow {
   ppTimeOnIce: number;
   ppTimeOnIcePctPerGame: number;
   ppTimeOnIcePerGame: number;
-  /** Absent when reportType=powerplay,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   skaterFullName: string;
-  /** Absent when reportType=powerplay,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -797,11 +795,11 @@ export interface SkaterPuckPossessionsRow {
   playerId: number;
   positionCode: PositionCode;
   satPct: number;
-  /** Absent when reportType=puckPossessions,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=puckPossessions,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame5v5: number;
   usatPct: number;
@@ -830,14 +828,14 @@ export interface SkaterRealtimeRow {
   otGoals: number;
   playerId: number;
   positionCode: PositionCode;
-  /** Absent when reportType=realtime,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   shotAttemptsBlocked: number;
   skaterFullName: string;
   takeaways: number;
   takeawaysPer60: number;
-  /** Absent when reportType=realtime,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame: number;
   totalShotAttempts: number;
@@ -861,14 +859,14 @@ export interface SkaterScoringPerGameRow {
   pointsPerGame: number;
   positionCode: PositionCode;
   primaryAssistsPerGame: number;
-  /** Absent when reportType=scoringpergame,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   secondaryAssistsPerGame: number;
   shootsCatches: ShootsCatches;
   shots: number;
   shotsPerGame: number;
   skaterFullName: string;
-  /** Absent when reportType=scoringpergame,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIce: number;
   timeOnIcePerGame: number;
@@ -894,13 +892,13 @@ export interface SkaterScoringRatesRow {
   primaryAssistsPer605v5: number;
   satPct: number;
   satRelative5v5: number;
-  /** Absent when reportType=scoringRates,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   secondaryAssists5v5: number;
   secondaryAssistsPer605v5: number;
   shootingPct5v5: number;
   skaterFullName: string;
-  /** Absent when reportType=scoringRates,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame5v5: number;
 }
@@ -914,7 +912,7 @@ export interface SkaterShootoutRow {
   lastName: string;
   playerId: number;
   positionCode: PositionCode;
-  /** Absent when reportType=shootout,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootoutGameDecidingGoals: number;
   shootoutGamesPlayed: number;
@@ -923,7 +921,7 @@ export interface SkaterShootoutRow {
   shootoutShots: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=shootout,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -943,7 +941,7 @@ export interface SkaterShotTypeRow {
   goalsWrist: number;
   lastName: string;
   playerId: number;
-  /** Absent when reportType=shottype,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootingPct: number;
   shootingPctBackhand: number | null;
@@ -969,7 +967,7 @@ export interface SkaterShotTypeRow {
   shotsOnNetWrapAround: number;
   shotsOnNetWrist: number;
   skaterFullName: string;
-  /** Absent when reportType=shottype,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
 }
 
@@ -991,7 +989,7 @@ export interface SkaterSummaryRow {
   positionCode: PositionCode;
   ppGoals: number;
   ppPoints: number;
-  /** Absent when aggregate=true; reportType=summary,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shGoals: number;
   shPoints: number;
@@ -999,7 +997,7 @@ export interface SkaterSummaryRow {
   shootsCatches: ShootsCatches;
   shots: number;
   skaterFullName: string;
-  /** Absent when aggregate=true; reportType=summary,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame: number;
 }
@@ -1017,11 +1015,11 @@ export interface SkaterSummaryShootingRow {
   satRelative: number;
   satTied: number;
   satTotal: number;
-  /** Absent when reportType=summaryshooting,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=summaryshooting,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIcePerGame5v5: number;
   usatAgainst: number;
@@ -1045,7 +1043,7 @@ export interface SkaterTimeOnIceRow {
   positionCode: PositionCode;
   ppTimeOnIce: number;
   ppTimeOnIcePerGame: number;
-  /** Absent when reportType=timeonice,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shTimeOnIce: number;
   shTimeOnIcePerGame: number;
@@ -1053,7 +1051,7 @@ export interface SkaterTimeOnIceRow {
   shiftsPerGame: number;
   shootsCatches: ShootsCatches;
   skaterFullName: string;
-  /** Absent when reportType=timeonice,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamAbbrevs?: string;
   timeOnIce: number;
   timeOnIcePerGame: number;
@@ -1076,22 +1074,20 @@ export interface TeamSummaryRow {
   powerPlayNetPct: number;
   powerPlayPct: number;
   regulationAndOtWins: number;
-  /** Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   seasonId?: number;
   shotsAgainstPerGame: number;
   shotsForPerGame: number;
-  /** Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamFullName?: string;
-  /** Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count */
+  /** Absent when `aggregate: true` */
   teamId?: number;
   teamShutouts: number;
   ties: number | null;
   wins: number;
   winsInRegulation: number;
   winsInShootout: number;
-  /** Low sample count */
   franchiseId?: number;
-  /** Low sample count */
   franchiseName?: string;
 }
 

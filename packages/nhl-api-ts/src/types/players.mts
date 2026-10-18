@@ -26,7 +26,7 @@ export interface ProspectsForward {
   birthDate: string;
   birthCity: LocalizedString;
   birthCountry: string;
-  /** Absent when team=TOR. Low sample count */
+  /** Only for players born in the USA or Canada */
   birthStateProvince?: LocalizedString;
   sweaterNumber?: number;
 }
@@ -36,7 +36,6 @@ export interface ProspectsGoalie {
   headshot: string;
   firstName: LocalizedString;
   lastName: LocalizedString;
-  /** Low sample count */
   sweaterNumber?: number;
   positionCode: PositionCode;
   shootsCatches: ShootsCatches;

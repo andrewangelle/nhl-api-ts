@@ -150,7 +150,7 @@ components:
       properties:
         gaa:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         gameTypeId:
           type: integer
           description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
@@ -158,18 +158,18 @@ components:
           type: number
         losses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         otLosses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         seasonId:
           type: number
         wins:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         assists:
           type: number
         goals:
@@ -330,7 +330,7 @@ components:
           type: string
         starter:
           type: boolean
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games
         evenStrengthShotsAgainst:
           type: string
         powerPlayShotsAgainst:
@@ -349,7 +349,7 @@ components:
           type: number
         pim:
           type: number
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games
         goalsAgainst:
           type: number
         toi:
@@ -544,38 +544,38 @@ components:
           type: number
         gamesStarted:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         goals:
           type: number
         goalsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         goalsAgainstAvg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         losses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         otLosses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         pim:
           type: number
         savePctg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shotsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shutouts:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         timeOnIce:
           type: string
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         wins:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         gameWinningGoals:
           type: number
         otGoals:
@@ -598,10 +598,8 @@ components:
           type: number
         avgToi:
           type: string
-          description: Low sample count
         faceoffWinningPctg:
           type: number
-          description: Low sample count
     CatGoalieDetail:
       type: object
       required:
@@ -880,24 +878,24 @@ components:
           '$ref': '#/components/schemas/WinningGoalie'
         threeMinRecap:
           type: string
-          description: 'Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now'
+          description: Absent before the game is played
         condensedGame:
           type: string
-          description: 'Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now'
+          description: Absent before the game is played
         gameCenterLink:
           type: string
         threeMinRecapFr:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now; team=UTA,week=now'
+          description: Absent before the game is played
         condensedGameFr:
           type: string
-          description: 'Absent when team=TOR,month=now; team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now; team=UTA,week=now. Low sample count'
+          description: Absent before the game is played
         ticketsLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10'
+          description: Only present before the game starts
         ticketsLinkFr:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10'
+          description: Only present before the game starts
     ClubScheduleGameAwayTeam:
       type: object
       required:
@@ -928,28 +926,21 @@ components:
           type: boolean
         score:
           type: number
-          description: 'Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now'
+          description: Absent before the game is played
         airlineLink:
           type: string
-          description: 'Absent when team=BUF,week=now'
         airlineDesc:
           type: string
-          description: 'Absent when team=BUF,week=now'
         hotelLink:
           type: string
-          description: 'Absent when team=BUF,week=now'
         hotelDesc:
           type: string
-          description: 'Absent when team=BUF,week=now'
         radioLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10'
         promoLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
         promoDesc:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
     ClubStatsSeason:
       type: object
       required:
@@ -1089,13 +1080,13 @@ components:
           type: string
         threeMinRecap:
           type: string
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         threeMinRecapFr:
           type: string
-          description: 'Absent when date=now; date=playoff. Low sample count'
+          description: Absent before the game is played
         condensedGame:
           type: string
-          description: 'Absent when date=now; date=playoff; date=regular. Low sample count'
+          description: Absent before the game is played
         clock:
           '$ref': '#/components/schemas/GameClock'
         neutralSite:
@@ -1104,7 +1095,7 @@ components:
           type: string
         period:
           type: number
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         periodDescriptor:
           '$ref': '#/components/schemas/PeriodDescriptor'
         gameOutcome:
@@ -1113,23 +1104,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/GameGoal'
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         ticketsLink:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         ticketsLinkFr:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         teamLeaders:
           type: array
           items:
             '$ref': '#/components/schemas/GameTeamLeader'
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         seriesStatus:
           '$ref': '#/components/schemas/SeriesStatus'
         seriesUrl:
           type: string
-          description: 'Absent when date=regular. Low sample count'
+          description: Playoff games only
+        condensedGameFr:
+          type: string
     DailyScoresGameWeek:
       type: object
       required:
@@ -1172,20 +1165,20 @@ components:
           type: string
         score:
           type: number
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         sog:
           type: number
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         logo:
           type: string
         record:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         odds:
           type: array
           items:
             '$ref': '#/components/schemas/TeamOdd'
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
     DailyScoresTvBroadcast:
       type: object
       required:
@@ -1209,10 +1202,8 @@ components:
           '$ref': '#/components/schemas/TeamLogo'
         parentId:
           type: number
-          description: 'Absent when date=regular'
         languageCode:
           type: string
-          description: 'Absent when date=regular. Low sample count'
     DelayedPenaltyDetails:
       type: object
       required:
@@ -1607,7 +1598,7 @@ components:
           type: string
         situationCode:
           type: string
-          description: 'Absent when game=preseason; game=shootout Known values: 0440, 1551. Others may appear.'
+          description: 'Known values: 0440, 1551. Others may appear.'
         homeTeamDefendingSide:
           type: string
           description: 'Known values: right, left. Others may appear.'
@@ -1705,10 +1696,8 @@ components:
           type: number
         discreteClip:
           type: number
-          description: 'Absent when date=regular. Low sample count'
         discreteClipFr:
           type: number
-          description: 'Absent when date=regular. Low sample count'
         goalInGame:
           type: number
     GameInfoTeam:
@@ -1788,7 +1777,7 @@ components:
           type: boolean
         maxPeriods:
           type: number
-          description: 'Absent when game=playoff'
+          description: Absent for playoff games
         regPeriods:
           type: number
         otInUse:
@@ -1797,10 +1786,10 @@ components:
           type: boolean
         ticketsLink:
           type: string
-          description: 'Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count'
+          description: Only present before the game starts
         ticketsLinkFr:
           type: string
-          description: 'Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count'
+          description: Only present before the game starts
         matchup:
           '$ref': '#/components/schemas/GameLandingMatchup'
         periodDescriptor:
@@ -1836,7 +1825,7 @@ components:
           type: string
         record:
           type: string
-          description: 'Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count'
+          description: Only present before the game starts
         score:
           type: number
         sog:
@@ -1925,31 +1914,26 @@ components:
           description: 'Known values: 1551, 0651, 1331, 0101, 1451. Others may appear.'
         highlightClipSharingUrl:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         highlightClip:
           type: number
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         pptReplayUrl:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         homeTeamDefendingSide:
           type: string
           description: 'Known values: left, right. Others may appear.'
         goalInGame:
           type: number
-          description: 'Absent when game=playoff; game=preseason; game=shootout. Low sample count'
         discreteClip:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         discreteClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipSharingUrlFr:
           type: string
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
     GameLandingSummary:
       type: object
       required:
@@ -2016,10 +2000,10 @@ components:
           type: number
         goalsAgainstAverage:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
+          description: Goalies only
     GameLogEntry:
       type: object
       required:
@@ -2053,22 +2037,22 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         gamesStarted:
           type: number
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         decision:
           type: string
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         shotsAgainst:
           type: number
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         goalsAgainst:
           type: number
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         shutouts:
           type: number
-          description: 'Absent when player=skater,gameType=2; player=skater,gameType=3; player=veteran,gameType=2; player=veteran,gameType=3. Low sample count'
+          description: Goalies only
         pim:
           type: number
         toi:
@@ -2114,7 +2098,6 @@ components:
           description: 'Known values: REG, OT, SO. Others may appear.'
         otPeriods:
           type: number
-          description: Low sample count
     GamesAbove900Leader:
       type: object
       required:
@@ -2190,7 +2173,7 @@ components:
           type: boolean
         maxPeriods:
           type: number
-          description: 'Absent when game=playoff'
+          description: Absent for playoff games
         regPeriods:
           type: number
         otInUse:
@@ -2226,7 +2209,7 @@ components:
           type: string
         record:
           type: string
-          description: 'Absent when game=legacy; game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count'
+          description: Only present before the game starts
         score:
           type: number
         sog:
@@ -2450,24 +2433,23 @@ components:
           type: number
         scoringPlayerTotal:
           type: number
-          description: 'Absent when game=preseason; game=shootout'
         assist1PlayerId:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout'
+          description: Absent for unassisted goals
         assist1PlayerTotal:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout'
+          description: Absent for unassisted goals
         assist2PlayerId:
           type: number
-          description: 'Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout'
+          description: Absent unless the goal had two assists
         assist2PlayerTotal:
           type: number
-          description: 'Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout'
+          description: Absent unless the goal had two assists
         eventOwnerTeamId:
           type: number
         goalieInNetId:
           type: number
-          description: 'Absent when game=playoff'
+          description: Absent when the net was empty
         awayScore:
           type: number
         homeScore:
@@ -2481,25 +2463,20 @@ components:
           description: 'Known values: O, N, D. Others may appear.'
         highlightClipSharingUrl:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         highlightClip:
           type: number
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         goalInGame:
           type: number
-          description: 'Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout. Low sample count'
         discreteClip:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         discreteClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipSharingUrlFr:
           type: string
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
     Goalie5v5Detail:
       type: object
       required:
@@ -2600,7 +2577,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=advanced,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -2608,7 +2585,7 @@ components:
           type: number
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=advanced,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIce:
           type: number
     GoalieBiosRow:
@@ -2651,7 +2628,7 @@ components:
           oneOf:
             - type: string
             - type: 'null'
-          description: 'Absent when statsType=bios,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         draftOverall:
           oneOf:
             - type: number
@@ -2881,13 +2858,13 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=daysrest,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=daysrest,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         ties:
           oneOf:
             - type: number
@@ -3000,12 +2977,12 @@ components:
             '$ref': '#/components/schemas/EdgeSeasonAvailability'
         minimumGamesPlayed:
           type: number
-          description: 'Absent when variant=playoffs. Low sample count'
+          description: Regular season only
         leaders:
           '$ref': '#/components/schemas/GoalieLandingLeaders'
         minimumMinutesPlayed:
           type: number
-          description: 'Absent when variant=regular. Low sample count'
+          description: Playoffs only
     GoalieLandingLeaders:
       type: object
       required:
@@ -3053,22 +3030,16 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         gamesPlayed:
           type: number
-          description: Low sample count
         seasonPoints:
           type: number
-          description: Low sample count
         record:
           type: string
-          description: Low sample count
         gaa:
           type: number
-          description: Low sample count
         savePctg:
           type: number
-          description: Low sample count
         shutouts:
           type: number
-          description: Low sample count
     GoalieLocationArea:
       type: object
       required:
@@ -3171,7 +3142,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=penaltyShots,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -3179,7 +3150,7 @@ components:
           type: number
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=penaltyShots,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     GoalieSaveDetails:
       type: object
       required:
@@ -3295,7 +3266,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=savesByStrength,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shGoalsAgainst:
           type: number
         shSavePct:
@@ -3311,7 +3282,7 @@ components:
           type: number
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=savesByStrength,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         ties:
           oneOf:
             - type: number
@@ -3364,7 +3335,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=shootout,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootoutGoalsAgainst:
           type: number
         shootoutLosses:
@@ -3382,7 +3353,7 @@ components:
           description: 'Known values: L, R. Others may appear.'
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=shootout,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     GoalieShotLocationArea:
       type: object
       required:
@@ -3573,13 +3544,13 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=startedVsRelieved,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=startedVsRelieved,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         ties:
           oneOf:
             - type: number
@@ -3643,7 +3614,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when statsType=summary,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -3653,7 +3624,7 @@ components:
           type: number
         teamAbbrevs:
           type: string
-          description: 'Absent when statsType=summary,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         ties:
           oneOf:
             - type: number
@@ -3717,7 +3688,7 @@ components:
           description: 'Known values: left, right. Others may appear.'
         pptReplayUrl:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
     HardestShotLeader:
       type: object
       required:
@@ -3939,7 +3910,7 @@ components:
             '$ref': '#/components/schemas/StandingsEntry'
         standingsDateTimeUtc:
           type: string
-          description: 'Absent when variant=season-2005; variant=season. Low sample count'
+          description: Only present for the current standings
     LinescoreByPeriod:
       type: object
       required:
@@ -4483,7 +4454,7 @@ components:
           type: number
         maxPeriods:
           type: number
-          description: 'Absent when game=playoff'
+          description: Absent for playoff games
         plays:
           type: array
           items:
@@ -4597,10 +4568,10 @@ components:
           type: boolean
         currentTeamId:
           type: number
-          description: 'Absent when player=retired'
+          description: 'Absent for inactive players (`isActive: false`)'
         currentTeamAbbrev:
           type: string
-          description: 'Absent when player=retired'
+          description: 'Absent for inactive players (`isActive: false`)'
         fullTeamName:
           '$ref': '#/components/schemas/LocalizedString'
         teamCommonName:
@@ -4617,7 +4588,7 @@ components:
             '$ref': '#/components/schemas/PlayerLandingBadge'
         teamLogo:
           type: string
-          description: 'Absent when player=retired'
+          description: 'Absent for inactive players (`isActive: false`)'
         sweaterNumber:
           type: number
         position:
@@ -4679,7 +4650,7 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/PlayerLandingCurrentTeamRoster'
-          description: 'Absent when player=retired'
+          description: 'Absent for inactive players (`isActive: false`)'
     PlayerLandingAward:
       type: object
       required:
@@ -4770,7 +4741,7 @@ components:
       properties:
         decision:
           type: string
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         gameDate:
           type: string
         gameId:
@@ -4780,23 +4751,23 @@ components:
           description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
         gamesStarted:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         goalsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         homeRoadFlag:
           type: string
         opponentAbbrev:
           type: string
         penaltyMins:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shotsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         teamAbbrev:
           type: string
         toi:
@@ -4836,12 +4807,12 @@ components:
           type: number
         goalsAgainstAvg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         leagueAbbrev:
           type: string
         savePctg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         season:
           type: number
         sequence:
@@ -4850,33 +4821,33 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         goalsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         losses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shutouts:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         ties:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         timeOnIce:
           type: string
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         wins:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shotsAgainst:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         otLosses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         assists:
           type: number
         gamesStarted:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         goals:
           type: number
         teamCommonName:
@@ -5183,10 +5154,8 @@ components:
           '$ref': '#/components/schemas/PlayoffFullCoverageUrls'
         conferenceAbbrev:
           type: string
-          description: 'Absent when season=20232024,series=o. Low sample count'
         conferenceName:
           type: string
-          description: 'Absent when season=20232024,series=o. Low sample count'
     PlayoffSeriesScheduleGame:
       type: object
       required:
@@ -5502,7 +5471,6 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         sweaterNumber:
           type: number
-          description: Low sample count
         positionCode:
           type: string
           description: 'Known values: C, L, R, D, G. Others may appear.'
@@ -5636,14 +5604,14 @@ components:
           type: string
         shiftChart:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games
         toiAway:
           type: string
         toiHome:
           type: string
         shootoutSummary:
           type: string
-          description: 'Absent when game=regular. Low sample count'
+          description: Only for games decided by a shootout
     RightRailGameVideo:
       type: object
       required:
@@ -5653,7 +5621,6 @@ components:
           type: number
         condensedGame:
           type: number
-          description: Low sample count
     RightRailLast10Record:
       type: object
       required:
@@ -5744,7 +5711,7 @@ components:
           type: number
         neededToWin:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
+          description: Playoff games only
     RightRailTeamSeasonStats:
       type: object
       required:
@@ -5902,28 +5869,28 @@ components:
           '$ref': '#/components/schemas/WinningGoalie'
         threeMinRecap:
           type: string
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         threeMinRecapFr:
           type: string
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         gameCenterLink:
           type: string
         condensedGame:
           type: string
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         specialEvent:
           '$ref': '#/components/schemas/SpecialEvent'
         ticketsLink:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         ticketsLinkFr:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         seriesStatus:
           '$ref': '#/components/schemas/SeriesStatus'
         seriesUrl:
           type: string
-          description: 'Absent when date=regular. Low sample count'
+          description: Playoff games only
     ScheduleHomeTeam:
       type: object
       required:
@@ -5954,28 +5921,21 @@ components:
           type: boolean
         score:
           type: number
-          description: 'Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now'
+          description: Absent before the game is played
         hotelLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now'
         hotelDesc:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now'
         airlineLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
         airlineDesc:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
         radioLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10'
         promoLink:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
         promoDesc:
           type: string
-          description: 'Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now'
     ScoringGoal:
       type: object
       required:
@@ -6037,28 +5997,23 @@ components:
           description: 'Known values: 1551, 0651, 1331, 0101, 1451. Others may appear.'
         highlightClipSharingUrl:
           type: string
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         highlightClip:
           type: number
-          description: 'Absent when game=preseason; game=shootout'
+          description: Absent for preseason games and older seasons
         homeTeamDefendingSide:
           type: string
           description: 'Known values: left, right. Others may appear.'
         goalInGame:
           type: number
-          description: 'Absent when game=playoff; game=preseason; game=shootout. Low sample count'
         discreteClip:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         discreteClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipSharingUrlFr:
           type: string
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
         highlightClipFr:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
     Scratch:
       type: object
       required:
@@ -6199,22 +6154,22 @@ components:
           type: number
         goalsAgainstAvg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         losses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         otLosses:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         shutouts:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         wins:
           type: number
-          description: 'Absent when player=retired; player=skater; player=veteran. Low sample count'
+          description: Goalies only
         assists:
           type: number
         gameWinningGoals:
@@ -6259,37 +6214,26 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         gamesPlayed:
           type: number
-          description: Low sample count
         wins:
           type: number
-          description: Low sample count
         losses:
           type: number
-          description: Low sample count
         otLosses:
           type: number
-          description: Low sample count
         shotsAgainst:
           type: number
-          description: Low sample count
         goalsAgainst:
           type: number
-          description: Low sample count
         goalsAgainstAvg:
           type: number
-          description: Low sample count
         savePctg:
           type: number
-          description: Low sample count
         shutouts:
           type: number
-          description: Low sample count
         saves:
           type: number
-          description: Low sample count
         toi:
           type: string
-          description: Low sample count
     SeasonStatsSkater:
       type: object
       required:
@@ -6311,49 +6255,34 @@ components:
           type: string
         gamesPlayed:
           type: number
-          description: Low sample count
         goals:
           type: number
-          description: Low sample count
         assists:
           type: number
-          description: Low sample count
         points:
           type: number
-          description: Low sample count
         plusMinus:
           type: number
-          description: Low sample count
         pim:
           type: number
-          description: Low sample count
         avgPoints:
           type: number
-          description: Low sample count
         avgTimeOnIce:
           type: string
-          description: Low sample count
         gameWinningGoals:
           type: number
-          description: Low sample count
         shots:
           type: number
-          description: Low sample count
         shootingPctg:
           type: number
-          description: Low sample count
         faceoffWinningPctg:
           type: number
-          description: Low sample count
         powerPlayGoals:
           type: number
-          description: Low sample count
         blockedShots:
           type: number
-          description: Low sample count
         hits:
           type: number
-          description: Low sample count
     SeriesStatus:
       type: object
       required:
@@ -6466,7 +6395,6 @@ components:
           oneOf:
             - type: string
             - type: 'null'
-          description: Low sample count
     ShootoutCompletePlay:
       type: object
       required:
@@ -6682,12 +6610,12 @@ components:
           oneOf:
             - type: string
             - type: 'null'
-          description: 'Absent when reportType=bios,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         currentTeamName:
           oneOf:
             - type: string
             - type: 'null'
-          description: 'Absent when reportType=bios,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         draftOverall:
           oneOf:
             - type: number
@@ -7387,7 +7315,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=faceoffpercentages,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shFaceoffPct:
           type: number
         shFaceoffs:
@@ -7399,7 +7327,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=faceoffpercentages,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame:
           type: number
         totalFaceoffs:
@@ -7478,7 +7406,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=faceoffwins,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shFaceoffs:
           type: number
         shFaceoffsLost:
@@ -7489,7 +7417,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=faceoffwins,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         totalFaceoffLosses:
           type: number
         totalFaceoffWins:
@@ -7552,7 +7480,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=goalsForAgainst,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shortHandedGoalsAgainst:
           type: number
         shortHandedGoalsFor:
@@ -7563,7 +7491,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=goalsForAgainst,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterHardestShot:
       type: object
       required:
@@ -7705,12 +7633,12 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         seasonId:
           type: number
-          description: 'Absent when reportType=penalties,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         skaterFullName:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=penalties,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame:
           type: number
     SkaterPenaltyKillRow:
@@ -7753,7 +7681,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=penaltykill,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shAssists:
           type: number
         shGoals:
@@ -7792,7 +7720,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=penaltykill,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterPenaltyShotsRow:
       type: object
       required:
@@ -7823,7 +7751,7 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         seasonId:
           type: number
-          description: 'Absent when reportType=penaltyShots,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -7831,7 +7759,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=penaltyShots,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterPercentagesRow:
       type: object
       required:
@@ -7888,7 +7816,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=percentages,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootingPct5v5:
           type: number
         shootsCatches:
@@ -7906,7 +7834,7 @@ components:
             - type: 'null'
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=percentages,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame5v5:
           type: number
         usatPercentage:
@@ -8003,12 +7931,12 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=powerplay,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         skaterFullName:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=powerplay,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterPuckPossessionsRow:
       type: object
       required:
@@ -8066,7 +7994,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=puckPossessions,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -8074,7 +8002,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=puckPossessions,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame5v5:
           type: number
         usatPct:
@@ -8163,7 +8091,7 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         seasonId:
           type: number
-          description: 'Absent when reportType=realtime,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -8177,7 +8105,7 @@ components:
           type: number
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=realtime,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame:
           type: number
         totalShotAttempts:
@@ -8249,7 +8177,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=scoringpergame,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         secondaryAssistsPerGame:
           type: number
         shootsCatches:
@@ -8263,7 +8191,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=scoringpergame,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIce:
           type: number
         timeOnIcePerGame:
@@ -8335,7 +8263,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=scoringRates,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         secondaryAssists5v5:
           type: number
         secondaryAssistsPer605v5:
@@ -8346,7 +8274,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=scoringRates,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame5v5:
           type: number
     SkaterShootoutRow:
@@ -8387,7 +8315,7 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         seasonId:
           type: number
-          description: 'Absent when reportType=shootout,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootoutGameDecidingGoals:
           type: number
         shootoutGamesPlayed:
@@ -8405,7 +8333,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=shootout,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterShotLocationArea:
       type: object
       required:
@@ -8592,7 +8520,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=shottype,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootingPct:
           type: number
         shootingPctBackhand:
@@ -8665,7 +8593,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=shottype,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
     SkaterSkatingDistanceDetail:
       type: object
       required:
@@ -8773,7 +8701,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when aggregate=true; reportType=summary,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shGoals:
           type: number
         shPoints:
@@ -8789,7 +8717,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when aggregate=true; reportType=summary,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame:
           type: number
     SkaterSummaryShootingRow:
@@ -8846,7 +8774,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=summaryshooting,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -8854,7 +8782,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=summaryshooting,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIcePerGame5v5:
           type: number
         usatAgainst:
@@ -8919,7 +8847,7 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when reportType=timeonice,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shTimeOnIce:
           type: number
         shTimeOnIcePerGame:
@@ -8935,7 +8863,7 @@ components:
           type: string
         teamAbbrevs:
           type: string
-          description: 'Absent when reportType=timeonice,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         timeOnIce:
           type: number
         timeOnIcePerGame:
@@ -9397,7 +9325,6 @@ components:
           type: string
         clinchIndicator:
           type: string
-          description: Low sample count
     StandingsSeason:
       type: object
       required:
@@ -9471,7 +9398,7 @@ components:
           description: 'Known values: offside, puck-frozen, puck-in-netting, goalie-stopped-after-sog, puck-in-benches, icing, referee-or-linesman, puck-in-crowd, net-dislodged-offensive-skater, tv-timeout, hand-pass, high-stick, visitor-timeout, objects-on-ice. Others may appear.'
         secondaryReason:
           type: string
-          description: 'Absent when game=overtime; game=playoff; game=preseason; game=regular; game=shootout Known values: tv-timeout, visitor-timeout. Others may appear.'
+          description: 'Known values: tv-timeout, visitor-timeout. Others may appear.'
     StoppagePlay:
       type: object
       required:
@@ -9594,10 +9521,10 @@ components:
           type: number
         goalsAgainstAverage:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
+          description: Goalies only
         savePctg:
           type: number
-          description: 'Absent when game=preseason; game=regular; game=shootout. Low sample count'
+          description: Goalies only
     TakeawayDetails:
       type: object
       required:
@@ -10146,7 +10073,7 @@ components:
           type: number
         nextSeason:
           type: number
-          description: 'Absent when team=BUF,season=now; team=TOR,season=now; team=UTA,season=now'
+          description: Absent for the current season
         clubTimezone:
           type: string
         clubUTCOffset:
@@ -10225,27 +10152,26 @@ components:
           type: string
         threeMinRecap:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
+          description: 'Absent before the game is played and for older seasons (for example, 1999-2000)'
         condensedGame:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
+          description: 'Absent before the game is played and for older seasons (for example, 1999-2000)'
         threeMinRecapFr:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
+          description: 'Absent before the game is played and for older seasons (for example, 1999-2000)'
         seriesStatus:
           '$ref': '#/components/schemas/SeasonScheduleSeriesStatus'
         seriesUrl:
           type: string
-          description: 'Absent when team=BUF,season=20232024; team=BUF,season=now; team=SEA,season=20232024; team=TOR,season=now; team=UTA,season=now. Low sample count'
+          description: Playoff games only
         condensedGameFr:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
         ticketsLink:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
+          description: Only present before the game starts
         ticketsLinkFr:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
+          description: Only present before the game starts
     TeamSeasonScheduleGameAwayTeam:
       type: object
       required:
@@ -10278,25 +10204,18 @@ components:
           type: number
         hotelLink:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
         hotelDesc:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
         airlineLink:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
         airlineDesc:
           type: string
-          description: 'Absent when team=BUF,season=19992000'
         radioLink:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
         promoLink:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
         promoDesc:
           type: string
-          description: 'Absent when team=SEA,season=20232024'
     TeamSeasonStats:
       type: object
       required:
@@ -10614,17 +10533,17 @@ components:
           type: number
         seasonId:
           type: number
-          description: 'Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         shotsAgainstPerGame:
           type: number
         shotsForPerGame:
           type: number
         teamFullName:
           type: string
-          description: 'Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         teamId:
           type: number
-          description: 'Absent when isGame=false,aggregate=true; isGame=true,aggregate=true. Low sample count'
+          description: 'Absent when `aggregate: true`'
         teamShutouts:
           type: number
         ties:
@@ -10639,10 +10558,8 @@ components:
           type: number
         franchiseId:
           type: number
-          description: Low sample count
         franchiseName:
           type: string
-          description: Low sample count
     TeamTopShotSpeed:
       type: object
       required:
@@ -10837,10 +10754,10 @@ components:
           type: boolean
         score:
           type: number
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         radioLink:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         odds:
           type: array
           items:
@@ -10876,10 +10793,10 @@ components:
           type: boolean
         score:
           type: number
-          description: 'Absent when date=now'
+          description: Absent before the game is played
         radioLink:
           type: string
-          description: 'Absent when date=playoff; date=regular. Low sample count'
+          description: Only present before the game starts
         odds:
           type: array
           items:
@@ -10901,7 +10818,6 @@ components:
           type: number
         otPeriods:
           type: number
-          description: 'Absent when date=regular. Low sample count'
     WinningGoalie:
       type: object
       required:

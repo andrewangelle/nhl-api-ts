@@ -54,7 +54,6 @@ export interface StatsApiPage<Row> {
 
 export interface GameOutcome {
   lastPeriodType: PeriodType;
-  /** Low sample count */
   otPeriods?: number;
 }
 

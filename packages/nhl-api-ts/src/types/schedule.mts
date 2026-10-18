@@ -52,24 +52,24 @@ export interface ClubScheduleGame {
   awayTeam: ClubScheduleGameAwayTeam;
   homeTeam: ScheduleHomeTeam;
   periodDescriptor: PeriodDescriptor;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   gameOutcome?: GameOutcome;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   winningGoalie?: WinningGoalie;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   winningGoalScorer?: WinningGoalie;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   threeMinRecap?: string;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   condensedGame?: string;
   gameCenterLink: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   threeMinRecapFr?: string;
-  /** Absent when team=TOR,month=now; team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now; team=UTA,week=now. Low sample count */
+  /** Absent before the game is played */
   condensedGameFr?: string;
-  /** Absent when team=BUF,week=2024-02-10 */
+  /** Only present before the game starts */
   ticketsLink?: string;
-  /** Absent when team=BUF,week=2024-02-10 */
+  /** Only present before the game starts */
   ticketsLinkFr?: string;
 }
 
@@ -82,21 +82,14 @@ export interface ClubScheduleGameAwayTeam {
   logo: string;
   darkLogo: string;
   awaySplitSquad: boolean;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   score?: number;
-  /** Absent when team=BUF,week=now */
   airlineLink?: string;
-  /** Absent when team=BUF,week=now */
   airlineDesc?: string;
-  /** Absent when team=BUF,week=now */
   hotelLink?: string;
-  /** Absent when team=BUF,week=now */
   hotelDesc?: string;
-  /** Absent when team=BUF,week=2024-02-10 */
   radioLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   promoLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   promoDesc?: string;
 }
 
@@ -109,28 +102,20 @@ export interface ScheduleHomeTeam {
   logo: string;
   darkLogo: string;
   homeSplitSquad: boolean;
-  /** Absent when team=BUF,week=now; team=TOR,week=now; team=UTA,week=now */
+  /** Absent before the game is played */
   score?: number;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now */
   hotelLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now */
   hotelDesc?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   airlineLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   airlineDesc?: string;
-  /** Absent when team=BUF,week=2024-02-10 */
   radioLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   promoLink?: string;
-  /** Absent when team=BUF,week=2024-02-10; team=BUF,week=now; team=TOR,week=now */
   promoDesc?: string;
 }
 
 export interface SpecialEvent {
   parentId: number;
   name: LocalizedString;
-  /** Low sample count */
   lightLogoUrl?: LocalizedString;
 }
 
@@ -226,9 +211,7 @@ export interface PlayoffSeriesSchedule {
   topSeedTeam: PlayoffSeriesTeam;
   games: PlayoffSeriesScheduleGame[];
   fullCoverageUrl: PlayoffFullCoverageUrls;
-  /** Absent when season=20232024,series=o. Low sample count */
   conferenceAbbrev?: string;
-  /** Absent when season=20232024,series=o. Low sample count */
   conferenceName?: string;
 }
 
@@ -326,35 +309,34 @@ export interface ScheduleGame {
   awayTeam: WeeklyScheduleGameAwayTeam;
   homeTeam: WeeklyScheduleGameHomeTeam;
   periodDescriptor: WeeklySchedulePeriodDescriptor;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   gameOutcome?: GameOutcome;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   winningGoalie?: WinningGoalie;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   winningGoalScorer?: WinningGoalie;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   threeMinRecap?: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   threeMinRecapFr?: string;
   gameCenterLink: string;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   condensedGame?: string;
-  /** Absent when date=now; date=playoff; date=regular. Low sample count */
   specialEvent?: SpecialEvent;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   ticketsLink?: string;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   ticketsLinkFr?: string;
-  /** Absent when date=regular. Low sample count */
+  /** Playoff games only */
   seriesStatus?: SeriesStatus;
-  /** Absent when date=regular. Low sample count */
+  /** Playoff games only */
   seriesUrl?: string;
 }
 
 export interface TeamSeasonSchedule {
   previousSeason: number;
   currentSeason: number;
-  /** Absent when team=BUF,season=now; team=TOR,season=now; team=UTA,season=now */
+  /** Absent for the current season */
   nextSeason?: number;
   clubTimezone: string;
   clubUTCOffset: string;
@@ -380,26 +362,24 @@ export interface TeamSeasonScheduleGame {
   periodDescriptor: PeriodDescriptor;
   gameOutcome?: GameOutcome;
   winningGoalie?: WinningGoalie;
-  /** Absent when team=BUF,season=19992000 */
+  /** Absent before the game is played and for older seasons (for example, 1999-2000) */
   winningGoalScorer?: WinningGoalie;
-  /** Absent when team=BUF,season=19992000; team=BUF,season=now; team=TOR,season=now */
   specialEvent?: SpecialEvent;
   gameCenterLink: string;
-  /** Absent when team=BUF,season=19992000 */
+  /** Absent before the game is played and for older seasons (for example, 1999-2000) */
   threeMinRecap?: string;
-  /** Absent when team=BUF,season=19992000 */
+  /** Absent before the game is played and for older seasons (for example, 1999-2000) */
   condensedGame?: string;
-  /** Absent when team=BUF,season=19992000 */
+  /** Absent before the game is played and for older seasons (for example, 1999-2000) */
   threeMinRecapFr?: string;
-  /** Absent when team=BUF,season=20232024; team=BUF,season=now; team=SEA,season=20232024; team=TOR,season=now; team=UTA,season=now. Low sample count */
+  /** Playoff games only */
   seriesStatus?: SeasonScheduleSeriesStatus;
-  /** Absent when team=BUF,season=20232024; team=BUF,season=now; team=SEA,season=20232024; team=TOR,season=now; team=UTA,season=now. Low sample count */
+  /** Playoff games only */
   seriesUrl?: string;
-  /** Absent when team=SEA,season=20232024 */
   condensedGameFr?: string;
-  /** Absent when team=SEA,season=20232024 */
+  /** Only present before the game starts */
   ticketsLink?: string;
-  /** Absent when team=SEA,season=20232024 */
+  /** Only present before the game starts */
   ticketsLinkFr?: string;
 }
 
@@ -413,19 +393,12 @@ export interface TeamSeasonScheduleGameAwayTeam {
   darkLogo: string;
   awaySplitSquad: boolean;
   score?: number;
-  /** Absent when team=BUF,season=19992000 */
   hotelLink?: string;
-  /** Absent when team=BUF,season=19992000 */
   hotelDesc?: string;
-  /** Absent when team=BUF,season=19992000 */
   airlineLink?: string;
-  /** Absent when team=BUF,season=19992000 */
   airlineDesc?: string;
-  /** Absent when team=SEA,season=20232024 */
   radioLink?: string;
-  /** Absent when team=SEA,season=20232024 */
   promoLink?: string;
-  /** Absent when team=SEA,season=20232024 */
   promoDesc?: string;
 }
 
@@ -462,9 +435,9 @@ export interface WeeklyScheduleGameAwayTeam {
   logo: string;
   darkLogo: string;
   awaySplitSquad: boolean;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   score?: number;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   radioLink?: string;
   /** Present only while odds are published for the game. */
   odds?: TeamOdd[];
@@ -479,9 +452,9 @@ export interface WeeklyScheduleGameHomeTeam {
   logo: string;
   darkLogo: string;
   homeSplitSquad: boolean;
-  /** Absent when date=now */
+  /** Absent before the game is played */
   score?: number;
-  /** Absent when date=playoff; date=regular. Low sample count */
+  /** Only present before the game starts */
   radioLink?: string;
   /** Present only while odds are published for the game. */
   odds?: TeamOdd[];
@@ -491,7 +464,6 @@ export interface WeeklySchedulePeriodDescriptor {
   number: number;
   periodType: PeriodType;
   maxRegulationPeriods: number;
-  /** Absent when date=regular. Low sample count */
   otPeriods?: number;
 }
 

@@ -63,9 +63,10 @@ a schema, so the types are derived from real responses (see
 [CONTRIBUTING.md](../../../CONTRIBUTING.md)). Nothing is validated at runtime: a
 type describes what the API returned when the SDK was released.
 
-- **Optional fields** (`field?: T`) are absent in some responses. The JSDoc
-  says when, for example `Absent when player=retired`. A game that hasn't been
-  played has no score, a retired player has no current team.
+- **Optional fields** (`field?: T`) are absent in some responses. When the
+  rule is known, the JSDoc says when, for example `Absent before the game is
+  played`, `Goalies only` or ``Absent when `aggregate: true` ``. A field with
+  no note can be missing for reasons the samples didn't reveal.
 - **Nullable fields** (`field: T | null`) are present with a `null` value.
 - **Open enums.** Values such as `gameState`, `periodType` and `positionCode`
   are typed as `OpenUnion<'REG' | 'OT' | 'SO'>`: autocomplete lists the known

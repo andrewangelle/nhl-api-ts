@@ -324,7 +324,9 @@ export interface CalendarScheduleTeam {
 export interface CareerTotalsRegularSeason {
     // (undocumented)
     assists: number;
+    // (undocumented)
     avgToi?: string;
+    // (undocumented)
     faceoffWinningPctg?: number;
     // (undocumented)
     gamesPlayed: number;
@@ -567,7 +569,9 @@ export interface ClubScheduleGame {
 export interface ClubScheduleGameAwayTeam {
     // (undocumented)
     abbrev: string;
+    // (undocumented)
     airlineDesc?: string;
+    // (undocumented)
     airlineLink?: string;
     // (undocumented)
     awaySplitSquad: boolean;
@@ -575,7 +579,9 @@ export interface ClubScheduleGameAwayTeam {
     commonName: LocalizedString;
     // (undocumented)
     darkLogo: string;
+    // (undocumented)
     hotelDesc?: string;
+    // (undocumented)
     hotelLink?: string;
     // (undocumented)
     id: number;
@@ -585,8 +591,11 @@ export interface ClubScheduleGameAwayTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    // (undocumented)
     promoDesc?: string;
+    // (undocumented)
     promoLink?: string;
+    // (undocumented)
     radioLink?: string;
     score?: number;
 }
@@ -779,6 +788,8 @@ export interface DailyScoresGame {
     clock?: GameClock;
     condensedGame?: string;
     // (undocumented)
+    condensedGameFr?: string;
+    // (undocumented)
     easternUTCOffset: string;
     // (undocumented)
     gameCenterLink: string;
@@ -863,6 +874,7 @@ export interface DailyScoresTvBroadcast {
     countryCode: string;
     // (undocumented)
     id: number;
+    // (undocumented)
     languageCode?: string;
     // (undocumented)
     logoUrls?: TeamLogo;
@@ -870,6 +882,7 @@ export interface DailyScoresTvBroadcast {
     market: string;
     // (undocumented)
     network: string;
+    // (undocumented)
     parentId?: number;
     // (undocumented)
     sequenceNumber: number;
@@ -1334,6 +1347,7 @@ export interface GameEndPlay {
     homeTeamDefendingSide: OpenUnion<'right' | 'left'>;
     // (undocumented)
     periodDescriptor: PeriodDescriptor;
+    // (undocumented)
     situationCode?: OpenUnion<'0440' | '1551'>;
     // (undocumented)
     sortOrder: number;
@@ -1373,7 +1387,9 @@ export interface GameGoal {
     assists: DailyScoresGoalAssist[];
     // (undocumented)
     awayScore: number;
+    // (undocumented)
     discreteClip?: number;
+    // (undocumented)
     discreteClipFr?: number;
     // (undocumented)
     firstName: LocalizedString;
@@ -1527,12 +1543,15 @@ export interface GameLandingScoringGoal {
     assists: GoalAssist[];
     // (undocumented)
     awayScore: number;
+    // (undocumented)
     discreteClip?: number;
+    // (undocumented)
     discreteClipFr?: number;
     // (undocumented)
     eventId: number;
     // (undocumented)
     firstName: LocalizedString;
+    // (undocumented)
     goalInGame?: number;
     // (undocumented)
     goalModifier: string;
@@ -1541,8 +1560,10 @@ export interface GameLandingScoringGoal {
     // (undocumented)
     headshot: string;
     highlightClip?: number;
+    // (undocumented)
     highlightClipFr?: number;
     highlightClipSharingUrl?: string;
+    // (undocumented)
     highlightClipSharingUrlFr?: string;
     // (undocumented)
     homeScore: number;
@@ -1680,6 +1701,7 @@ export interface GameOfficial {
 export interface GameOutcome {
     // (undocumented)
     lastPeriodType: PeriodType;
+    // (undocumented)
     otPeriods?: number;
 }
 
@@ -1791,6 +1813,7 @@ export interface GameStoryTvBroadcast {
     countryCode: string;
     // (undocumented)
     id: number;
+    // (undocumented)
     logoUrls?: TeamLogo;
     // (undocumented)
     market: string;
@@ -1930,20 +1953,26 @@ export interface GoalDetails {
     assist2PlayerTotal?: number;
     // (undocumented)
     awayScore: number;
+    // (undocumented)
     discreteClip?: number;
+    // (undocumented)
     discreteClipFr?: number;
     // (undocumented)
     eventOwnerTeamId: number;
     goalieInNetId?: number;
+    // (undocumented)
     goalInGame?: number;
     highlightClip?: number;
+    // (undocumented)
     highlightClipFr?: number;
     highlightClipSharingUrl?: string;
+    // (undocumented)
     highlightClipSharingUrlFr?: string;
     // (undocumented)
     homeScore: number;
     // (undocumented)
     scoringPlayerId: number;
+    // (undocumented)
     scoringPlayerTotal?: number;
     // (undocumented)
     shotType: ShotType;
@@ -2312,7 +2341,9 @@ export interface GoalieLandingLeaders {
 export interface GoalieLeader {
     // (undocumented)
     firstName: LocalizedString;
+    // (undocumented)
     gaa?: number;
+    // (undocumented)
     gamesPlayed?: number;
     // (undocumented)
     headshot: string;
@@ -2324,9 +2355,13 @@ export interface GoalieLeader {
     playerId: number;
     // (undocumented)
     positionCode: PositionCode;
+    // (undocumented)
     record?: string;
+    // (undocumented)
     savePctg?: number;
+    // (undocumented)
     seasonPoints?: number;
+    // (undocumented)
     shutouts?: number;
     // (undocumented)
     sweaterNumber: number;
@@ -3936,7 +3971,9 @@ export interface PlayoffSeriesGameTeam {
 export interface PlayoffSeriesSchedule {
     // (undocumented)
     bottomSeedTeam: PlayoffSeriesTeam;
+    // (undocumented)
     conferenceAbbrev?: string;
+    // (undocumented)
     conferenceName?: string;
     // (undocumented)
     fullCoverageUrl: PlayoffFullCoverageUrls;
@@ -4237,6 +4274,7 @@ export interface ProspectsGoalie {
     positionCode: PositionCode;
     // (undocumented)
     shootsCatches: ShootsCatches;
+    // (undocumented)
     sweaterNumber?: number;
     // (undocumented)
     weightInKilograms: number;
@@ -4299,6 +4337,7 @@ export interface RightRail {
     gameInfo: RightRailGameInfo;
     // (undocumented)
     gameReports?: RightRailGameReports;
+    // (undocumented)
     gameVideo?: RightRailGameVideo;
     last10Record?: RightRailLast10Record;
     // (undocumented)
@@ -4353,6 +4392,7 @@ export interface RightRailGameReports {
 
 // @public (undocumented)
 export interface RightRailGameVideo {
+    // (undocumented)
     condensedGame?: number;
     // (undocumented)
     threeMinRecap: number;
@@ -4542,6 +4582,7 @@ export interface ScheduleGame {
     season: number;
     seriesStatus?: SeriesStatus;
     seriesUrl?: string;
+    // (undocumented)
     specialEvent?: SpecialEvent;
     // (undocumented)
     startTimeUTC: string;
@@ -4565,7 +4606,9 @@ export interface ScheduleGame {
 export interface ScheduleHomeTeam {
     // (undocumented)
     abbrev: string;
+    // (undocumented)
     airlineDesc?: string;
+    // (undocumented)
     airlineLink?: string;
     // (undocumented)
     commonName: LocalizedString;
@@ -4573,7 +4616,9 @@ export interface ScheduleHomeTeam {
     darkLogo: string;
     // (undocumented)
     homeSplitSquad: boolean;
+    // (undocumented)
     hotelDesc?: string;
+    // (undocumented)
     hotelLink?: string;
     // (undocumented)
     id: number;
@@ -4583,8 +4628,11 @@ export interface ScheduleHomeTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    // (undocumented)
     promoDesc?: string;
+    // (undocumented)
     promoLink?: string;
+    // (undocumented)
     radioLink?: string;
     score?: number;
 }
@@ -4595,12 +4643,15 @@ export interface ScoringGoal {
     assists: GoalAssist[];
     // (undocumented)
     awayScore: number;
+    // (undocumented)
     discreteClip?: number;
+    // (undocumented)
     discreteClipFr?: number;
     // (undocumented)
     eventId: number;
     // (undocumented)
     firstName: LocalizedString;
+    // (undocumented)
     goalInGame?: number;
     // (undocumented)
     goalModifier: string;
@@ -4609,8 +4660,10 @@ export interface ScoringGoal {
     // (undocumented)
     headshot: string;
     highlightClip?: number;
+    // (undocumented)
     highlightClipFr?: number;
     highlightClipSharingUrl?: string;
+    // (undocumented)
     highlightClipSharingUrlFr?: string;
     // (undocumented)
     homeScore: number;
@@ -4784,49 +4837,75 @@ export interface SeasonStatLine {
 
 // @public (undocumented)
 export interface SeasonStatsGoalie {
+    // (undocumented)
     gamesPlayed?: number;
+    // (undocumented)
     goalsAgainst?: number;
+    // (undocumented)
     goalsAgainstAvg?: number;
+    // (undocumented)
     losses?: number;
     // (undocumented)
     name: LocalizedString;
+    // (undocumented)
     otLosses?: number;
     // (undocumented)
     playerId: number;
+    // (undocumented)
     savePctg?: number;
+    // (undocumented)
     saves?: number;
+    // (undocumented)
     shotsAgainst?: number;
+    // (undocumented)
     shutouts?: number;
     // (undocumented)
     sweaterNumber: number;
     // (undocumented)
     teamId: number;
+    // (undocumented)
     toi?: string;
+    // (undocumented)
     wins?: number;
 }
 
 // @public (undocumented)
 export interface SeasonStatsSkater {
+    // (undocumented)
     assists?: number;
+    // (undocumented)
     avgPoints?: number;
+    // (undocumented)
     avgTimeOnIce?: string;
+    // (undocumented)
     blockedShots?: number;
+    // (undocumented)
     faceoffWinningPctg?: number;
+    // (undocumented)
     gamesPlayed?: number;
+    // (undocumented)
     gameWinningGoals?: number;
+    // (undocumented)
     goals?: number;
+    // (undocumented)
     hits?: number;
     // (undocumented)
     name: LocalizedString;
+    // (undocumented)
     pim?: number;
     // (undocumented)
     playerId: number;
+    // (undocumented)
     plusMinus?: number;
+    // (undocumented)
     points?: number;
     // (undocumented)
     position: string;
+    // (undocumented)
     powerPlayGoals?: number;
+    // (undocumented)
     shootingPctg?: number;
+    // (undocumented)
     shots?: number;
     // (undocumented)
     sweaterNumber: number;
@@ -4887,6 +4966,7 @@ export interface ShiftEntry {
     endTime: string;
     // (undocumented)
     eventDescription: string | null;
+    // (undocumented)
     eventDetails?: string | null;
     // (undocumented)
     eventNumber: number;
@@ -6799,6 +6879,7 @@ export interface SortExpr {
 
 // @public (undocumented)
 export interface SpecialEvent {
+    // (undocumented)
     lightLogoUrl?: LocalizedString;
     // (undocumented)
     name: LocalizedString;
@@ -6822,6 +6903,7 @@ const standingsApi: {
 
 // @public (undocumented)
 export interface StandingsEntry {
+    // (undocumented)
     clinchIndicator?: string;
     // (undocumented)
     conferenceAbbrev?: string;
@@ -7071,6 +7153,7 @@ export interface StatusQueryOptions {
 export interface StoppageDetails {
     // (undocumented)
     reason: OpenUnion<'offside' | 'puck-frozen' | 'puck-in-netting' | 'goalie-stopped-after-sog' | 'puck-in-benches' | 'icing' | 'referee-or-linesman' | 'puck-in-crowd' | 'net-dislodged-offensive-skater' | 'tv-timeout' | 'hand-pass' | 'high-stick' | 'visitor-timeout' | 'objects-on-ice'>;
+    // (undocumented)
     secondaryReason?: OpenUnion<'tv-timeout' | 'visitor-timeout'>;
 }
 
@@ -7632,6 +7715,7 @@ export interface TeamSeasonScheduleGame {
     // (undocumented)
     awayTeam: TeamSeasonScheduleGameAwayTeam;
     condensedGame?: string;
+    // (undocumented)
     condensedGameFr?: string;
     // (undocumented)
     easternUTCOffset: string;
@@ -7659,6 +7743,7 @@ export interface TeamSeasonScheduleGame {
     season: number;
     seriesStatus?: SeasonScheduleSeriesStatus;
     seriesUrl?: string;
+    // (undocumented)
     specialEvent?: SpecialEvent;
     // (undocumented)
     startTimeUTC: string;
@@ -7683,7 +7768,9 @@ export interface TeamSeasonScheduleGame {
 export interface TeamSeasonScheduleGameAwayTeam {
     // (undocumented)
     abbrev: string;
+    // (undocumented)
     airlineDesc?: string;
+    // (undocumented)
     airlineLink?: string;
     // (undocumented)
     awaySplitSquad: boolean;
@@ -7691,7 +7778,9 @@ export interface TeamSeasonScheduleGameAwayTeam {
     commonName: LocalizedString;
     // (undocumented)
     darkLogo: string;
+    // (undocumented)
     hotelDesc?: string;
+    // (undocumented)
     hotelLink?: string;
     // (undocumented)
     id: number;
@@ -7701,8 +7790,11 @@ export interface TeamSeasonScheduleGameAwayTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    // (undocumented)
     promoDesc?: string;
+    // (undocumented)
     promoLink?: string;
+    // (undocumented)
     radioLink?: string;
     // (undocumented)
     score?: number;
@@ -7917,7 +8009,9 @@ export interface TeamSummaryParams {
 export interface TeamSummaryRow {
     // (undocumented)
     faceoffWinPct: number;
+    // (undocumented)
     franchiseId?: number;
+    // (undocumented)
     franchiseName?: string;
     // (undocumented)
     gamesPlayed: number;
@@ -8159,6 +8253,7 @@ export interface WeeklySchedulePeriodDescriptor {
     maxRegulationPeriods: number;
     // (undocumented)
     number: number;
+    // (undocumented)
     otPeriods?: number;
     // (undocumented)
     periodType: PeriodType;
