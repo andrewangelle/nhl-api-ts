@@ -1,6 +1,6 @@
 {
   "name": "nhl-api-ts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "TypeScript SDK and CLI for the NHL API and NHL EDGE stats.",
   "keywords": [
     "nhl",
