@@ -1,80 +1,38 @@
 {
-  "name": "nhl-api-ts",
-  "version": "0.2.0",
-  "description": "TypeScript SDK and CLI for the NHL API and NHL EDGE stats.",
-  "keywords": [
-    "nhl",
-    "api",
-    "hockey",
-    "sports",
-    "edge",
-    "stats",
-    "sdk",
-    "cli"
-  ],
-  "author": "andrewangelle@gmail.com",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/andrewangelle/nhl-api-ts.git"
-  },
+  "name": "nhl-api-ts-monorepo",
+  "private": true,
   "type": "module",
-  "sideEffects": false,
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.mts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "imports": {
-    "#src/*.mjs": {
-      "source": "./src/*.mts",
-      "types": "./dist/*.d.mts",
-      "default": "./dist/*.mjs"
-    },
-    "#probe/*.mjs": "./scripts/probe/*.mts"
-  },
-  "bin": {
-    "nhl-api-ts": "dist/cli.mjs"
-  },
   "engines": {
     "node": ">=24.0.0"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "pnpm exec tsc",
-    "test": "node --conditions=source --test \"test/**/*.test.mts\"",
-    "test:update-snapshots": "node --conditions=source --test --test-update-snapshots \"test/**/*.test.mts\"",
+    "api:report": "pnpm --filter nhl-api-ts api:report",
+    "api-types:check": "pnpm --filter api-types-infer check",
+    "api-types:fetch": "pnpm --filter api-types-infer fetch",
+    "api-types:fixtures": "pnpm --filter api-types-infer fixtures",
+    "api-types:infer": "pnpm --filter api-types-infer infer",
+    "build": "pnpm --filter nhl-api-ts build",
+    "changeset": "changeset",
+    "docs:llms": "pnpm --filter nhl-api-ts docs:llms",
+    "format": "pnpm exec biome format . --write",
     "lint:fix": "pnpm exec biome check . --write",
     "lint:check": "pnpm exec biome check .",
-    "format": "pnpm exec biome format . --write",
-    "pre-commit": "lint-staged",
+    "openapi:schemas": "pnpm --filter api-types-infer openapi",
     "prepare": "husky",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
+    "pre-commit": "lint-staged",
     "release": "pnpm build && changeset publish",
-    "typecheck": "pnpm exec tsc --noEmit",
-    "typecheck:examples": "pnpm exec tsc -p examples",
-    "typecheck:types": "pnpm exec tsc -p test/types",
-    "typecheck:scripts": "pnpm exec tsc -p scripts",
-    "api:report": "pnpm build && mkdir -p node_modules/.api-extractor && pnpm exec api-extractor run --local && cp node_modules/.api-extractor/nhl-api-ts.api.md api-report.md",
-    "docs:llms": "node scripts/build-llms-full.mts",
-    "probe:fetch": "node --conditions=source scripts/probe/fetch.mts",
-    "probe:infer": "node --conditions=source scripts/probe/infer.mts",
-    "probe:check": "node --conditions=source scripts/probe/check.mts",
-    "probe:fixtures": "node --conditions=source scripts/probe/fixtures.mts",
-    "openapi:schemas": "node --conditions=source scripts/probe/openapi.mts"
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "typecheck:examples": "pnpm --filter nhl-api-ts typecheck:examples",
+    "typecheck:scripts": "pnpm --filter nhl-api-ts typecheck:scripts",
+    "typecheck:test": "pnpm --filter nhl-api-ts typecheck:test",
+    "typecheck:types": "pnpm --filter nhl-api-ts typecheck:types",
+    "version-packages": "changeset version"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
-    "@microsoft/api-extractor": "^7.59.4",
     "@types/node": "^26.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",

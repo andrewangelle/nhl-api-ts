@@ -42,7 +42,7 @@ jobs:
       - name: Typecheck
         run: |
           pnpm typecheck
-          pnpm exec tsc -p test
+          pnpm typecheck:test
           pnpm typecheck:examples
           pnpm typecheck:types
           pnpm typecheck:scripts
@@ -57,4 +57,4 @@ jobs:
         run: |
           pnpm api:report
           pnpm docs:llms
-          git diff --exit-code -- api-report.md llms-full.txt
+          git diff --exit-code -- packages/nhl-api-ts/api-report.md packages/nhl-api-ts/llms-full.txt

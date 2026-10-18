@@ -13,29 +13,49 @@ It is a port of [nhl-api-py](https://github.com/coreyjs/nhl-api-py).
 The package is **not yet published**, so breaking changes are allowed. Prefer
 idiomatic TypeScript over parity with the Python original.
 
+The repository is a pnpm workspace:
+
+- `packages/nhl-api-ts`: the SDK and CLI, published to npm as `nhl-api-ts`
+  (unscoped). Paths in this file are relative to this package unless noted.
+- `packages/api-types-infer`: private (never published) tooling that infers
+  the response types from live responses, writes the SDK's test fixtures and
+  generates the response schemas in the SDK's `openapi.yaml`. It depends on
+  `nhl-api-ts` via `workspace:*` and imports it by package name.
+
 ## Commands
+
+Run these from the repository root. They forward to the packages with
+`pnpm -r` or `pnpm --filter`.
 
 ```bash
 pnpm install
-pnpm test                    # node:test, runs src/*.mts directly (--conditions=source)
-pnpm typecheck               # tsc --noEmit on src/
-pnpm exec tsc -p test        # typecheck the tests
+pnpm test                    # node:test in every package, runs src/*.mts directly (--conditions=source)
+pnpm typecheck               # tsc --noEmit on every package's src/
+pnpm typecheck:test          # typecheck the SDK tests
 pnpm typecheck:examples      # typecheck examples/
 pnpm lint:check              # biome; `pnpm lint:fix` to autofix
 pnpm build                   # emits dist/
 pnpm api:report              # regenerate api-report.md (builds first)
 pnpm docs:llms               # regenerate llms-full.txt from llms.txt
-node --conditions=source src/cli.mts --help   # run the CLI from source
+node --conditions=source packages/nhl-api-ts/src/cli.mts --help   # run the CLI from source
 ```
 
-Run a single test file with
+Run a single test file from `packages/nhl-api-ts` with
 `node --conditions=source --test test/teams.test.mts`.
 
-Before you finish a change, run: `pnpm lint:check && pnpm typecheck && pnpm exec tsc -p test && pnpm test`.
+Before you finish a change, run (from the root): `pnpm lint:check && pnpm typecheck && pnpm typecheck:test && pnpm test`.
 
 ## Layout
 
 ```
+package.json           private workspace root: lint, changesets, forwarding scripts
+tsconfig.base.json     compiler options shared by both packages
+packages/api-types-infer/
+  src/                 fetch, infer, check, fixtures, openapi (#src/*.mjs imports)
+  shapes/              committed shape snapshots, the drift baseline
+  test/                openapi.yaml staleness test
+  .api-types/          cached raw responses, reports, drafts (gitignored)
+packages/nhl-api-ts/
 src/
   index.mts            public barrel. Everything exported here is public API
   nhl-client.mts       NHLClient: builds config + HttpClient, wires modules
@@ -54,13 +74,15 @@ examples/              runnable scripts, typechecked in CI
 docs/                  concepts, errors, recipes
 ```
 
+Everything from `src/` down is inside `packages/nhl-api-ts/`.
+
 ## Conventions
 
 - Source files are `.mts`. Internal imports use the `#src/*.mjs` subpath
   import, for example `import { Endpoint } from '#src/http-client.mjs'`. Never
   use relative imports inside `src/`. Tests import from `#src/...` or from
   `./fetch-mock.mts`.
-- `tsconfig.json` sets `erasableSyntaxOnly` and `verbatimModuleSyntax`. Do not
+- `tsconfig.base.json` sets `erasableSyntaxOnly` and `verbatimModuleSyntax`. Do not
   use enums, namespaces or parameter properties. Use `import type` for
   type-only imports. Model enums as `const X = {...} as const` plus a
   same-named type (see `Endpoint`, `PositionTypes`, `NHLApiErrorCode`).
@@ -70,14 +92,14 @@ docs/                  concepts, errors, recipes
 - Every endpoint method is `async`, takes **one options object**, and returns
   parsed JSON typed with a named interface from `src/types/` (or `Team` /
   `DailySchedule`). IDs and seasons are typed `Id` (`string | number`).
-- Response types in `src/types/` come from real responses (`pnpm probe:fetch`,
-  `probe:infer`, `probe:check`). Rules: every object type is an `interface`
+- Response types in `src/types/` come from real responses (`pnpm api-types:fetch`,
+  `api-types:infer`, `api-types:check`). Rules: every object type is an `interface`
   (never a `type` alias, consumers augment them); unions are built from
   registries (`PlayTypes`, `SkaterReportRows`, `GoalieReportRows`); enum-like
   strings use `OpenUnion<...>`; no index signatures; a field is optional only if
   some response lacks it, nullable only if some response sends `null`. Export
   new types from `src/types/index.mts` by file. Add a trimmed fixture
-  (`pnpm probe:fixtures`) and run `pnpm typecheck:types`.
+  (`pnpm api-types:fixtures`) and run `pnpm typecheck:types`.
 - Endpoints that unwrap an envelope return `response.data ?? []` (stats API)
   or a named field (`standings`, `games`, `gameLog`, `seasons`).
 - Optional date/season params default to the literal path segment `now`, which
@@ -118,9 +140,9 @@ docs/                  concepts, errors, recipes
 
 ## Generated files: do not edit by hand
 
-- `api-report.md`: `pnpm api:report` (api-extractor, config in
+- `packages/nhl-api-ts/api-report.md`: `pnpm api:report` (api-extractor, config in
   `api-extractor.json`)
-- `llms-full.txt`: `pnpm docs:llms` (script in `scripts/build-llms-full.mts`)
+- `packages/nhl-api-ts/llms-full.txt`: `pnpm docs:llms` (script in `scripts/build-llms-full.mts`)
 - `dist/`: `pnpm build`, gitignored
 
 ## Things to avoid

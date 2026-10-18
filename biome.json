@@ -12,7 +12,6 @@
       "**/server/**",
       "**/src/**",
       "**/test/**",
-      "**/probe/**",
       "**/.vscode/**",
       "**/examples/**",
       "**/scripts/**",
@@ -20,7 +19,7 @@
       "!**/dist",
       "!**/public",
       "!**/node_modules",
-      "!**/.probe"
+      "!**/.api-types"
     ]
   },
   "formatter": {
