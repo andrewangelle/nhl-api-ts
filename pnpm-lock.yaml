@@ -175,9 +175,6 @@ importers:
       '@changesets/cli':
         specifier: ^3.0.3
         version: 3.0.3
-      '@microsoft/api-extractor':
-        specifier: ^7.59.4
-        version: 7.59.4(@types/node@26.6.5)
       '@types/node':
         specifier: ^26.2.0
         version: 26.6.5
@@ -187,6 +184,31 @@ importers:
       lint-staged:
         specifier: ^17.3.0
         version: 17.6.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+
+  packages/api-types-infer:
+    dependencies:
+      nhl-api-ts:
+        specifier: workspace:*
+        version: link:../nhl-api-ts
+    devDependencies:
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+
+  packages/nhl-api-ts:
+    devDependencies:
+      '@microsoft/api-extractor':
+        specifier: ^7.59.4
+        version: 7.59.4(@types/node@26.6.5)
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.6.5
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

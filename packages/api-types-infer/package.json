@@ -1,0 +1,30 @@
+{
+  "name": "api-types-infer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Infers and checks the nhl-api-ts response types against the live NHL API. Not published.",
+  "license": "MIT",
+  "type": "module",
+  "imports": {
+    "#src/*.mjs": "./src/*.mts"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "fetch": "node --conditions=source src/fetch.mts",
+    "infer": "node --conditions=source src/infer.mts",
+    "check": "node --conditions=source src/check.mts",
+    "fixtures": "node --conditions=source src/fixtures.mts",
+    "openapi": "node --conditions=source src/openapi.mts",
+    "test": "node --conditions=source --test \"test/**/*.test.mts\"",
+    "typecheck": "pnpm exec tsc -p ."
+  },
+  "dependencies": {
+    "nhl-api-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}

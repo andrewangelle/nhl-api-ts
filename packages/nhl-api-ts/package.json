@@ -1,0 +1,67 @@
+{
+  "name": "nhl-api-ts",
+  "version": "0.2.0",
+  "description": "TypeScript SDK and CLI for the NHL API and NHL EDGE stats.",
+  "keywords": [
+    "nhl",
+    "api",
+    "hockey",
+    "sports",
+    "edge",
+    "stats",
+    "sdk",
+    "cli"
+  ],
+  "author": "andrewangelle@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewangelle/nhl-api-ts.git",
+    "directory": "packages/nhl-api-ts"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "source": "./src/index.mts",
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "imports": {
+    "#src/*.mjs": {
+      "source": "./src/*.mts",
+      "types": "./dist/*.d.mts",
+      "default": "./dist/*.mjs"
+    }
+  },
+  "bin": {
+    "nhl-api-ts": "dist/cli.mjs"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsc",
+    "test": "node --conditions=source --test \"test/**/*.test.mts\"",
+    "test:update-snapshots": "node --conditions=source --test --test-update-snapshots \"test/**/*.test.mts\"",
+    "typecheck": "pnpm exec tsc --noEmit",
+    "typecheck:test": "pnpm exec tsc -p test",
+    "typecheck:examples": "pnpm exec tsc -p examples",
+    "typecheck:types": "pnpm exec tsc -p test/types",
+    "typecheck:scripts": "pnpm exec tsc -p scripts",
+    "api:report": "pnpm build && mkdir -p node_modules/.api-extractor && pnpm exec api-extractor run --local && cp node_modules/.api-extractor/nhl-api-ts.api.md api-report.md",
+    "docs:llms": "node scripts/build-llms-full.mts"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.59.4",
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}

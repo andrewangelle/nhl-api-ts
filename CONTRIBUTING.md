@@ -16,12 +16,21 @@ pnpm install          # also installs the husky pre-commit hook
 pnpm test
 ```
 
+This is a pnpm workspace with two packages:
+
+- `packages/nhl-api-ts`: the SDK and CLI, published to npm as `nhl-api-ts`.
+- `packages/api-types-infer`: private tooling that derives the SDK's response
+  types from live API responses. Never published.
+
+Run the scripts below from the repository root. They forward to the right
+package with `pnpm --filter`.
+
 You don't need a build step to develop. Tests and the CLI run the TypeScript
 sources directly through Node's type stripping and the `source` export
 condition:
 
 ```bash
-node --conditions=source src/cli.mts teams teams --compact
+node --conditions=source packages/nhl-api-ts/src/cli.mts teams teams --compact
 ```
 
 ## Checks
@@ -30,13 +39,13 @@ CI runs these on every pull request. Run them locally first:
 
 ```bash
 pnpm lint:check            # biome (pnpm lint:fix to autofix)
-pnpm typecheck             # src
-pnpm exec tsc -p test      # tests
+pnpm typecheck             # src of every package
+pnpm typecheck:test        # SDK tests
 pnpm typecheck:examples    # examples
 pnpm typecheck:types       # response-type augmentation test
-pnpm typecheck:scripts     # probe scripts
+pnpm typecheck:scripts     # SDK build scripts
 pnpm build
-pnpm test
+pnpm test                  # every package
 pnpm api:report            # must leave api-report.md unchanged, or commit the change
 pnpm docs:llms             # must leave llms-full.txt unchanged, or commit the change
 ```
@@ -48,7 +57,8 @@ staged files.
 
 1. Branch from `main`.
 2. Make the change, with tests. Tests mock `fetch` and never call the real
-   API. See `test/fetch-mock.mts` and any existing `test/*.test.mts`.
+   API. See `packages/nhl-api-ts/test/fetch-mock.mts` and any existing
+   `test/*.test.mts`.
 3. If the public API changed, run `pnpm api:report` and commit the updated
    `api-report.md`. Reviewers read its diff to see API changes.
 4. Update the docs that cover your change: `README.md`, `docs/`,
@@ -56,26 +66,28 @@ staged files.
    `skills/nhl-api-ts/SKILL.md` for usage guidance. Then run `pnpm docs:llms`.
 5. Add a changeset: `pnpm changeset`. Pick `patch`, `minor` or `major` and
    write one line for the changelog. Breaking changes also need a section in
-   [MIGRATION.md](MIGRATION.md) with before/after code.
+   [MIGRATION.md](packages/nhl-api-ts/MIGRATION.md) with before/after code.
 6. Open a PR against `main`.
 
-### Response types and the probe
+### Response types and api-types-infer
 
-Response types in `src/types/` are derived from live API responses. The tools
-live in `scripts/probe/`; none of them run in CI:
+Response types in `packages/nhl-api-ts/src/types/` are derived from live API
+responses. The tools live in `packages/api-types-infer`; none of them call the
+API in CI. Paths below are relative to that package, except where noted:
 
 ```bash
-pnpm probe:fetch       # run the sample matrix, cache raw responses in .probe/
-pnpm probe:infer       # write .probe/report, .probe/draft and scripts/probe/shapes
-pnpm probe:fixtures    # regenerate the typed fixtures in test/fixtures
-pnpm probe:check       # refetch and diff against scripts/probe/shapes
-pnpm openapi:schemas   # regenerate the response schemas in openapi.yaml from src/types
+pnpm api-types:fetch       # run the sample matrix, cache raw responses in .api-types/
+pnpm api-types:infer       # write .api-types/report, .api-types/draft and shapes/
+pnpm api-types:fixtures    # regenerate the SDK's typed fixtures in test/fixtures
+pnpm api-types:check       # refetch and diff against shapes/
+pnpm openapi:schemas       # regenerate the response schemas in the SDK's openapi.yaml from src/types
 ```
 
-**Maintainers: run `pnpm probe:check` before each release.** It prints new
+**Maintainers: run `pnpm api-types:check` before each release.** It prints new
 fields, removed fields and required/optional flips. Update `src/types/`,
-`scripts/probe/shapes` (`pnpm probe:infer`) and the fixtures to match, then run
-`pnpm openapi:schemas`. A test fails when the schemas in `openapi.yaml` are stale.
+`packages/api-types-infer/shapes` (`pnpm api-types:infer`) and the fixtures to
+match, then run `pnpm openapi:schemas`. A test in `api-types-infer` fails when the schemas in
+`openapi.yaml` are stale.
 
 ### Adding an endpoint
 
@@ -96,8 +108,10 @@ test, README entry, `openapi.yaml` path, and the regenerated reports.
 
 Releases are automated with [Changesets](https://github.com/changesets/changesets).
 When changesets merge to `main`, the release workflow opens a
-"chore: version packages" PR. Merging that PR publishes to npm and creates a
-GitHub release.
+"chore: version packages" PR. Merging that PR publishes `nhl-api-ts` to npm and
+creates a GitHub release tagged `nhl-api-ts@<version>`. `api-types-infer` is
+private, so Changesets never versions, tags or publishes it
+(`privatePackages` in `.changeset/config.json`).
 
 ## Reporting issues
 
