@@ -404,8 +404,10 @@ export class Emitter {
         notes.push('Low sample count');
       }
 
+      // Line comments, not JSDoc: the notes name sample tags, which mean
+      // nothing to SDK users. Rewrite them as JSDoc by hand in `src/types/`.
       if (notes.length > 0) {
-        lines.push(`  /** ${notes.join('. ')} */`);
+        lines.push(`  // ${notes.join('. ')}`);
       }
 
       lines.push(`  ${quoteKey(key)}${optional ? '?' : ''}: ${type};`);
