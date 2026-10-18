@@ -52,8 +52,9 @@ export const light: string = logo.light;
 export const goalScorer: number = goal.details.scoringPlayerId;
 
 // registries feed the unions
-export const narrowed = (value: Play): string | undefined =>
-  value.typeDescKey === 'new-event' ? value.extra : undefined;
+export function narrowed(value: Play): string | undefined {
+  return value.typeDescKey === 'new-event' ? value.extra : undefined;
+}
 export const keys: keyof PlayTypes = 'new-event';
 export const reportKey: keyof SkaterReportRows = 'myReport';
 export const playKey: Play['typeDescKey'] = play.typeDescKey;

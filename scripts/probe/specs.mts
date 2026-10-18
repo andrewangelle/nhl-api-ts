@@ -1,6 +1,8 @@
 import type { EndpointSpec } from '#probe/load.mjs';
 
-const cap = (text: string) => text[0].toUpperCase() + text.slice(1);
+function cap(text: string) {
+  return text[0].toUpperCase() + text.slice(1);
+}
 
 /** Per-endpoint unwrap/grouping rules; anything not listed returns its body as-is. */
 export const SPECS: Record<string, EndpointSpec> = {
@@ -68,11 +70,11 @@ export const ALIASES: Record<string, { endpoint: string; group?: string }> = {
   },
 };
 
-export const specFor = (endpoint: string): EndpointSpec => {
+export function specFor(endpoint: string): EndpointSpec {
   const known = SPECS[endpoint];
   if (known) {
     return known;
   }
   const method = endpoint.split('.')[1] ?? endpoint;
   return { name: cap(method) };
-};
+}

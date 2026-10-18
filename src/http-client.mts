@@ -102,11 +102,11 @@ export async function readErrorMessage(
  * @throws NHLApiException For other unexpected errors
  */
 export function createGet(config: Config): Get {
-  const debug = (message: string): void => {
+  function debug(message: string): void {
     if (config.debug) {
       console.error(`nhl-api-ts.http_client - DEBUG - ${message}`);
     }
-  };
+  }
 
   return async (endpoint, resource, queryParams) => {
     const fullUrl = buildUrl(endpoint, resource, queryParams);

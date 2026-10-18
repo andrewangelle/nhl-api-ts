@@ -14,6 +14,7 @@ export type Kind =
 
 /** Max distinct primitive values kept per node, for enum suggestions. */
 export const VALUE_CAP = 25;
+
 /** Max raw array elements kept per node, for discriminated-union analysis. */
 export const ELEMENT_CAP = 4000;
 
@@ -38,20 +39,22 @@ export interface ShapeNode {
   sampleCount: number;
 }
 
-export const newNode = (): ShapeNode => ({
-  count: 0,
-  kinds: {},
-  values: new Map(),
-  overflow: false,
-  props: new Map(),
-  elements: [],
-  seenIn: new Set(),
-  missingIn: new Set(),
-  sampleId: -1,
-  sampleCount: 0,
-});
+export function newNode(): ShapeNode {
+  return {
+    count: 0,
+    kinds: {},
+    values: new Map(),
+    overflow: false,
+    props: new Map(),
+    elements: [],
+    seenIn: new Set(),
+    missingIn: new Set(),
+    sampleId: -1,
+    sampleCount: 0,
+  };
+}
 
-export const kindOf = (value: unknown): Kind => {
+export function kindOf(value: unknown): Kind {
   if (value === null) {
     return 'null';
   }
@@ -68,12 +71,15 @@ export const kindOf = (value: unknown): Kind => {
     default:
       return 'object';
   }
-};
+}
 
-export const tagLabel = (tags: Record<string, string>): string =>
-  Object.entries(tags)
-    .map(([key, value]) => `${key}=${value}`)
-    .join(',') || 'default';
+export function tagLabel(tags: Record<string, string>): string {
+  return (
+    Object.entries(tags)
+      .map(([key, value]) => `${key}=${value}`)
+      .join(',') || 'default'
+  );
+}
 
 export function merge(
   node: ShapeNode,
@@ -93,6 +99,7 @@ export function merge(
 
   if (kind === 'string' || kind === 'integer' || kind === 'float') {
     const primitive = value as string | number;
+
     if (node.values.has(primitive)) {
       node.values.set(primitive, (node.values.get(primitive) ?? 0) + 1);
     } else if (node.values.size < VALUE_CAP) {
@@ -148,8 +155,9 @@ export function finishSample(
   }
 }
 
-export const nonNullKinds = (node: ShapeNode): Kind[] =>
-  (Object.keys(node.kinds) as Kind[]).filter((kind) => kind !== 'null');
+export function nonNullKinds(node: ShapeNode): Kind[] {
+  return (Object.keys(node.kinds) as Kind[]).filter((kind) => kind !== 'null');
+}
 
 // ----- compact committed snapshot -----
 
@@ -164,8 +172,10 @@ export interface Snapshot {
  */
 export function snapshot(root: ShapeNode): Snapshot {
   const out: Snapshot = {};
-  const walk = (node: ShapeNode, path: string, optional: boolean) => {
+
+  function walk(node: ShapeNode, path: string, optional: boolean) {
     const kinds = Object.keys(node.kinds).sort().join('|');
+
     out[path || '$'] = `${kinds}${optional ? '?' : ''}`;
     for (const [key, child] of [...node.props].sort(([a], [b]) =>
       a.localeCompare(b),
@@ -175,7 +185,9 @@ export function snapshot(root: ShapeNode): Snapshot {
     if (node.items) {
       walk(node.items, `${path}[]`, false);
     }
-  };
+  }
+
   walk(root, '', false);
+
   return out;
 }

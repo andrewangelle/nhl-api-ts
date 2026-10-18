@@ -112,11 +112,14 @@ export interface GoalieStatsSummaryParams<
  * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
  * @example https://api-web.nhle.com/v1/club-stats-season/TOR
  */
-export const gametypesPerSeasonDirectoryByTeam = async (
+export async function gametypesPerSeasonDirectoryByTeam(
   ctx: Context,
   { teamAbbr }: { teamAbbr: string },
-): Promise<ClubStatsSeason[]> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `club-stats-season/${teamAbbr}`)).json();
+): Promise<ClubStatsSeason[]> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `club-stats-season/${teamAbbr}`)
+  ).json();
+}
 
 /**
  * Gets a player's career statistics and biographical information.
@@ -124,11 +127,14 @@ export const gametypesPerSeasonDirectoryByTeam = async (
  * @param params.playerId NHL player id, e.g. 8481528
  * @example https://api-web.nhle.com/v1/player/8481528/landing
  */
-export const playerCareerStats = async (
+export async function playerCareerStats(
   ctx: Context,
   { playerId }: { playerId: Id },
-): Promise<PlayerLanding> =>
-  (await ctx.get(Endpoint.API_WEB_V1, `player/${playerId}/landing`)).json();
+): Promise<PlayerLanding> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `player/${playerId}/landing`)
+  ).json();
+}
 
 /**
  * Gets a player's game log for a specific season and game type.
@@ -138,14 +144,14 @@ export const playerCareerStats = async (
  * @param params.gameType 1=Preseason, 2=Regular season, 3=Playoffs
  * @example https://api-web.nhle.com/v1/player/8481528/game-log/20232024/2
  */
-export const playerGameLog = async (
+export async function playerGameLog(
   ctx: Context,
   {
     playerId,
     seasonId,
     gameType,
   }: { playerId: Id; seasonId: Id; gameType: number },
-): Promise<GameLogEntry[]> => {
+): Promise<GameLogEntry[]> {
   const data = await (
     await ctx.get(
       Endpoint.API_WEB_V1,
@@ -153,14 +159,14 @@ export const playerGameLog = async (
     )
   ).json();
   return data.gameLog ?? [];
-};
+}
 
 /**
  * Retrieves team summary statistics across one or more seasons.
  *
  * @example await client.stats.teamSummary({ startSeason: '20232024', endSeason: '20232024' })
  */
-export const teamSummary = async (
+export async function teamSummary(
   ctx: Context,
   {
     startSeason,
@@ -174,7 +180,7 @@ export const teamSummary = async (
     factCayenneExp = 'gamesPlayed>1',
     defaultCayenneExp,
   }: TeamSummaryParams,
-): Promise<TeamSummaryRow[]> => {
+): Promise<TeamSummaryRow[]> {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
@@ -203,7 +209,7 @@ export const teamSummary = async (
     await ctx.get(Endpoint.API_STATS, 'en/team/summary', qParams)
   ).json();
   return response.data;
-};
+}
 
 /**
  * Gets simplified skater statistics summary for specified seasons and
@@ -211,7 +217,7 @@ export const teamSummary = async (
  *
  * @example await client.stats.skaterStatsSummary({ startSeason: '20232024', endSeason: '20232024', franchiseId: 10 })
  */
-export const skaterStatsSummary = async (
+export async function skaterStatsSummary(
   ctx: Context,
   {
     startSeason,
@@ -225,7 +231,7 @@ export const skaterStatsSummary = async (
     factCayenneExp = 'gamesPlayed>=1',
     defaultCayenneExp,
   }: SkaterStatsSummaryParams,
-): Promise<SkaterReportRows['summary'][]> => {
+): Promise<SkaterReportRows['summary'][]> {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
@@ -254,7 +260,7 @@ export const skaterStatsSummary = async (
     await ctx.get(Endpoint.API_STATS, 'en/skater/summary', qParams)
   ).json();
   return response.data;
-};
+}
 
 /**
  * Retrieves skater statistics using a query context and specified report
@@ -271,7 +277,7 @@ export const skaterStatsSummary = async (
  * ]);
  * await client.stats.skaterStatsWithQueryContext({ queryContext: context, reportType: 'summary' });
  */
-export const skaterStatsWithQueryContext = async <
+export async function skaterStatsWithQueryContext<
   Report extends keyof SkaterReportRows,
 >(
   ctx: Context,
@@ -283,7 +289,7 @@ export const skaterStatsWithQueryContext = async <
     start = 0,
     limit = 25,
   }: SkaterStatsWithQueryContextParams<Report>,
-): Promise<StatsApiPage<SkaterReportRows[Report]>> => {
+): Promise<StatsApiPage<SkaterReportRows[Report]>> {
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0
       ? sortExpr
@@ -304,7 +310,7 @@ export const skaterStatsWithQueryContext = async <
   return (
     await ctx.get(Endpoint.API_STATS, `en/skater/${reportType}`, qParams)
   ).json();
-};
+}
 
 /**
  * Retrieves goalie statistics with various filtering and aggregation
@@ -312,7 +318,7 @@ export const skaterStatsWithQueryContext = async <
  *
  * @example await client.stats.goalieStatsSummary({ startSeason: '20232024', statsType: 'advanced' })
  */
-export const goalieStatsSummary = async <
+export async function goalieStatsSummary<
   Report extends keyof GoalieReportRows = 'summary',
 >(
   ctx: Context,
@@ -329,7 +335,7 @@ export const goalieStatsSummary = async <
     factCayenneExp,
     defaultCayenneExp,
   }: GoalieStatsSummaryParams<Report>,
-): Promise<GoalieReportRows[Report][]> => {
+): Promise<GoalieReportRows[Report][]> {
   const report: keyof GoalieReportRows = statsType ?? 'summary';
   const effectiveEndSeason =
     endSeason === undefined || endSeason === null ? startSeason : endSeason;
@@ -354,7 +360,7 @@ export const goalieStatsSummary = async <
     await ctx.get(Endpoint.API_STATS, `en/goalie/${report}`, qParams)
   ).json();
   return response.data ?? [];
-};
+}
 
 export const statsApi = {
   gametypesPerSeasonDirectoryByTeam,

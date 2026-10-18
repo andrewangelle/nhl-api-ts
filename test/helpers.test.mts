@@ -9,16 +9,18 @@ import { helpers } from '#src/index.mjs';
 
 const { allPlayers, allPlayersSummaryStatistics, gameIdsBySeason } = helpers;
 
-const standingsEntry = (abbr: string, name: string) => ({
-  conferenceAbbrev: 'E',
-  conferenceName: 'Eastern',
-  divisionAbbrev: 'A',
-  divisionName: 'Atlantic',
-  teamName: { default: name },
-  teamCommonName: { default: name },
-  teamAbbrev: abbr ? { default: abbr } : undefined,
-  teamLogo: `logo-${abbr}`,
-});
+function standingsEntry(abbr: string, name: string) {
+  return {
+    conferenceAbbrev: 'E',
+    conferenceName: 'Eastern',
+    divisionAbbrev: 'A',
+    divisionName: 'Atlantic',
+    teamName: { default: name },
+    teamCommonName: { default: name },
+    teamAbbrev: abbr ? { default: abbr } : undefined,
+    teamLogo: `logo-${abbr}`,
+  };
+}
 
 const defaultStandings = [
   standingsEntry('TOR', 'Toronto Maple Leafs'),
@@ -46,31 +48,33 @@ const scheduleData: Record<string, object> = {
   },
 };
 
-const rosterData = (): Record<string, object> => ({
-  TOR: {
-    forwards: [
-      {
-        id: 1,
-        firstName: { default: 'Auston' },
-        lastName: { default: 'Matthews' },
-        positionCode: 'C',
-      },
-    ],
-    defensemen: [],
-    goalies: [],
-  },
-  MTL: {
-    forwards: [],
-    defensemen: [
-      {
-        id: 2,
-        firstName: { default: 'Mike' },
-        lastName: { default: 'Matheson' },
-      },
-    ],
-    goalies: [],
-  },
-});
+function rosterData(): Record<string, object> {
+  return {
+    TOR: {
+      forwards: [
+        {
+          id: 1,
+          firstName: { default: 'Auston' },
+          lastName: { default: 'Matthews' },
+          positionCode: 'C',
+        },
+      ],
+      defensemen: [],
+      goalies: [],
+    },
+    MTL: {
+      forwards: [],
+      defensemen: [
+        {
+          id: 2,
+          firstName: { default: 'Mike' },
+          lastName: { default: 'Matheson' },
+        },
+      ],
+      goalies: [],
+    },
+  };
+}
 
 interface GetCall {
   resource: string;
@@ -88,11 +92,11 @@ interface GetOverrides {
 /** A fake `Context.get` that records calls and routes on `resource`. */
 function makeGet(overrides: GetOverrides = {}) {
   const calls: GetCall[] = [];
-  const get = async (
+  async function get(
     _endpoint: Endpoint,
     resource: string,
     params?: QueryParams,
-  ): Promise<Response> => {
+  ): Promise<Response> {
     calls.push({ resource, params });
     let body: unknown = {};
     if (resource === 'standings/now') {
@@ -113,16 +117,16 @@ function makeGet(overrides: GetOverrides = {}) {
       body = overrides.statsSummary ?? {};
     }
     return new Response(JSON.stringify(body));
-  };
+  }
   return { get, calls };
 }
 
 /** A recording `Context.sleep`. */
 function sleepSpy() {
   const calls: number[] = [];
-  const sleep = async (seconds: number): Promise<void> => {
+  async function sleep(seconds: number): Promise<void> {
     calls.push(seconds);
-  };
+  }
   return { sleep, calls };
 }
 

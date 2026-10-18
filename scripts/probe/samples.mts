@@ -30,10 +30,12 @@ const RETIRED = 8448208;
 const BUF_ID = 7;
 const TOR_ID = 10;
 
-const find = (
+function find(
   games: ScheduleGameLike[],
   test: (game: ScheduleGameLike) => boolean,
-) => games.find(test)?.id;
+) {
+  return games.find(test)?.id;
+}
 
 /** Picks interesting game ids (OT, shootout, preseason, future, live, legacy) at run time. */
 async function discoverGames(
@@ -43,25 +45,31 @@ async function discoverGames(
     regular: 2023020280,
     playoff: 2023030411,
   };
+
   const season = (await client.schedule.teamSeasonSchedule({
     teamAbbr: 'BUF',
     season: '20232024',
   })) as unknown as { games: ScheduleGameLike[] };
+
   const ot = find(
     season.games,
     (game) => game.gameOutcome?.lastPeriodType === 'OT',
   );
+
   const shootout = find(
     season.games,
     (game) => game.gameOutcome?.lastPeriodType === 'SO',
   );
   const preseason = find(season.games, (game) => game.gameType === 1);
+
   if (ot) {
     found.overtime = ot;
   }
+
   if (shootout) {
     found.shootout = shootout;
   }
+
   if (preseason) {
     found.preseason = preseason;
   }
@@ -70,6 +78,7 @@ async function discoverGames(
     teamAbbr: 'BUF',
     season: '19992000',
   })) as unknown as { games: ScheduleGameLike[] };
+
   if (legacy.games[0]) {
     found.legacy = legacy.games[0].id;
   }
@@ -78,16 +87,21 @@ async function discoverGames(
     teamAbbr: 'BUF',
     season: 'now',
   })) as unknown as { games: ScheduleGameLike[] };
+
   const future = find(current.games, (game) => game.gameState === 'FUT');
+
   if (future) {
     found.future = future;
   }
+
   const scores = (await client.gameCenter.dailyScores({})) as unknown as {
     games?: ScheduleGameLike[];
   };
+
   const live = find(scores.games ?? [], (game) =>
     ['LIVE', 'CRIT'].includes(game.gameState ?? ''),
   );
+
   if (live) {
     found.live = live;
   }
@@ -103,11 +117,13 @@ export async function buildSamples(): Promise<Sample[]> {
     teamReportData: Record<string, unknown>;
   };
   const samples: Sample[] = [];
-  const add = (
+  function add(
     endpoint: string,
     tags: Record<string, string>,
     call: Sample['call'],
-  ) => samples.push({ endpoint, tags, call });
+  ) {
+    return samples.push({ endpoint, tags, call });
+  }
 
   // ----- game center -----
   for (const [kind, gameId] of Object.entries(games)) {
@@ -260,6 +276,7 @@ export async function buildSamples(): Promise<Sample[]> {
       c.stats.gametypesPerSeasonDirectoryByTeam({ teamAbbr }),
     );
   }
+
   for (const [kind, playerId] of [
     ['skater', SKATER],
     ['goalie', GOALIE],
@@ -278,6 +295,7 @@ export async function buildSamples(): Promise<Sample[]> {
       );
     }
   }
+
   for (const isGame of [false, true]) {
     for (const isAggregate of [false, true]) {
       add(
@@ -294,6 +312,7 @@ export async function buildSamples(): Promise<Sample[]> {
       );
     }
   }
+
   for (const aggregate of [false, true]) {
     add('stats.skaterStatsSummary', { aggregate: String(aggregate) }, (c) =>
       c.stats.skaterStatsSummary({
@@ -304,6 +323,7 @@ export async function buildSamples(): Promise<Sample[]> {
       }),
     );
   }
+
   for (const reportType of Object.keys(config.playerReportData)) {
     for (const aggregate of [false, true]) {
       add(
@@ -326,6 +346,7 @@ export async function buildSamples(): Promise<Sample[]> {
       );
     }
   }
+
   for (const statsType of Object.keys(config.goalieReportData)) {
     for (const aggregate of [false, true]) {
       add(
@@ -350,6 +371,7 @@ export async function buildSamples(): Promise<Sample[]> {
       regular: { season: '20232024', gameType: 2 },
       playoffs: { season: '20232024', gameType: 3 },
     };
+
   const skaterEdge = [
     'skaterDetail',
     'skaterShotSpeedDetail',
@@ -360,6 +382,7 @@ export async function buildSamples(): Promise<Sample[]> {
     'skaterZoneTime',
     'catSkaterDetail',
   ] as const;
+
   const goalieEdge = [
     'goalieDetail',
     'goalieShotLocationDetail',
@@ -368,6 +391,7 @@ export async function buildSamples(): Promise<Sample[]> {
     'goalieSavePercentageDetail',
     'catGoalieDetail',
   ] as const;
+
   const teamEdge = [
     'teamDetail',
     'teamSkatingDistanceDetail',
@@ -376,17 +400,20 @@ export async function buildSamples(): Promise<Sample[]> {
     'teamShotSpeedDetail',
     'teamSkatingSpeedDetail',
   ] as const;
+
   for (const [variant, params] of Object.entries(seasonVariants)) {
     for (const method of skaterEdge) {
       add(`edge.${method}`, { player: 'skater', variant }, (c) =>
         c.edge[method]({ playerId: SKATER, ...params }),
       );
     }
+
     for (const method of goalieEdge) {
       add(`edge.${method}`, { player: 'goalie', variant }, (c) =>
         c.edge[method]({ playerId: GOALIE, ...params }),
       );
     }
+
     for (const [team, teamId] of [
       ['BUF', BUF_ID],
       ['TOR', TOR_ID],
@@ -398,10 +425,12 @@ export async function buildSamples(): Promise<Sample[]> {
       }
     }
   }
+
   for (const [variant, params] of Object.entries(seasonVariants)) {
     add('edge.skaterLanding', { variant }, (c) => c.edge.skaterLanding(params));
     add('edge.goalieLanding', { variant }, (c) => c.edge.goalieLanding(params));
     add('edge.teamLanding', { variant }, (c) => c.edge.teamLanding(params));
   }
+
   return samples;
 }

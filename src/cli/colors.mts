@@ -3,11 +3,13 @@ import { styleText } from 'node:util';
 // ---- Colors ------------------------------------------------------------------
 export type Style = Parameters<typeof styleText>[0];
 
-export const toStdout = (format: Style) => (text: string) =>
-  styleText(format, text, { stream: process.stdout });
+export function toStdout(format: Style) {
+  return (text: string) => styleText(format, text, { stream: process.stdout });
+}
 
-export const toStderr = (format: Style) => (text: string) =>
-  styleText(format, text, { stream: process.stderr });
+export function toStderr(format: Style) {
+  return (text: string) => styleText(format, text, { stream: process.stderr });
+}
 
 export const colors = {
   dim: toStdout('dim'),

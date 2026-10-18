@@ -73,14 +73,17 @@ describe('errorForStatus', () => {
 });
 
 describe('createGet', () => {
-  const jsonResponse = (status: number, body: unknown): Response =>
-    new Response(JSON.stringify(body), {
+  function jsonResponse(status: number, body: unknown): Response {
+    return new Response(JSON.stringify(body), {
       status,
       headers: { 'content-type': 'application/json' },
     });
+  }
 
   it('returns the response on success', async () => {
-    const fakeFetch = async () => jsonResponse(200, { data: 'test' });
+    async function fakeFetch() {
+      return jsonResponse(200, { data: 'test' });
+    }
     const get = createGet(resolveConfig({ fetch: fakeFetch }));
     const response = await get(Endpoint.API_CORE, '/test');
     assert.equal(response.status, 200);
@@ -88,7 +91,9 @@ describe('createGet', () => {
   });
 
   it('handles non-JSON error bodies', async () => {
-    const fakeFetch = async () => new Response('oops <html>', { status: 500 });
+    async function fakeFetch() {
+      return new Response('oops <html>', { status: 500 });
+    }
     const get = createGet(resolveConfig({ fetch: fakeFetch }));
     await assert.rejects(get(Endpoint.API_CORE, 'test'), (err) => {
       assert.ok(err instanceof ServerErrorException);
@@ -99,8 +104,9 @@ describe('createGet', () => {
   });
 
   it('maps error status with a JSON message body', async () => {
-    const fakeFetch = async () =>
-      jsonResponse(404, { message: 'Test error message' });
+    async function fakeFetch() {
+      return jsonResponse(404, { message: 'Test error message' });
+    }
     const get = createGet(resolveConfig({ fetch: fakeFetch }));
     await assert.rejects(get(Endpoint.API_CORE, '/test'), (err) => {
       assert.ok(err instanceof ResourceNotFoundException);
@@ -112,10 +118,10 @@ describe('createGet', () => {
 
   it('encodes query params like httpx', async () => {
     const calls: string[] = [];
-    const fakeFetch = async (input: string | URL | Request) => {
+    async function fakeFetch(input: string | URL | Request) {
       calls.push(String(input));
       return jsonResponse(200, {});
-    };
+    }
     const get = createGet(resolveConfig({ fetch: fakeFetch }));
     await get(Endpoint.API_CORE, 'test', {
       season: '20232024',
@@ -130,13 +136,13 @@ describe('createGet', () => {
 
   it('passes redirect mode and a timeout signal to fetch', async () => {
     let capturedInit: RequestInit | undefined;
-    const fakeFetch = async (
+    async function fakeFetch(
       _input: string | URL | Request,
       init?: RequestInit,
-    ) => {
+    ) {
       capturedInit = init;
       return jsonResponse(200, {});
-    };
+    }
     const get = createGet(
       resolveConfig({ fetch: fakeFetch, followRedirects: false }),
     );

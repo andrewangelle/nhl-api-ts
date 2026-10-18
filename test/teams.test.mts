@@ -67,22 +67,24 @@ describe('withFranchiseIds', () => {
   });
 });
 
-const standing = (
+function standing(
   conf: [string, string],
   div: [string, string],
   name: string,
   common: string,
   abbr: string,
-) => ({
-  conferenceAbbrev: conf[0],
-  conferenceName: conf[1],
-  divisionAbbrev: div[0],
-  divisionName: div[1],
-  teamName: { default: name },
-  teamCommonName: { default: common },
-  teamAbbrev: { default: abbr },
-  teamLogo: `https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`,
-});
+) {
+  return {
+    conferenceAbbrev: conf[0],
+    conferenceName: conf[1],
+    divisionAbbrev: div[0],
+    divisionName: div[1],
+    teamName: { default: name },
+    teamCommonName: { default: common },
+    teamAbbrev: { default: abbr },
+    teamLogo: `https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`,
+  };
+}
 
 describe('Teams', () => {
   it('teamRoster', async () => {

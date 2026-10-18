@@ -20,8 +20,9 @@ export interface CliIO {
   createClient?: (options: ClientOptions) => NHLClient;
 }
 
-const kebab = (name: string): string =>
-  name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+function kebab(name: string): string {
+  return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
 
 const GLOBAL_OPTIONS = {
   help: { type: 'boolean', short: 'h' },
@@ -114,7 +115,7 @@ function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
     .filter(Boolean)
     .join(' ');
 
-  const describe = (arg: ArgSpec): string => {
+  function describe(arg: ArgSpec): string {
     const extras = [
       arg.choices ? `one of: ${arg.choices.join(', ')}` : '',
       arg.default !== undefined ? `default: ${arg.default}` : '',
@@ -122,7 +123,7 @@ function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
     return extras.length
       ? `${arg.description} (${extras.join('; ')})`
       : arg.description;
-  };
+  }
 
   const sections = [`Usage: ${usage}`, cmd.description];
   if (required.length) {
@@ -316,10 +317,10 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
   const mod = MODULES.find((moduleSpec) => moduleSpec.name === moduleName);
   const cmd = mod?.commands.find((command) => command.name === commandName);
 
-  const usageError = (message: string, help: string): number => {
+  function usageError(message: string, help: string): number {
     io.stderr(`${colors.error(`error: ${message}`)}\n\n${help}`);
     return 2;
-  };
+  }
 
   let parsed: Parsed;
   try {

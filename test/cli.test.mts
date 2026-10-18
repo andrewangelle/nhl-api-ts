@@ -34,11 +34,12 @@ async function run(argv: string[], responder?: Responder) {
   };
 }
 
-const kebab = (name: string) =>
-  name
+function kebab(name: string) {
+  return name
     .replace(/([a-z]{2})(\d)/g, '$1-$2')
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .toLowerCase();
+}
 
 describe('cli', () => {
   it('exposes every SDK method as a command', () => {

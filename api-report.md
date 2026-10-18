@@ -5,10 +5,10 @@
 ```ts
 
 // @public
-const allPlayers: (ctx: Context, input: {
+function allPlayers(ctx: Context, input: {
     season: Id;
     apiSleepRate?: number;
-}) => Promise<AllPlayersEntry[]>;
+}): Promise<AllPlayersEntry[]>;
 
 // @public
 export interface AllPlayersEntry extends Omit<RosterPlayer, 'firstName' | 'lastName'> {
@@ -21,10 +21,10 @@ export interface AllPlayersEntry extends Omit<RosterPlayer, 'firstName' | 'lastN
 }
 
 // @public
-const allPlayersSummaryStatistics: (ctx: Context, input: {
+function allPlayersSummaryStatistics(ctx: Context, input: {
     season: Id;
     apiSleepRate?: number;
-}) => Promise<PlayerSummaryStatistics[]>;
+}): Promise<PlayerSummaryStatistics[]>;
 
 // @public (undocumented)
 export interface AwardSeason {
@@ -147,9 +147,9 @@ export interface Boxscore {
 }
 
 // @public
-const boxscore: (ctx: Context, input: {
+function boxscore(ctx: Context, input: {
     gameId: Id;
-}) => Promise<Boxscore>;
+}): Promise<Boxscore>;
 
 // @public (undocumented)
 export interface BoxscoreGoalie {
@@ -292,9 +292,9 @@ export interface CalendarSchedule {
 }
 
 // @public
-const calendarSchedule: (ctx: Context, input: {
+function calendarSchedule(ctx: Context, input: {
     date: string;
-}) => Promise<CalendarSchedule>;
+}): Promise<CalendarSchedule>;
 
 // @public (undocumented)
 export interface CalendarScheduleTeam {
@@ -379,7 +379,7 @@ export interface CatGoalieDetail {
 }
 
 // @public
-const catGoalieDetail: (ctx: Context, params: EdgePlayerParams) => Promise<CatGoalieDetail>;
+function catGoalieDetail(ctx: Context, params: EdgePlayerParams): Promise<CatGoalieDetail>;
 
 // @public (undocumented)
 export interface CatGoalieLocationArea {
@@ -440,7 +440,7 @@ export interface CatSkaterDetail {
 }
 
 // @public
-const catSkaterDetail: (ctx: Context, params: EdgePlayerParams) => Promise<CatSkaterDetail>;
+function catSkaterDetail(ctx: Context, params: EdgePlayerParams): Promise<CatSkaterDetail>;
 
 // @public (undocumented)
 export interface CatSkaterDetailMaxSpeed {
@@ -612,7 +612,7 @@ export interface Config {
 }
 
 // @public
-const config: (ctx: Context) => Promise<StatsConfig>;
+function config(ctx: Context): Promise<StatsConfig>;
 
 // @public (undocumented)
 export interface Context {
@@ -623,7 +623,7 @@ export interface Context {
 }
 
 // @public
-const countries: (ctx: Context) => Promise<Country[]>;
+function countries(ctx: Context): Promise<Country[]>;
 
 // @public (undocumented)
 export interface Country {
@@ -655,7 +655,7 @@ export interface Country {
 export function createGet(config: Config): Get;
 
 // @public
-export const createNHLClient: (options?: ClientOptions) => {
+export function createNHLClient(options?: ClientOptions): {
     readonly config: Readonly<Config>;
     readonly teams: Bound<{
         readonly teams: teams_2;
@@ -747,9 +747,9 @@ export interface DailySchedule {
 }
 
 // @public
-const dailySchedule: (ctx: Context, input?: {
+function dailySchedule(ctx: Context, input?: {
     date?: string;
-}) => Promise<DailySchedule>;
+}): Promise<DailySchedule>;
 
 // @public (undocumented)
 export interface DailyScores {
@@ -768,9 +768,9 @@ export interface DailyScores {
 }
 
 // @public
-const dailyScores: (ctx: Context, input?: {
+function dailyScores(ctx: Context, input?: {
     date?: string;
-}) => Promise<DailyScores>;
+}): Promise<DailyScores>;
 
 // @public (undocumented)
 export interface DailyScoresGame {
@@ -932,13 +932,10 @@ export interface DraftYear {
 }
 
 // @public
-const draftYearAndRounds: (ctx: Context) => Promise<DraftYear[]>;
+function draftYearAndRounds(ctx: Context): Promise<DraftYear[]>;
 
 declare namespace edge {
     export {
-        EdgeSeasonParams,
-        EdgePlayerParams,
-        EdgeTeamParams,
         skaterDetail,
         skaterShotSpeedDetail,
         skaterSkatingSpeedDetail,
@@ -962,6 +959,9 @@ declare namespace edge {
         teamLanding,
         teamShotSpeedDetail,
         teamSkatingSpeedDetail,
+        EdgeSeasonParams,
+        EdgePlayerParams,
+        EdgeTeamParams,
         edgeApi
     }
 }
@@ -1288,7 +1288,7 @@ export interface Franchise {
 }
 
 // @public
-const franchises: (ctx: Context) => Promise<Franchise[]>;
+function franchises(ctx: Context): Promise<Franchise[]>;
 
 declare namespace gameCenter {
     export {
@@ -1414,11 +1414,11 @@ export interface GameGoal {
 }
 
 // @public
-const gameIdsBySeason: (ctx: Context, input: {
+function gameIdsBySeason(ctx: Context, input: {
     season: Id;
     gameTypes?: number[];
     apiSleepRate?: number;
-}) => Promise<number[]>;
+}): Promise<number[]>;
 
 // @public (undocumented)
 export interface GameInfoTeam {
@@ -1750,9 +1750,9 @@ export interface GameStory {
 }
 
 // @public
-const gameStory: (ctx: Context, input: {
+function gameStory(ctx: Context, input: {
     gameId: Id;
-}) => Promise<GameStory>;
+}): Promise<GameStory>;
 
 // @public (undocumented)
 export interface GameStoryAwayTeam {
@@ -1826,9 +1826,9 @@ export interface GameTeamLeader {
 export type GameType = 1 | 2 | 3 | (number & {});
 
 // @public
-const gametypesPerSeasonDirectoryByTeam: (ctx: Context, input: {
+function gametypesPerSeasonDirectoryByTeam(ctx: Context, input: {
     teamAbbr: string;
-}) => Promise<ClubStatsSeason[]>;
+}): Promise<ClubStatsSeason[]>;
 
 // @public (undocumented)
 export interface GameWeekDay {
@@ -1886,7 +1886,7 @@ export interface GiveawayPlay {
 }
 
 // @public
-const glossary: (ctx: Context) => Promise<GlossaryEntry[]>;
+function glossary(ctx: Context): Promise<GlossaryEntry[]>;
 
 // @public (undocumented)
 export interface GlossaryEntry {
@@ -1964,7 +1964,7 @@ export interface Goalie5v5Detail {
 }
 
 // @public
-const goalie5v5Detail: (ctx: Context, params: EdgePlayerParams) => Promise<Goalie5v5Detail>;
+function goalie5v5Detail(ctx: Context, params: EdgePlayerParams): Promise<Goalie5v5Detail>;
 
 // @public (undocumented)
 export interface Goalie5v5Details {
@@ -2104,7 +2104,7 @@ export interface GoalieComparison {
 }
 
 // @public
-const goalieComparison: (ctx: Context, params: EdgePlayerParams) => Promise<GoalieComparison>;
+function goalieComparison(ctx: Context, params: EdgePlayerParams): Promise<GoalieComparison>;
 
 // @public (undocumented)
 export interface GoalieComparison5v5Details {
@@ -2231,7 +2231,7 @@ export interface GoalieDetail {
 }
 
 // @public
-const goalieDetail: (ctx: Context, params: EdgePlayerParams) => Promise<GoalieDetail>;
+function goalieDetail(ctx: Context, params: EdgePlayerParams): Promise<GoalieDetail>;
 
 // @public (undocumented)
 export interface GoalieDetailPlayer {
@@ -2292,7 +2292,7 @@ export interface GoalieLanding {
 }
 
 // @public
-const goalieLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<GoalieLanding>;
+function goalieLanding(ctx: Context, params?: EdgeSeasonParams): Promise<GoalieLanding>;
 
 // @public (undocumented)
 export interface GoalieLandingLeaders {
@@ -2462,7 +2462,7 @@ export interface GoalieSavePercentageDetail {
 }
 
 // @public
-const goalieSavePercentageDetail: (ctx: Context, params: EdgePlayerParams) => Promise<GoalieSavePercentageDetail>;
+function goalieSavePercentageDetail(ctx: Context, params: EdgePlayerParams): Promise<GoalieSavePercentageDetail>;
 
 // @public (undocumented)
 export interface GoalieSavesByStrengthRow {
@@ -2595,7 +2595,7 @@ export interface GoalieShotLocationDetail {
 }
 
 // @public
-const goalieShotLocationDetail: (ctx: Context, params: EdgePlayerParams) => Promise<GoalieShotLocationDetail>;
+function goalieShotLocationDetail(ctx: Context, params: EdgePlayerParams): Promise<GoalieShotLocationDetail>;
 
 // @public (undocumented)
 export interface GoalieShotLocationTotal {
@@ -2693,7 +2693,7 @@ export interface GoalieStartedVsRelievedRow {
 export function goalieStatsSorts(report: string): SortExpr[];
 
 // @public
-const goalieStatsSummary: <Report extends keyof GoalieReportRows = 'summary'>(ctx: Context, input: GoalieStatsSummaryParams<Report>) => Promise<GoalieReportRows[Report][]>;
+function goalieStatsSummary<Report extends keyof GoalieReportRows = 'summary'>(ctx: Context, input: GoalieStatsSummaryParams<Report>): Promise<GoalieReportRows[Report][]>;
 
 // @public (undocumented)
 export interface GoalieStatsSummaryParams<Report extends keyof GoalieReportRows = keyof GoalieReportRows> {
@@ -2986,10 +2986,10 @@ export interface LeagueStandings {
 }
 
 // @public
-const leagueStandings: (ctx: Context, input?: {
+function leagueStandings(ctx: Context, input?: {
     date?: string;
     season?: Id;
-}) => Promise<LeagueStandings>;
+}): Promise<LeagueStandings>;
 
 // @public (undocumented)
 export interface LinescoreByPeriod {
@@ -3046,9 +3046,9 @@ export interface LocalizedString {
 }
 
 // @public
-const matchUp: (ctx: Context, input: {
+function matchUp(ctx: Context, input: {
     gameId: Id;
-}) => Promise<GameLanding>;
+}): Promise<GameLanding>;
 
 // @public (undocumented)
 export interface MatchupGoalieComparison {
@@ -3447,9 +3447,9 @@ export interface PlayByPlay {
 }
 
 // @public
-const playByPlay: (ctx: Context, input: {
+function playByPlay(ctx: Context, input: {
     gameId: Id;
-}) => Promise<PlayByPlay>;
+}): Promise<PlayByPlay>;
 
 // @public (undocumented)
 export interface PlayByPlayRosterSpot {
@@ -3492,16 +3492,16 @@ export interface PlayByPlayTeam {
 }
 
 // @public
-const playerCareerStats: (ctx: Context, input: {
+function playerCareerStats(ctx: Context, input: {
     playerId: Id;
-}) => Promise<PlayerLanding>;
+}): Promise<PlayerLanding>;
 
 // @public
-const playerGameLog: (ctx: Context, input: {
+function playerGameLog(ctx: Context, input: {
     playerId: Id;
     seasonId: Id;
     gameType: number;
-}) => Promise<GameLogEntry[]>;
+}): Promise<GameLogEntry[]>;
 
 // @public (undocumented)
 export interface PlayerLanding {
@@ -3749,10 +3749,10 @@ const playersApi: {
 };
 
 // @public
-const playersByTeam: (ctx: Context, input: {
+function playersByTeam(ctx: Context, input: {
     teamAbbr: string;
     season: Id;
-}) => Promise<Roster>;
+}): Promise<Roster>;
 
 // @public
 export interface PlayerSummaryStatistics extends SkaterSummaryRow, Partial<Omit<AllPlayersEntry, keyof SkaterSummaryRow>> {
@@ -3769,9 +3769,9 @@ export interface PlayoffBracket {
 }
 
 // @public
-const playoffBracket: (ctx: Context, input: {
+function playoffBracket(ctx: Context, input: {
     year: Id;
-}) => Promise<PlayoffBracket>;
+}): Promise<PlayoffBracket>;
 
 // @public (undocumented)
 export interface PlayoffBracketSeries {
@@ -3844,9 +3844,9 @@ export interface PlayoffCarousel {
 }
 
 // @public
-const playoffCarousel: (ctx: Context, input: {
+function playoffCarousel(ctx: Context, input: {
     season: Id;
-}) => Promise<PlayoffCarousel>;
+}): Promise<PlayoffCarousel>;
 
 // @public (undocumented)
 export interface PlayoffCarouselRound {
@@ -3963,10 +3963,10 @@ export interface PlayoffSeriesSchedule {
 }
 
 // @public
-const playoffSeriesSchedule: (ctx: Context, input: {
+function playoffSeriesSchedule(ctx: Context, input: {
     season: Id;
     series: string;
-}) => Promise<PlayoffSeriesSchedule>;
+}): Promise<PlayoffSeriesSchedule>;
 
 // @public (undocumented)
 export interface PlayoffSeriesScheduleGame {
@@ -4176,9 +4176,9 @@ export interface Prospects {
 }
 
 // @public
-const prospectsByTeam: (ctx: Context, input: {
+function prospectsByTeam(ctx: Context, input: {
     teamAbbr: string;
-}) => Promise<Prospects>;
+}): Promise<Prospects>;
 
 // @public (undocumented)
 export interface ProspectsForward {
@@ -4487,7 +4487,6 @@ export interface SavePctg5v5Leader {
 declare namespace schedule {
     export {
         normalizeDate,
-        DailySchedule,
         dailySchedule,
         weeklySchedule,
         teamMonthlySchedule,
@@ -4497,6 +4496,7 @@ declare namespace schedule {
         playoffCarousel,
         playoffSeriesSchedule,
         playoffBracket,
+        DailySchedule,
         scheduleApi
     }
 }
@@ -4722,9 +4722,9 @@ export interface SeasonScheduleSeriesStatus {
 }
 
 // @public
-const seasonSeriesMatchup: (ctx: Context, input: {
+function seasonSeriesMatchup(ctx: Context, input: {
     gameId: Id;
-}) => Promise<RightRail>;
+}): Promise<RightRail>;
 
 // @public (undocumented)
 export interface SeasonSeriesTeam {
@@ -4739,10 +4739,10 @@ export interface SeasonSeriesTeam {
 }
 
 // @public
-const seasonSpecificRulesAndInfo: (ctx: Context) => Promise<SeasonRules[]>;
+function seasonSpecificRulesAndInfo(ctx: Context): Promise<SeasonRules[]>;
 
 // @public
-const seasonStandingManifest: (ctx: Context) => Promise<StandingsSeason[]>;
+function seasonStandingManifest(ctx: Context): Promise<StandingsSeason[]>;
 
 // @public (undocumented)
 export interface SeasonStatLine {
@@ -4872,10 +4872,10 @@ export interface ShiftChart {
 }
 
 // @public
-const shiftChartData: (ctx: Context, input: {
+function shiftChartData(ctx: Context, input: {
     gameId: Id;
     excludes?: string[];
-}) => Promise<ShiftChart>;
+}): Promise<ShiftChart>;
 
 // @public (undocumented)
 export interface ShiftEntry {
@@ -5132,7 +5132,7 @@ export interface SkaterComparison {
 }
 
 // @public
-const skaterComparison: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterComparison>;
+function skaterComparison(ctx: Context, params: EdgePlayerParams): Promise<SkaterComparison>;
 
 // @public (undocumented)
 export interface SkaterComparisonDistance {
@@ -5327,7 +5327,7 @@ export interface SkaterDetail {
 }
 
 // @public
-const skaterDetail: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterDetail>;
+function skaterDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterDetail>;
 
 // @public (undocumented)
 export interface SkaterDetailDistanceMaxGame {
@@ -5714,7 +5714,7 @@ export interface SkaterLanding {
 }
 
 // @public
-const skaterLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<SkaterLanding>;
+function skaterLanding(ctx: Context, params?: EdgeSeasonParams): Promise<SkaterLanding>;
 
 // @public (undocumented)
 export interface SkaterLandingLeaders {
@@ -6288,7 +6288,7 @@ export interface SkaterShotLocationDetail {
 }
 
 // @public
-const skaterShotLocationDetail: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterShotLocationDetail>;
+function skaterShotLocationDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterShotLocationDetail>;
 
 // @public (undocumented)
 export interface SkaterShotLocationTotal {
@@ -6339,7 +6339,7 @@ export interface SkaterShotSpeedDetail {
 }
 
 // @public
-const skaterShotSpeedDetail: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterShotSpeedDetail>;
+function skaterShotSpeedDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterShotSpeedDetail>;
 
 // @public (undocumented)
 export interface SkaterShotTypeRow {
@@ -6434,7 +6434,7 @@ export interface SkaterSkatingDistanceDetail {
 }
 
 // @public
-const skaterSkatingDistanceDetail: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterSkatingDistanceDetail>;
+function skaterSkatingDistanceDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterSkatingDistanceDetail>;
 
 // @public (undocumented)
 export interface SkaterSkatingSpeedDetail {
@@ -6445,7 +6445,7 @@ export interface SkaterSkatingSpeedDetail {
 }
 
 // @public
-const skaterSkatingSpeedDetail: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterSkatingSpeedDetail>;
+function skaterSkatingSpeedDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterSkatingSpeedDetail>;
 
 // @public (undocumented)
 export interface SkaterSpeedBreakdown {
@@ -6460,7 +6460,7 @@ export interface SkaterSpeedBreakdown {
 }
 
 // @public
-const skaterStatsSummary: (ctx: Context, input: SkaterStatsSummaryParams) => Promise<SkaterReportRows['summary'][]>;
+function skaterStatsSummary(ctx: Context, input: SkaterStatsSummaryParams): Promise<SkaterReportRows['summary'][]>;
 
 // @public (undocumented)
 export interface SkaterStatsSummaryParams {
@@ -6483,7 +6483,7 @@ export interface SkaterStatsSummaryParams {
 }
 
 // @public
-const skaterStatsWithQueryContext: <Report extends keyof SkaterReportRows>(ctx: Context, input: SkaterStatsWithQueryContextParams<Report>) => Promise<StatsApiPage<SkaterReportRows[Report]>>;
+function skaterStatsWithQueryContext<Report extends keyof SkaterReportRows>(ctx: Context, input: SkaterStatsWithQueryContextParams<Report>): Promise<StatsApiPage<SkaterReportRows[Report]>>;
 
 // @public (undocumented)
 export interface SkaterStatsWithQueryContextParams<Report extends keyof SkaterReportRows = keyof SkaterReportRows> {
@@ -6695,7 +6695,7 @@ export interface SkaterZoneTime {
 }
 
 // @public
-const skaterZoneTime: (ctx: Context, params: EdgePlayerParams) => Promise<SkaterZoneTime>;
+function skaterZoneTime(ctx: Context, params: EdgePlayerParams): Promise<SkaterZoneTime>;
 
 // @public (undocumented)
 export interface SkaterZoneTimeByStrength {
@@ -7013,10 +7013,6 @@ export interface StandingsSeason {
 
 declare namespace stats {
     export {
-        TeamSummaryParams,
-        SkaterStatsSummaryParams,
-        SkaterStatsWithQueryContextParams,
-        GoalieStatsSummaryParams,
         gametypesPerSeasonDirectoryByTeam,
         playerCareerStats,
         playerGameLog,
@@ -7024,6 +7020,10 @@ declare namespace stats {
         skaterStatsSummary,
         skaterStatsWithQueryContext,
         goalieStatsSummary,
+        TeamSummaryParams,
+        SkaterStatsSummaryParams,
+        SkaterStatsWithQueryContextParams,
+        GoalieStatsSummaryParams,
         statsApi
     }
 }
@@ -7259,7 +7259,7 @@ export interface TeamDetail {
 }
 
 // @public
-const teamDetail: (ctx: Context, params: EdgeTeamParams) => Promise<TeamDetail>;
+function teamDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamDetail>;
 
 // @public (undocumented)
 export interface TeamDetailDistanceSkated {
@@ -7526,7 +7526,7 @@ export interface TeamLanding {
 }
 
 // @public
-const teamLanding: (ctx: Context, params?: EdgeSeasonParams) => Promise<TeamLanding>;
+function teamLanding(ctx: Context, params?: EdgeSeasonParams): Promise<TeamLanding>;
 
 // @public (undocumented)
 export interface TeamLandingLeaders {
@@ -7555,10 +7555,10 @@ export interface TeamLogo {
 }
 
 // @public
-const teamMonthlySchedule: (ctx: Context, input: {
+function teamMonthlySchedule(ctx: Context, input: {
     teamAbbr: string;
     month?: string;
-}) => Promise<ClubScheduleGame[]>;
+}): Promise<ClubScheduleGame[]>;
 
 // @public
 export interface TeamOdd {
@@ -7577,27 +7577,27 @@ export interface TeamOffensiveZoneTimeLeader {
 }
 
 // @public
-const teamRoster: (ctx: Context, input: {
+function teamRoster(ctx: Context, input: {
     teamAbbr: string;
     season: Id;
-}) => Promise<Roster>;
+}): Promise<Roster>;
 
 declare namespace teams {
     export {
         toTeam,
         withFranchiseIds,
-        Team,
         teams_2 as teams,
         teamRoster,
         franchises,
+        Team,
         teamsApi
     }
 }
 
 // @public
-const teams_2: (ctx: Context, input?: {
+function teams_2(ctx: Context, input?: {
     date?: string;
-}) => Promise<Team[]>;
+}): Promise<Team[]>;
 
 // @public (undocumented)
 const teamsApi: {
@@ -7622,10 +7622,10 @@ export interface TeamSeasonSchedule {
 }
 
 // @public
-const teamSeasonSchedule: (ctx: Context, input: {
+function teamSeasonSchedule(ctx: Context, input: {
     teamAbbr: string;
     season: Id;
-}) => Promise<TeamSeasonSchedule>;
+}): Promise<TeamSeasonSchedule>;
 
 // @public (undocumented)
 export interface TeamSeasonScheduleGame {
@@ -7779,7 +7779,7 @@ export interface TeamShotLocationDetail {
 }
 
 // @public
-const teamShotLocationDetail: (ctx: Context, params: EdgeTeamParams) => Promise<TeamShotLocationDetail>;
+function teamShotLocationDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamShotLocationDetail>;
 
 // @public (undocumented)
 export interface TeamShotLocationTotal {
@@ -7834,7 +7834,7 @@ export interface TeamShotSpeedDetail {
 }
 
 // @public
-const teamShotSpeedDetail: (ctx: Context, params: EdgeTeamParams) => Promise<TeamShotSpeedDetail>;
+function teamShotSpeedDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamShotSpeedDetail>;
 
 // @public (undocumented)
 export interface TeamShotTeamRef {
@@ -7855,7 +7855,7 @@ export interface TeamSkatingDistanceDetail {
 }
 
 // @public
-const teamSkatingDistanceDetail: (ctx: Context, params: EdgeTeamParams) => Promise<TeamSkatingDistanceDetail>;
+function teamSkatingDistanceDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamSkatingDistanceDetail>;
 
 // @public (undocumented)
 export interface TeamSkatingSpeedDetail {
@@ -7866,7 +7866,7 @@ export interface TeamSkatingSpeedDetail {
 }
 
 // @public
-const teamSkatingSpeedDetail: (ctx: Context, params: EdgeTeamParams) => Promise<TeamSkatingSpeedDetail>;
+function teamSkatingSpeedDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamSkatingSpeedDetail>;
 
 // @public (undocumented)
 export interface TeamSpeedBreakdown {
@@ -7897,7 +7897,7 @@ export interface TeamSpeedMax {
 }
 
 // @public
-const teamSummary: (ctx: Context, input: TeamSummaryParams) => Promise<TeamSummaryRow[]>;
+function teamSummary(ctx: Context, input: TeamSummaryParams): Promise<TeamSummaryRow[]>;
 
 // @public (undocumented)
 export interface TeamSummaryParams {
@@ -8005,10 +8005,10 @@ export interface TeamTopSpeed {
 }
 
 // @public
-const teamWeeklySchedule: (ctx: Context, input: {
+function teamWeeklySchedule(ctx: Context, input: {
     teamAbbr: string;
     date?: string;
-}) => Promise<ClubScheduleGame[]>;
+}): Promise<ClubScheduleGame[]>;
 
 // @public (undocumented)
 export interface TeamZoneTimeByStrength {
@@ -8043,7 +8043,7 @@ export interface TeamZoneTimeDetails {
 }
 
 // @public
-const teamZoneTimeDetails: (ctx: Context, params: EdgeTeamParams) => Promise<TeamZoneTimeDetails>;
+function teamZoneTimeDetails(ctx: Context, params: EdgeTeamParams): Promise<TeamZoneTimeDetails>;
 
 // @public (undocumented)
 export function toQuery(filter: Filter): string;
@@ -8103,9 +8103,9 @@ export interface WeeklySchedule {
 }
 
 // @public
-const weeklySchedule: (ctx: Context, input?: {
+function weeklySchedule(ctx: Context, input?: {
     date?: string;
-}) => Promise<WeeklySchedule>;
+}): Promise<WeeklySchedule>;
 
 // @public (undocumented)
 export interface WeeklyScheduleGameAwayTeam {

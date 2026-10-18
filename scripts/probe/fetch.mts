@@ -14,14 +14,18 @@ const DELAY_MS = 250;
 
 const args = process.argv.slice(2);
 const refresh = args.includes('--refresh');
-const optionValue = (name: string): string | undefined => {
+
+function optionValue(name: string): string | undefined {
   const index = args.indexOf(name);
   return index === -1 ? undefined : args[index + 1];
-};
+}
+
 const outDir = optionValue('--out') ?? RAW_DIR;
 const only = optionValue('--only');
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 interface Capture {
   url: string;
@@ -44,6 +48,7 @@ export async function runFetch(
     }
     const dir = `${targetDir}/${sample.endpoint}`;
     const file = `${dir}/${slug(sample.tags)}.json`;
+
     if (!options.refresh && existsSync(file)) {
       cached += 1;
       continue;
@@ -65,6 +70,7 @@ export async function runFetch(
         return response;
       },
     });
+
     try {
       await sample.call(client);
     } catch (error) {
@@ -72,7 +78,9 @@ export async function runFetch(
         `  ! ${sample.endpoint} ${JSON.stringify(sample.tags)}: ${(error as Error).message}`,
       );
     }
+
     await mkdir(dir, { recursive: true });
+
     if (capture) {
       await writeFile(
         file,
@@ -86,8 +94,10 @@ export async function runFetch(
         `  ${capture.status} ${sample.endpoint} ${slug(sample.tags)}`,
       );
     }
+
     await wait(DELAY_MS);
   }
+
   return { fetched, cached, failed };
 }
 

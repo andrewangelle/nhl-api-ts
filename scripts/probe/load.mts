@@ -26,11 +26,13 @@ export interface EndpointSpec {
   emit?: EmitOptions;
 }
 
-export const loadSamples = (rawDir: string): Map<string, RawSample[]> => {
+export function loadSamples(rawDir: string): Map<string, RawSample[]> {
   const out = new Map<string, RawSample[]>();
+
   if (!existsSync(rawDir)) {
     return out;
   }
+
   for (const endpoint of readdirSync(rawDir)) {
     const samples: RawSample[] = [];
     for (const file of readdirSync(`${rawDir}/${endpoint}`)) {
@@ -40,14 +42,16 @@ export const loadSamples = (rawDir: string): Map<string, RawSample[]> => {
     }
     out.set(endpoint, samples);
   }
-  return out;
-};
 
-export const buildShape = (
+  return out;
+}
+
+export function buildShape(
   samples: RawSample[],
   unwrap: string | undefined,
-): ShapeNode => {
+): ShapeNode {
   const root = newNode();
+
   samples.forEach((sample, index) => {
     if (sample.status !== 200) {
       return;
@@ -60,15 +64,16 @@ export const buildShape = (
     merge(root, value, label, index);
     finishSample(root, index, label);
   });
-  return root;
-};
 
-export const emitFor = (
+  return root;
+}
+
+export function emitFor(
   shape: ShapeNode,
   spec: EndpointSpec,
-): { type: string; interfaces: Map<string, string> } => {
+): { type: string; interfaces: Map<string, string> } {
   const emitter = new Emitter(spec.name, spec.emit);
   const target = shape.items && shape.kinds.array ? shape.items : shape;
   const type = emitter.emitRoot(target);
   return { type, interfaces: emitter.interfaces };
-};
+}

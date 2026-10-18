@@ -18,8 +18,9 @@ async function getData<Row>(ctx: Context, resource: string): Promise<Row[]> {
  *
  * @example https://api.nhle.com/stats/rest/en/glossary?sort=fullName
  */
-export const glossary = async (ctx: Context): Promise<GlossaryEntry[]> =>
-  getData(ctx, 'stats/rest/en/glossary?sort=fullName');
+export async function glossary(ctx: Context): Promise<GlossaryEntry[]> {
+  return getData(ctx, 'stats/rest/en/glossary?sort=fullName');
+}
 
 /**
  * Gets the stats API configuration, including available report types and
@@ -27,33 +28,38 @@ export const glossary = async (ctx: Context): Promise<GlossaryEntry[]> =>
  *
  * @example https://api.nhle.com/stats/rest/en/config
  */
-export const config = async (ctx: Context): Promise<StatsConfig> =>
-  (await ctx.get(Endpoint.API_CORE, 'stats/rest/en/config')).json();
+export async function config(ctx: Context): Promise<StatsConfig> {
+  return (await ctx.get(Endpoint.API_CORE, 'stats/rest/en/config')).json();
+}
 
 /**
  * Gets the list of countries recognized by the NHL.
  *
  * @example https://api.nhle.com/stats/rest/en/country
  */
-export const countries = async (ctx: Context): Promise<Country[]> =>
-  getData(ctx, 'stats/rest/en/country');
+export async function countries(ctx: Context): Promise<Country[]> {
+  return getData(ctx, 'stats/rest/en/country');
+}
 
 /**
  * Gets rules and metadata for every NHL season on record.
  *
  * @example https://api.nhle.com/stats/rest/en/season
  */
-export const seasonSpecificRulesAndInfo = async (
+export async function seasonSpecificRulesAndInfo(
   ctx: Context,
-): Promise<SeasonRules[]> => getData(ctx, 'stats/rest/en/season');
+): Promise<SeasonRules[]> {
+  return getData(ctx, 'stats/rest/en/season');
+}
 
 /**
  * Gets the number of rounds for each NHL draft year.
  *
  * @example https://api.nhle.com/stats/rest/en/draft
  */
-export const draftYearAndRounds = async (ctx: Context): Promise<DraftYear[]> =>
-  getData(ctx, 'stats/rest/en/draft');
+export async function draftYearAndRounds(ctx: Context): Promise<DraftYear[]> {
+  return getData(ctx, 'stats/rest/en/draft');
+}
 
 export const miscApi = {
   glossary,

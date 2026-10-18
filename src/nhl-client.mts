@@ -50,18 +50,16 @@ type StatsClient = Omit<
 > &
   StatsGenericMethods;
 
-const bind = <
+function bind<
   Module extends Record<string, (ctx: Context, ...args: never[]) => unknown>,
->(
-  ctx: Context,
-  api: Module,
-): Bound<Module> =>
-  Object.fromEntries(
+>(ctx: Context, api: Module): Bound<Module> {
+  return Object.fromEntries(
     Object.entries(api).map(([key, fn]) => [
       key,
       (...args: never[]) => fn(ctx, ...args),
     ]),
   ) as Bound<Module>;
+}
 
 /**
  * Builds the main client used to access the NHL API.
@@ -71,7 +69,7 @@ const bind = <
  * const client = createNHLClient({ debug: true }); // for a lil extra logging
  * const teams = await client.teams.teams();
  */
-export const createNHLClient = (options: ClientOptions = {}) => {
+export function createNHLClient(options: ClientOptions = {}) {
   const config = resolveConfig(options);
   const ctx: Context = { get: createGet(config), sleep };
 
@@ -87,6 +85,6 @@ export const createNHLClient = (options: ClientOptions = {}) => {
     players: bind(ctx, playersApi),
     edge: bind(ctx, edgeApi),
   } as const;
-};
+}
 
 export type NHLClient = ReturnType<typeof createNHLClient>;

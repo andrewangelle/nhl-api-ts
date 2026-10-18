@@ -12,6 +12,7 @@
       "**/server/**",
       "**/src/**",
       "**/test/**",
+      "**/probe/**",
       "**/.vscode/**",
       "**/examples/**",
       "**/scripts/**",
@@ -56,6 +57,14 @@
       },
       "suspicious": {
         "noAssignInExpressions": "off"
+      },
+      "nursery": {
+        "useConsistentFunctionStyle": {
+          "level": "on",
+          "options": {
+            "style": "declaration"
+          }
+        }
       }
     }
   },
