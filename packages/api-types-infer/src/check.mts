@@ -34,18 +34,7 @@ export function diffSnapshots(
     if (!(path in after)) {
       lines.push(`- ${name} ${path}  ${before[path]}`);
     } else if (before[path] !== after[path]) {
-      function flipValue() {
-        if (before[path].replace('?', '') === after[path].replace('?', '')) {
-          if (before[path].endsWith('?')) {
-            return 'optional -> required';
-          }
-          return 'required -> optional';
-        }
-
-        return 'kinds changed';
-      }
-
-      const flip = flipValue();
+      const flip = flipValue(before[path], after[path]);
 
       lines.push(
         `~ ${name} ${path}  ${before[path]} -> ${after[path]} (${flip})`,
@@ -53,6 +42,17 @@ export function diffSnapshots(
     }
   }
   return lines;
+}
+
+function flipValue(before: string, after: string) {
+  if (before.replace('?', '') === after.replace('?', '')) {
+    if (before.endsWith('?')) {
+      return 'optional -> required';
+    }
+    return 'required -> optional';
+  }
+
+  return 'kinds changed';
 }
 
 if (import.meta.main) {
@@ -74,6 +74,7 @@ if (import.meta.main) {
   );
 
   const report: string[] = [];
+
   for (const [key, after] of current) {
     if (!committed.has(key)) {
       report.push(`+ ${key}  (new endpoint shape)`);

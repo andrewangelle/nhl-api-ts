@@ -1,9 +1,8 @@
 # api-types-infer
 
-Private tooling (never published) that keeps the response types of
-[`nhl-api-ts`](../nhl-api-ts) honest. The NHL API is undocumented, so the
-types in `packages/nhl-api-ts/src/types/` are derived from real responses
-instead of guessed.
+Private, unpublished tooling for maintaining the response types of
+[`nhl-api-ts`](../nhl-api-ts). The NHL API is undocumented, so the
+types in `packages/nhl-api-ts/src/types/` are derived from probing the live api.
 
 It does four things:
 
