@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  defaultSortForSkaterStatsSummary,
+  defaultSortForTeamSummary,
+  type SortExpr,
+} from '#src/api/query/sorting/sorting-options.mjs';
+import {
   type Decision,
   defaultSortForReport,
   filter,
@@ -127,6 +132,50 @@ describe('sorting', () => {
       defaultSortForReport('constructor'),
       defaultSortForReport('summary'),
     );
+  });
+
+  it('team summary defaults', () => {
+    assert.deepEqual(defaultSortForTeamSummary(undefined, false), [
+      { property: 'points', direction: 'DESC' },
+      { property: 'wins', direction: 'DESC' },
+      { property: 'teamId', direction: 'ASC' },
+    ]);
+    assert.deepEqual(defaultSortForTeamSummary([], false), [
+      { property: 'points', direction: 'DESC' },
+      { property: 'wins', direction: 'DESC' },
+      { property: 'teamId', direction: 'ASC' },
+    ]);
+    // aggregated rows have no teamId, so the tiebreaker is franchiseId
+    assert.deepEqual(defaultSortForTeamSummary(undefined, true), [
+      { property: 'points', direction: 'DESC' },
+      { property: 'wins', direction: 'DESC' },
+      { property: 'franchiseId', direction: 'ASC' },
+    ]);
+  });
+
+  it('team summary keeps a provided sort', () => {
+    const custom: SortExpr[] = [{ property: 'goalsFor', direction: 'DESC' }];
+    assert.equal(defaultSortForTeamSummary(custom, false), custom);
+    assert.equal(defaultSortForTeamSummary(custom, true), custom);
+  });
+
+  it('skater stats summary defaults', () => {
+    const expected = [
+      { property: 'points', direction: 'DESC' },
+      { property: 'gamesPlayed', direction: 'ASC' },
+      { property: 'playerId', direction: 'ASC' },
+    ];
+    assert.deepEqual(defaultSortForSkaterStatsSummary(undefined), expected);
+    assert.deepEqual(defaultSortForSkaterStatsSummary([]), expected);
+    assert.deepEqual(
+      defaultSortForSkaterStatsSummary(undefined),
+      defaultSortForReport('summary'),
+    );
+  });
+
+  it('skater stats summary keeps a provided sort', () => {
+    const custom: SortExpr[] = [{ property: 'goals', direction: 'DESC' }];
+    assert.equal(defaultSortForSkaterStatsSummary(custom), custom);
   });
 
   it('goalie report defaults', () => {
