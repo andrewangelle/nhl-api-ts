@@ -106,3 +106,40 @@ export function defaultSortForReport(report: string): SortExpr[] {
       : undefined) ?? skaterSummaryDefaultSorting
   );
 }
+
+/**
+ * Default sort criteria for a team summary. Falls back to points and wins.
+ */
+export function defaultSortForTeamSummary(
+  expr: SortExpr[] | undefined,
+  isAggregate: boolean,
+) {
+  if (expr && expr.length > 0) {
+    return expr;
+  }
+
+  return [
+    { property: 'points', direction: 'DESC' },
+    { property: 'wins', direction: 'DESC' },
+    // aggregated rows span seasons, so they have no teamId
+    {
+      property: isAggregate ? 'franchiseId' : 'teamId',
+      direction: 'ASC',
+    },
+  ];
+}
+
+/**
+ * Default sort criteria for a skater stats summary. Falls back to points
+ */
+export function defaultSortForSkaterStatsSummary(expr: SortExpr[] | undefined) {
+  if (expr && expr.length > 0) {
+    return expr;
+  }
+
+  return [
+    { property: 'points', direction: 'DESC' },
+    { property: 'gamesPlayed', direction: 'ASC' },
+    { property: 'playerId', direction: 'ASC' },
+  ];
+}

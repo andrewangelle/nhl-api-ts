@@ -5,6 +5,8 @@ import {
 import { goalieStatsSorts } from '#src/api/query/sorting/goalie-sorts.mjs';
 import {
   defaultSortForReport,
+  defaultSortForSkaterStatsSummary,
+  defaultSortForTeamSummary,
   type SortExpr,
 } from '#src/api/query/sorting/sorting-options.mjs';
 import type { Context } from '#src/context.mjs';
@@ -181,22 +183,13 @@ export async function teamSummary(
     defaultCayenneExp,
   }: TeamSummaryParams,
 ): Promise<TeamSummaryRow[]> {
-  const effectiveSortExpr =
-    sortExpr && sortExpr.length > 0
-      ? sortExpr
-      : [
-          { property: 'points', direction: 'DESC' },
-          { property: 'wins', direction: 'DESC' },
-          // aggregated rows span seasons, so they have no teamId
-          {
-            property: isAggregate ? 'franchiseId' : 'teamId',
-            direction: 'ASC',
-          },
-        ];
+  const effectiveSortExpr = defaultSortForTeamSummary(sortExpr, isAggregate);
+
   const effectiveCayenneExp =
     defaultCayenneExp ??
     `gameTypeId=${gameTypeId} and seasonId<=${endSeason} and seasonId>=${startSeason}`;
-  const qParams = {
+
+  const queryParams = {
     isAggregate,
     isGame,
     start,
@@ -205,9 +198,11 @@ export async function teamSummary(
     sort: JSON.stringify(effectiveSortExpr),
     cayenneExp: effectiveCayenneExp,
   };
+
   const response = await (
-    await ctx.get(Endpoint.API_STATS, 'en/team/summary', qParams)
+    await ctx.get(Endpoint.API_STATS, 'en/team/summary', queryParams)
   ).json();
+
   return response.data;
 }
 
@@ -232,22 +227,18 @@ export async function skaterStatsSummary(
     defaultCayenneExp,
   }: SkaterStatsSummaryParams,
 ): Promise<SkaterReportRows['summary'][]> {
-  const effectiveSortExpr =
-    sortExpr && sortExpr.length > 0
-      ? sortExpr
-      : [
-          { property: 'points', direction: 'DESC' },
-          { property: 'gamesPlayed', direction: 'ASC' },
-          { property: 'playerId', direction: 'ASC' },
-        ];
+  const effectiveSortExpr = defaultSortForSkaterStatsSummary(sortExpr);
+
   const baseCayenneExp =
     defaultCayenneExp ??
     `gameTypeId=${gameTypeId} and seasonId<=${endSeason} and seasonId>=${startSeason}`;
+
   const effectiveCayenneExp =
     !defaultCayenneExp && franchiseId
       ? `franchiseId=${franchiseId} and ${baseCayenneExp}`
       : baseCayenneExp;
-  const qParams = {
+
+  const queryParams = {
     isAggregate: aggregate,
     isGame: false,
     start,
@@ -256,9 +247,11 @@ export async function skaterStatsSummary(
     sort: JSON.stringify(effectiveSortExpr),
     cayenneExp: effectiveCayenneExp,
   };
+
   const response = await (
-    await ctx.get(Endpoint.API_STATS, 'en/skater/summary', qParams)
+    await ctx.get(Endpoint.API_STATS, 'en/skater/summary', queryParams)
   ).json();
+
   return response.data;
 }
 
@@ -294,6 +287,7 @@ export async function skaterStatsWithQueryContext<
     sortExpr && sortExpr.length > 0
       ? sortExpr
       : defaultSortForReport(reportType);
+
   const qParams = {
     isAggregate: aggregate,
     isGame: false,
@@ -337,17 +331,22 @@ export async function goalieStatsSummary<
   }: GoalieStatsSummaryParams<Report>,
 ): Promise<GoalieReportRows[Report][]> {
   const report: keyof GoalieReportRows = statsType ?? 'summary';
+
   const effectiveEndSeason =
     endSeason === undefined || endSeason === null ? startSeason : endSeason;
+
   const effectiveSortExpr =
     sortExpr && sortExpr.length > 0 ? sortExpr : goalieStatsSorts(report);
+
   const baseCayenneExp =
     defaultCayenneExp ??
     `gameTypeId=${gameTypeId} and seasonId<=${effectiveEndSeason} and seasonId>=${startSeason}`;
+
   const effectiveCayenneExp = franchiseId
     ? `franchiseId=${franchiseId} and ${baseCayenneExp}`
     : baseCayenneExp;
-  const qParams = {
+
+  const queryParams = {
     isAggregate: aggregate,
     isGame: false,
     start,
@@ -356,9 +355,11 @@ export async function goalieStatsSummary<
     sort: JSON.stringify(effectiveSortExpr),
     cayenneExp: effectiveCayenneExp,
   };
+
   const response = await (
-    await ctx.get(Endpoint.API_STATS, `en/goalie/${report}`, qParams)
+    await ctx.get(Endpoint.API_STATS, `en/goalie/${report}`, queryParams)
   ).json();
+
   return response.data ?? [];
 }
 
