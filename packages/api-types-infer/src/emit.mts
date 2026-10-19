@@ -73,15 +73,19 @@ function singular(word: string): string {
   if (/series$/i.test(word) || word.endsWith('ss')) {
     return word;
   }
+
   if (word.endsWith('goalies')) {
     return word.slice(0, -1);
   }
+
   if (word.endsWith('ies')) {
     return `${word.slice(0, -3)}y`;
   }
+
   if (/(ch|sh|x)es$/.test(word)) {
     return word.slice(0, -2);
   }
+
   return word.endsWith('s') ? word.slice(0, -1) : word;
 }
 
