@@ -1,0 +1,21 @@
+{
+  "$": "object",
+  ".seriesTitle": "string",
+  ".teams": "object",
+  ".teams.bottomSeed": "object",
+  ".teams.bottomSeed.commonName": "object",
+  ".teams.bottomSeed.commonName.default": "string",
+  ".teams.bottomSeed.name": "object",
+  ".teams.bottomSeed.name.default": "string",
+  ".teams.bottomSeed.name.fr": "string",
+  ".teams.bottomSeed.teamSlug": "string",
+  ".teams.bottomSeed.tricode": "string",
+  ".teams.topSeed": "object",
+  ".teams.topSeed.commonName": "object",
+  ".teams.topSeed.commonName.default": "string",
+  ".teams.topSeed.name": "object",
+  ".teams.topSeed.name.default": "string",
+  ".teams.topSeed.name.fr": "string",
+  ".teams.topSeed.teamSlug": "string",
+  ".teams.topSeed.tricode": "string"
+}

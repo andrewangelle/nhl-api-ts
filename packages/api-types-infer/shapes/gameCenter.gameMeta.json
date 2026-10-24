@@ -1,0 +1,16 @@
+{
+  "$": "object",
+  ".gameState": "string",
+  ".seasonStates": "object",
+  ".seasonStates.date": "string",
+  ".seasonStates.gameType": "integer",
+  ".seasonStates.season": "integer",
+  ".teams": "array",
+  ".teams[]": "object",
+  ".teams[].name": "object",
+  ".teams[].name.default": "string",
+  ".teams[].name.fr": "string",
+  ".teams[].teamId": "integer",
+  ".teams[].teamSlug": "string",
+  ".teams[].tricode": "string"
+}

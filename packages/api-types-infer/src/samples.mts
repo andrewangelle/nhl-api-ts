@@ -108,6 +108,29 @@ async function discoverGames(
   return found;
 }
 
+/** Picks a goal and a shot event from a game's play-by-play, for `playReplay`. */
+async function discoverReplayEvents(
+  client: NHLClient,
+  gameId: number,
+): Promise<Record<string, number>> {
+  const { plays } = (await client.gameCenter.playByPlay({
+    gameId,
+  })) as unknown as { plays: { eventId: number; typeDescKey: string }[] };
+  const found: Record<string, number> = {};
+  for (const [kind, typeDescKey] of [
+    ['goal', 'goal'],
+    ['shot', 'shot-on-goal'],
+  ]) {
+    const play = plays.find(
+      (candidate) => candidate.typeDescKey === typeDescKey,
+    );
+    if (play) {
+      found[kind] = play.eventId;
+    }
+  }
+  return found;
+}
+
 export async function buildSamples(): Promise<Sample[]> {
   const bootstrap = createNHLClient();
   const games = await discoverGames(bootstrap);
@@ -116,6 +139,8 @@ export async function buildSamples(): Promise<Sample[]> {
     goalieReportData: Record<string, unknown>;
     teamReportData: Record<string, unknown>;
   };
+
+  const replayEvents = await discoverReplayEvents(bootstrap, games.regular);
 
   const samples: Sample[] = [];
 
@@ -165,6 +190,29 @@ export async function buildSamples(): Promise<Sample[]> {
   ] as const) {
     add('gameCenter.dailyScores', { date: kind }, (client) =>
       client.gameCenter.dailyScores({ date }),
+    );
+    add('gameCenter.scoreboard', { date: kind }, (client) =>
+      client.gameCenter.scoreboard({ date }),
+    );
+    add('misc.tvSchedule', { date: kind }, (client) =>
+      client.misc.tvSchedule({ date }),
+    );
+  }
+  for (const kind of ['regular', 'playoff', 'overtime', 'future', 'legacy']) {
+    const gameId = games[kind];
+    if (gameId === undefined) {
+      continue;
+    }
+    add('gameCenter.wscPlayByPlay', { game: kind }, (client) =>
+      client.gameCenter.wscPlayByPlay({ gameId }),
+    );
+    add('gameCenter.gameMeta', { game: kind }, (client) =>
+      client.gameCenter.gameMeta({ gameId }),
+    );
+  }
+  for (const [kind, eventNumber] of Object.entries(replayEvents)) {
+    add('gameCenter.playReplay', { game: 'regular', event: kind }, (client) =>
+      client.gameCenter.playReplay({ gameId: games.regular, eventNumber }),
     );
   }
 
@@ -258,6 +306,18 @@ export async function buildSamples(): Promise<Sample[]> {
     );
   }
 
+  for (const [year, series] of [
+    [2024, 'a'],
+    [2024, 'o'],
+    [2015, 'h'],
+  ] as const) {
+    add(
+      'schedule.playoffSeriesMeta',
+      { year: String(year), series },
+      (client) => client.schedule.playoffSeriesMeta({ year, series }),
+    );
+  }
+
   // ----- teams / players / standings / misc -----
   for (const [team, season] of [
     ['BUF', '20232024'],
@@ -328,6 +388,30 @@ export async function buildSamples(): Promise<Sample[]> {
   add('misc.draftYearAndRounds', {}, (client) =>
     client.misc.draftYearAndRounds(),
   );
+  add('misc.seasonIds', {}, (client) => client.misc.seasonIds());
+  add('misc.location', {}, (client) => client.misc.location());
+  for (const countryCode of ['US', 'CA']) {
+    add('misc.partnerGameOdds', { country: countryCode }, (client) =>
+      client.misc.partnerGameOdds({ countryCode }),
+    );
+  }
+  for (const [kind, postalCode] of [
+    ['us', '90210'],
+    ['ca', 'M5V 3L9'],
+    ['none', '00000'],
+  ]) {
+    add('misc.postalLookup', { postal: kind }, (client) =>
+      client.misc.postalLookup({ postalCode }),
+    );
+  }
+  for (const [kind, params] of [
+    ['empty', {}],
+    ['players', { players: [SKATER, GOALIE, RETIRED] }],
+    ['teams', { teams: ['TOR', 'BUF'] }],
+    ['both', { players: [SKATER], teams: ['TOR'] }],
+  ] satisfies [string, { players?: number[]; teams?: string[] }][]) {
+    add('misc.meta', { variant: kind }, (client) => client.misc.meta(params));
+  }
 
   // ----- stats -----
   for (const teamAbbr of ['BUF', 'TOR', 'UTA']) {

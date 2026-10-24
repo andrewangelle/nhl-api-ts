@@ -410,6 +410,50 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
     schema: ref('DailyScores'),
   },
   Prospects: { description: 'Team prospects.', schema: ref('Prospects') },
+  Scoreboard: {
+    description: 'Every game in the week around a date, grouped by date.',
+    schema: ref('Scoreboard'),
+  },
+  WscPlayByPlay: {
+    description: 'Every event of a game as flat plays.',
+    schema: arrayOf('WscPlay'),
+  },
+  PlayReplay: {
+    description: 'Replay card for one play-by-play event.',
+    schema: ref('PlayReplay'),
+  },
+  GameMeta: {
+    description: 'Teams, season state and game state for a game.',
+    schema: ref('GameMeta'),
+  },
+  PlayoffSeriesMeta: {
+    description: 'Round title and seeded teams of a playoff series.',
+    schema: ref('PlayoffSeriesMeta'),
+  },
+  TvSchedule: {
+    description: 'National TV broadcasts for a week.',
+    schema: ref('TvSchedule'),
+  },
+  PartnerGameOdds: {
+    description: "Betting odds for today's games.",
+    schema: ref('PartnerGameOdds'),
+  },
+  SeasonIds: {
+    description: 'Every season id in YYYYYYYY format, oldest first.',
+    schema: { type: 'array', items: { type: 'integer' } },
+  },
+  Meta: {
+    description: 'Display metadata for players and teams.',
+    schema: ref('Meta'),
+  },
+  GeoLocation: {
+    description: "The caller's country.",
+    schema: ref('GeoLocation'),
+  },
+  PostalLookup: {
+    description: 'Teams whose broadcast market covers a postal code.',
+    schema: arrayOf('PostalLookupTeam'),
+  },
   PlayerSpotlight: {
     description: 'Players featured in the nhl.com spotlight.',
     schema: arrayOf('PlayerSpotlight'),
