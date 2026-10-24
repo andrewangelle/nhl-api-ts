@@ -792,9 +792,10 @@ export async function buildSamples(): Promise<Sample[]> {
   ];
 
   for (const [method, sortBys, slots] of top10) {
-    const callTop10 =
-      (params: Record<string, unknown>) => (client: NHLClient) =>
+    function callTop10(params: Record<string, unknown>) {
+      return (client: NHLClient) =>
         (client.edge[method] as (params: object) => Promise<unknown>)(params);
+    }
     const regular = top10Variants.regular;
 
     for (const sortBy of sortBys) {
