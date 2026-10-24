@@ -1,0 +1,17 @@
+{
+  "$": "object",
+  ".broadcasts": "array",
+  ".broadcasts[]": "object",
+  ".broadcasts[].broadcastImageUrl": "string",
+  ".broadcasts[].broadcastStatus": "string",
+  ".broadcasts[].broadcastType": "string",
+  ".broadcasts[].description": "string",
+  ".broadcasts[].durationSeconds": "integer",
+  ".broadcasts[].endTime": "string",
+  ".broadcasts[].houseNumber": "string",
+  ".broadcasts[].startTime": "string",
+  ".broadcasts[].title": "string",
+  ".date": "string",
+  ".endDate": "string",
+  ".startDate": "string"
+}

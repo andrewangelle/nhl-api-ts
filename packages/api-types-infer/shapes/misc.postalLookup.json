@@ -1,0 +1,13 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].city": "string",
+  "[].country": "string",
+  "[].county": "string?",
+  "[].networkType": "string?",
+  "[].postalCode": "string",
+  "[].stateProvince": "string",
+  "[].teamName": "object",
+  "[].teamName.default": "string",
+  "[].teamName.fr": "string"
+}
