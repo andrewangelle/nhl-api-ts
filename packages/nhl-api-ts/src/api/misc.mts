@@ -136,7 +136,7 @@ function gamesClauses({
   if (endDate !== undefined) {
     clauses.push(`gameDate<=${cayenneString(normalizeDate(endDate))}`);
   }
-  if (cayenneExp !== undefined && cayenneExp.trim()) {
+  if (cayenneExp?.trim()) {
     clauses.push(cayenneExp);
   }
   return clauses;

@@ -92,7 +92,7 @@ function playerSearchClauses({
   cayenneExp,
 }: PlayerSearchParams): string[] {
   const clauses: string[] = [];
-  if (name !== undefined && name.trim()) {
+  if (name?.trim()) {
     clauses.push(
       `fullName likeIgnoreCase ${cayenneString(`%${name.trim()}%`)}`,
     );
@@ -107,7 +107,7 @@ function playerSearchClauses({
         : toQuery(filter.position(position)),
     );
   }
-  if (cayenneExp !== undefined && cayenneExp.trim()) {
+  if (cayenneExp?.trim()) {
     clauses.push(cayenneExp);
   }
   return clauses;
