@@ -146,6 +146,21 @@ default; 3 = playoffs). Without `season` the current season (`/now`) is used.
 - `playersByTeam({ teamAbbr, [season] })`
 - `playerSpotlight()`
 
+### draft
+
+Draft years are **YYYY** (`2023`), not `YYYYYYYY`. Without `season` the
+current draft (`/now`) is used.
+
+- `rankings({ [season], [category] })` — Central Scouting rankings.
+  `category` is a `ProspectCategory` (1 NA skater, the default; 2 Intl skater;
+  3 NA goalie; 4 Intl goalie)
+- `tracker()` — the live draft tracker for the current draft
+- `picks({ [season], [round] })` — picks for round `1`-`7` or `'all'` (the
+  default). `picks()` without a season returns round **1** of the current
+  draft, since the API redirects `draft/picks/now` there
+
+Rounds per draft year live in `misc.draftYearAndRounds()`.
+
 ### misc
 
 - `glossary()`, `config()`, `countries()`, `seasonSpecificRulesAndInfo()`,

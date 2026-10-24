@@ -85,6 +85,7 @@ augment the interface. See [Extending response types](recipes/extending-response
 | Thing        | Format        | Example      | Notes                                                    |
 | ------------ | ------------- | ------------ | -------------------------------------------------------- |
 | Season       | `YYYYYYYY`    | `20232024`   | Start and end year, concatenated                         |
+| Draft year   | `YYYY`        | `2023`       | `draft.*` only. 8-digit seasons are a 404 there          |
 | Game id      | `YYYYTTNNNN`  | `2023020280` | Season start year, game type (`01`/`02`/`03`), game number |
 | Game type    | integer       | `2`          | `1` preseason, `2` regular season, `3` playoffs          |
 | Date         | `YYYY-MM-DD`  | `2024-10-09` | `dailySchedule` also accepts `2024-10-9`                 |
@@ -106,7 +107,7 @@ The SDK talks to two NHL services. `Endpoint` in `http-client.mts` names them:
 
 | `Endpoint`   | Base URL                            | Used by                                     |
 | ------------ | ----------------------------------- | ------------------------------------------- |
-| `API_WEB_V1` | `https://api-web.nhle.com/v1/`      | teams, standings, schedule, game center, EDGE, players, player stats |
+| `API_WEB_V1` | `https://api-web.nhle.com/v1/`      | teams, standings, schedule, game center, EDGE, players, player stats, draft |
 | `API_STATS`  | `https://api.nhle.com/stats/rest/`  | franchises, shift charts, team/skater/goalie reports |
 | `API_CORE`   | `https://api.nhle.com/`             | misc (glossary, config, countries, ...)     |
 

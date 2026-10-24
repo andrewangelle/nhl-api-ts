@@ -120,6 +120,11 @@ const nowSeason: ArgSpec = {
   ...season,
   description: `${season.description}. Defaults to now`,
 };
+const draftSeason: ArgSpec = {
+  name: 'season',
+  type: 'string',
+  description: 'Draft year in YYYY format, e.g. 2023. Defaults to now',
+};
 const seasonGameType: ArgSpec = {
   name: 'gameType',
   type: 'int',
@@ -935,6 +940,55 @@ export const MODULES: ModuleSpec[] = [
         description: 'Players featured in the nhl.com spotlight',
         args: [],
         run: (client) => client.players.playerSpotlight(),
+      },
+    ],
+  },
+  {
+    name: 'draft',
+    description: 'Draft rankings, picks and the live draft tracker',
+    commands: [
+      {
+        name: 'rankings',
+        description: 'Central Scouting rankings for one prospect category',
+        args: [
+          draftSeason,
+          {
+            name: 'category',
+            type: 'int',
+            description:
+              '1=NA skater, 2=Intl skater, 3=NA goalie, 4=Intl goalie (only used with --season)',
+            default: '1',
+            choices: ['1', '2', '3', '4'],
+          },
+        ],
+        run: (client, values) => client.draft.rankings(values),
+      },
+      {
+        name: 'tracker',
+        description: 'Live draft tracker for the current draft',
+        args: [],
+        run: (client) => client.draft.tracker(),
+      },
+      {
+        name: 'picks',
+        description:
+          'Picks of a draft. Without --season, round 1 of the current draft',
+        args: [
+          draftSeason,
+          {
+            name: 'round',
+            type: 'string',
+            description: 'Round 1-7 or all (only used with --season)',
+            default: 'all',
+            choices: ['1', '2', '3', '4', '5', '6', '7', 'all'],
+          },
+        ],
+        run: (client, { round, ...values }) =>
+          client.draft.picks({
+            ...values,
+            round:
+              round === undefined || round === 'all' ? round : Number(round),
+          }),
       },
     ],
   },

@@ -52,6 +52,7 @@ describe('cli', () => {
       'stats',
       'edge',
       'players',
+      'draft',
       'misc',
       'helpers',
     ] as const;
@@ -239,6 +240,36 @@ describe('cli', () => {
     assert.match(goalies.urls[0], /\/en\/goalie\/brandNewReport\?/);
   });
 
+  it('draft picks converts the round and keeps all', async () => {
+    const round = await run([
+      'draft',
+      'picks',
+      '--season',
+      '2023',
+      '--round',
+      '3',
+    ]);
+    assert.equal(round.code, 0);
+    assert.deepEqual(round.urls, [
+      'https://api-web.nhle.com/v1/draft/picks/2023/3',
+    ]);
+    const all = await run(['draft', 'picks', '--season', '2023']);
+    assert.deepEqual(all.urls, [
+      'https://api-web.nhle.com/v1/draft/picks/2023/all',
+    ]);
+    const rankings = await run([
+      'draft',
+      'rankings',
+      '--season',
+      '2023',
+      '--category',
+      '2',
+    ]);
+    assert.deepEqual(rankings.urls, [
+      'https://api-web.nhle.com/v1/draft/rankings/2023/2',
+    ]);
+  });
+
   it('maps global options to client options', async () => {
     const { options } = await run(
       ['--debug', '--timeout', '3', 'misc', 'config', '--no-follow-redirects'],
@@ -290,6 +321,10 @@ describe('cli', () => {
     [
       ['schedule', 'daily-schedule', '--date', '2024-02-30'],
       /Invalid date format/,
+    ],
+    [
+      ['draft', 'picks', '--season', '2023', '--round', '8'],
+      /--round must be one of/,
     ],
     [
       ['misc', 'config', '--timeout', '0'],

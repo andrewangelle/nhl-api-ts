@@ -44,6 +44,8 @@ tags:
     description: Prospects and rosters.
   - name: misc
     description: Reference data.
+  - name: draft
+    description: Draft rankings, picks and the live draft tracker.
 
 components:
   parameters:
@@ -1413,6 +1415,281 @@ components:
           '$ref': '#/components/schemas/EdgeMeasurement'
         overlay:
           '$ref': '#/components/schemas/LandingDistanceOverlay'
+    DraftPick:
+      type: object
+      required:
+        - round
+        - pickInRound
+        - overallPick
+        - teamId
+        - teamAbbrev
+        - teamName
+        - teamCommonName
+        - teamPlaceNameWithPreposition
+        - displayAbbrev
+        - teamLogoLight
+        - teamLogoDark
+        - teamPickHistory
+        - firstName
+        - lastName
+        - positionCode
+        - countryCode
+        - height
+        - weight
+        - amateurLeague
+      properties:
+        round:
+          type: number
+        pickInRound:
+          type: number
+        overallPick:
+          type: number
+        teamId:
+          type: number
+        teamAbbrev:
+          type: string
+        teamName:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamCommonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamPlaceNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        displayAbbrev:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamLogoLight:
+          type: string
+        teamLogoDark:
+          type: string
+        teamPickHistory:
+          type: string
+        firstName:
+          '$ref': '#/components/schemas/LocalizedString'
+        lastName:
+          '$ref': '#/components/schemas/LocalizedString'
+        positionCode:
+          type: string
+          description: 'Known values: C, LW, RW, D, G. Others may appear.'
+        countryCode:
+          type: string
+        height:
+          type: number
+        weight:
+          type: number
+        amateurLeague:
+          type: string
+        amateurClubName:
+          type: string
+    DraftPicks:
+      type: object
+      required:
+        - draftYear
+        - draftYears
+        - selectableRounds
+        - state
+        - picks
+      properties:
+        draftYear:
+          type: number
+          description: Draft year in YYYY format.
+        draftYears:
+          type: array
+          items:
+            type: number
+        selectableRounds:
+          type: array
+          items:
+            type: number
+        state:
+          type: string
+        picks:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DraftPick'
+        broadcastStartTimeUTC:
+          type: string
+    DraftProspect:
+      type: object
+      required:
+        - lastName
+        - firstName
+        - positionCode
+        - shootsCatches
+        - heightInInches
+        - weightInPounds
+        - birthDate
+        - birthCity
+        - birthCountry
+      properties:
+        lastName:
+          type: string
+        firstName:
+          type: string
+        positionCode:
+          type: string
+          description: 'Known values: C, LW, RW, D, G. Others may appear.'
+        shootsCatches:
+          type: string
+          description: 'Known values: L, R. Others may appear.'
+        heightInInches:
+          type: number
+        weightInPounds:
+          type: number
+        lastAmateurClub:
+          type: string
+        lastAmateurLeague:
+          type: string
+        birthDate:
+          type: string
+        birthCity:
+          type: string
+        birthStateProvince:
+          type: string
+        birthCountry:
+          type: string
+        midtermRank:
+          type: number
+        finalRank:
+          type: number
+    DraftRankingCategory:
+      type: object
+      required:
+        - id
+        - name
+        - consumerKey
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        consumerKey:
+          type: string
+    DraftRankings:
+      type: object
+      required:
+        - draftYear
+        - categoryId
+        - categoryKey
+        - draftYears
+        - categories
+        - rankings
+      properties:
+        draftYear:
+          type: number
+          description: Draft year in YYYY format.
+        categoryId:
+          type: number
+        categoryKey:
+          type: string
+        draftYears:
+          type: array
+          items:
+            type: number
+        categories:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DraftRankingCategory'
+        rankings:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DraftProspect'
+    DraftTracker:
+      type: object
+      required:
+        - currentDraftDate
+        - broadcastStartTimeUTC
+        - tvBroadcasts
+        - logoUrl
+        - logoFrUrl
+        - uiAccentColor
+        - round
+        - state
+        - picks
+      properties:
+        currentDraftDate:
+          type: string
+        broadcastStartTimeUTC:
+          type: string
+        tvBroadcasts:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DraftTrackerTvBroadcast'
+        logoUrl:
+          type: string
+        logoFrUrl:
+          type: string
+        uiAccentColor:
+          type: string
+        round:
+          type: number
+        state:
+          type: string
+        picks:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DraftTrackerPick'
+    DraftTrackerPick:
+      type: object
+      required:
+        - pickInRound
+        - overallPick
+        - teamId
+        - teamAbbrev
+        - teamFullName
+        - teamCommonName
+        - teamPlaceNameWithPreposition
+        - teamLogoLight
+        - teamLogoDark
+        - state
+        - lastName
+        - firstName
+        - positionCode
+      properties:
+        pickInRound:
+          type: number
+        overallPick:
+          type: number
+        teamId:
+          type: number
+        teamAbbrev:
+          type: string
+        teamFullName:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamCommonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamPlaceNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamLogoLight:
+          type: string
+        teamLogoDark:
+          type: string
+        state:
+          type: string
+        lastName:
+          '$ref': '#/components/schemas/LocalizedString'
+        firstName:
+          '$ref': '#/components/schemas/LocalizedString'
+        positionCode:
+          type: string
+          description: 'Known values: C, LW, RW, D, G. Others may appear.'
+    DraftTrackerTvBroadcast:
+      type: object
+      required:
+        - id
+        - market
+        - countryCode
+        - network
+        - sequenceNumber
+      properties:
+        id:
+          type: number
+        market:
+          type: string
+        countryCode:
+          type: string
+        network:
+          type: string
+        sequenceNumber:
+          type: number
     DraftYear:
       type: object
       required:
@@ -12052,6 +12329,24 @@ components:
             type: array
             items:
               '$ref': '#/components/schemas/PostalLookupTeam'
+    DraftRankings:
+      description: Central Scouting rankings for one prospect category.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/DraftRankings'
+    DraftTracker:
+      description: Live draft tracker for the current draft.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/DraftTracker'
+    DraftPicks:
+      description: 'Picks of a draft, for one round or every round.'
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/DraftPicks'
     PlayerSpotlight:
       description: Players featured in the nhl.com spotlight.
       content:
@@ -12703,6 +12998,76 @@ paths:
           schema: { type: string, example: '90210' }
       responses:
         '200': { $ref: '#/components/responses/PostalLookup' }
+
+  # ---------------------------------------------------------------- draft
+  # Draft paths take the draft year as YYYY, not YYYYYYYY.
+  /draft/rankings/now:
+    get:
+      tags: [draft]
+      operationId: draftRankingsNow
+      x-sdk-method: [draft.rankings]
+      summary: Central Scouting rankings of North American skaters for the current draft. Answers 200 directly (no redirect).
+      responses:
+        '200': { $ref: '#/components/responses/DraftRankings' }
+  /draft/rankings/{season}/{category}:
+    get:
+      tags: [draft]
+      operationId: draftRankings
+      x-sdk-method: [draft.rankings]
+      summary: Central Scouting rankings for one prospect category. There is no season-only route.
+      parameters:
+        - name: season
+          in: path
+          required: true
+          description: Draft year in YYYY format.
+          schema: { type: integer, example: 2023 }
+        - name: category
+          in: path
+          required: true
+          description: 1 = North American skater, 2 = international skater, 3 = North American goalie, 4 = international goalie.
+          schema: { type: integer, enum: [1, 2, 3, 4] }
+      responses:
+        '200': { $ref: '#/components/responses/DraftRankings' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /draft-tracker/picks/now:
+    get:
+      tags: [draft]
+      operationId: draftTracker
+      x-sdk-method: [draft.tracker]
+      summary: Live draft tracker for the current draft. Redirects to `draft-tracker/picks/{YYYY}`.
+      responses:
+        '200': { $ref: '#/components/responses/DraftTracker' }
+        '307': { $ref: '#/components/responses/Redirect' }
+  /draft/picks/now:
+    get:
+      tags: [draft]
+      operationId: draftPicksNow
+      x-sdk-method: [draft.picks]
+      summary: Picks of the current draft. Redirects to round **1** (`draft/picks/{YYYY}/1`), not `all`.
+      responses:
+        '200': { $ref: '#/components/responses/DraftPicks' }
+        '307': { $ref: '#/components/responses/Redirect' }
+  /draft/picks/{season}/{round}:
+    get:
+      tags: [draft]
+      operationId: draftPicks
+      x-sdk-method: [draft.picks]
+      summary: Picks of a draft, for one round or every round. There is no season-only route.
+      parameters:
+        - name: season
+          in: path
+          required: true
+          description: Draft year in YYYY format.
+          schema: { type: integer, example: 2023 }
+        - name: round
+          in: path
+          required: true
+          description: Round 1-7, or `all`.
+          schema: { type: string, enum: ['1', '2', '3', '4', '5', '6', '7', all] }
+      responses:
+        '200': { $ref: '#/components/responses/DraftPicks' }
+        '307': { $ref: '#/components/responses/Redirect' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   # ---------------------------------------------------------------- players / stats (web)
   /prospects/{teamAbbr}:

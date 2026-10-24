@@ -28,6 +28,7 @@ describe('NHLClient', () => {
       'helpers',
       'players',
       'edge',
+      'draft',
     ] as const) {
       assert.ok(client[key]);
       for (const fn of Object.values(client[key])) {

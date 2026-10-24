@@ -1,4 +1,5 @@
 export type * from '#src/types/common.mjs';
+export type * from '#src/types/draft.mjs';
 export type * from '#src/types/edge.mjs';
 export type * from '#src/types/game-center.mjs';
 export type * from '#src/types/helpers.mjs';
