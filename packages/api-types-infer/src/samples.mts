@@ -116,7 +116,9 @@ export async function buildSamples(): Promise<Sample[]> {
     goalieReportData: Record<string, unknown>;
     teamReportData: Record<string, unknown>;
   };
+
   const samples: Sample[] = [];
+
   function add(
     endpoint: string,
     tags: Record<string, string>,
@@ -127,27 +129,32 @@ export async function buildSamples(): Promise<Sample[]> {
 
   // ----- game center -----
   for (const [kind, gameId] of Object.entries(games)) {
-    add('gameCenter.boxscore', { game: kind }, (c) =>
-      c.gameCenter.boxscore({ gameId }),
+    add('gameCenter.boxscore', { game: kind }, (client) =>
+      client.gameCenter.boxscore({ gameId }),
     );
-    add('gameCenter.playByPlay', { game: kind }, (c) =>
-      c.gameCenter.playByPlay({ gameId }),
+    add('gameCenter.playByPlay', { game: kind }, (client) =>
+      client.gameCenter.playByPlay({ gameId }),
     );
-    add('gameCenter.matchUp', { game: kind }, (c) =>
-      c.gameCenter.matchUp({ gameId }),
+    add('gameCenter.matchUp', { game: kind }, (client) =>
+      client.gameCenter.matchUp({ gameId }),
     );
-    add('gameCenter.seasonSeriesMatchup', { game: kind }, (c) =>
-      c.gameCenter.seasonSeriesMatchup({ gameId }),
+    add('gameCenter.seasonSeriesMatchup', { game: kind }, (client) =>
+      client.gameCenter.seasonSeriesMatchup({ gameId }),
     );
-    add('gameCenter.gameStory', { game: kind }, (c) =>
-      c.gameCenter.gameStory({ gameId }),
+    add('gameCenter.gameStory', { game: kind }, (client) =>
+      client.gameCenter.gameStory({ gameId }),
     );
-    add('gameCenter.shiftChartData', { game: kind, excludes: 'default' }, (c) =>
-      c.gameCenter.shiftChartData({ gameId }),
+    add(
+      'gameCenter.shiftChartData',
+      { game: kind, excludes: 'default' },
+      (client) => client.gameCenter.shiftChartData({ gameId }),
     );
   }
-  add('gameCenter.shiftChartData', { game: 'regular', excludes: 'none' }, (c) =>
-    c.gameCenter.shiftChartData({ gameId: games.regular, excludes: [] }),
+  add(
+    'gameCenter.shiftChartData',
+    { game: 'regular', excludes: 'none' },
+    (client) =>
+      client.gameCenter.shiftChartData({ gameId: games.regular, excludes: [] }),
   );
   for (const [kind, date] of [
     ['now', undefined],
@@ -156,8 +163,8 @@ export async function buildSamples(): Promise<Sample[]> {
     ['playoff', '2024-05-01'],
     ['allstar', '2024-02-03'],
   ] as const) {
-    add('gameCenter.dailyScores', { date: kind }, (c) =>
-      c.gameCenter.dailyScores({ date }),
+    add('gameCenter.dailyScores', { date: kind }, (client) =>
+      client.gameCenter.dailyScores({ date }),
     );
   }
 
@@ -169,35 +176,54 @@ export async function buildSamples(): Promise<Sample[]> {
     ['allstar', '2024-02-03'],
     ['now', undefined],
   ] as const) {
-    add('schedule.weeklySchedule', { date: kind }, (c) =>
-      c.schedule.weeklySchedule({ date }),
+    add('schedule.weeklySchedule', { date: kind }, (client) =>
+      client.schedule.weeklySchedule({ date }),
     );
-    add('schedule.calendarSchedule', { date: kind }, (c) =>
-      c.schedule.calendarSchedule({ date: date ?? 'now' }),
+    add('schedule.calendarSchedule', { date: kind }, (client) =>
+      client.schedule.calendarSchedule({ date: date ?? 'now' }),
     );
   }
-  add('schedule.dailySchedule', { date: 'regular' }, (c) =>
-    c.schedule.dailySchedule({ date: '2023-10-15' }),
+  add('schedule.dailySchedule', { date: 'regular' }, (client) =>
+    client.schedule.dailySchedule({ date: '2023-10-15' }),
   );
-  add('schedule.dailySchedule', { date: 'offseason' }, (c) =>
-    c.schedule.dailySchedule({ date: '2024-08-01' }),
+  add('schedule.dailySchedule', { date: 'offseason' }, (client) =>
+    client.schedule.dailySchedule({ date: '2024-08-01' }),
   );
   for (const teamAbbr of ['BUF', 'TOR', 'UTA']) {
-    add('schedule.teamMonthlySchedule', { team: teamAbbr, month: 'now' }, (c) =>
-      c.schedule.teamMonthlySchedule({ teamAbbr }),
+    add(
+      'schedule.teamMonthlySchedule',
+      { team: teamAbbr, month: 'now' },
+      (client) => client.schedule.teamMonthlySchedule({ teamAbbr }),
     );
-    add('schedule.teamWeeklySchedule', { team: teamAbbr, week: 'now' }, (c) =>
-      c.schedule.teamWeeklySchedule({ teamAbbr }),
+    add(
+      'schedule.teamWeeklySchedule',
+      { team: teamAbbr, week: 'now' },
+      (client) => client.schedule.teamWeeklySchedule({ teamAbbr }),
     );
-    add('schedule.teamSeasonSchedule', { team: teamAbbr, season: 'now' }, (c) =>
-      c.schedule.teamSeasonSchedule({ teamAbbr, season: 'now' }),
+    add(
+      'schedule.teamSeasonSchedule',
+      { team: teamAbbr, season: 'now' },
+      (client) =>
+        client.schedule.teamSeasonSchedule({ teamAbbr, season: 'now' }),
     );
   }
-  add('schedule.teamMonthlySchedule', { team: 'BUF', month: '2023-11' }, (c) =>
-    c.schedule.teamMonthlySchedule({ teamAbbr: 'BUF', month: '2023-11' }),
+  add(
+    'schedule.teamMonthlySchedule',
+    { team: 'BUF', month: '2023-11' },
+    (client) =>
+      client.schedule.teamMonthlySchedule({
+        teamAbbr: 'BUF',
+        month: '2023-11',
+      }),
   );
-  add('schedule.teamWeeklySchedule', { team: 'BUF', week: '2024-02-10' }, (c) =>
-    c.schedule.teamWeeklySchedule({ teamAbbr: 'BUF', date: '2024-02-10' }),
+  add(
+    'schedule.teamWeeklySchedule',
+    { team: 'BUF', week: '2024-02-10' },
+    (client) =>
+      client.schedule.teamWeeklySchedule({
+        teamAbbr: 'BUF',
+        date: '2024-02-10',
+      }),
   );
   for (const [team, season] of [
     ['BUF', '20232024'],
@@ -205,24 +231,31 @@ export async function buildSamples(): Promise<Sample[]> {
     ['SEA', '20232024'],
     ['BUF', '19992000'],
   ]) {
-    add('schedule.teamSeasonSchedule', { team, season }, (c) =>
-      c.schedule.teamSeasonSchedule({ teamAbbr: team, season }),
+    add('schedule.teamSeasonSchedule', { team, season }, (client) =>
+      client.schedule.teamSeasonSchedule({ teamAbbr: team, season }),
     );
   }
-  add('schedule.playoffCarousel', { season: '20232024' }, (c) =>
-    c.schedule.playoffCarousel({ season: '20232024' }),
+
+  add('schedule.playoffCarousel', { season: '20232024' }, (client) =>
+    client.schedule.playoffCarousel({ season: '20232024' }),
   );
-  add('schedule.playoffCarousel', { season: '20052006' }, (c) =>
-    c.schedule.playoffCarousel({ season: '20052006' }),
+
+  add('schedule.playoffCarousel', { season: '20052006' }, (client) =>
+    client.schedule.playoffCarousel({ season: '20052006' }),
   );
+
   for (const series of ['a', 'h', 'm', 'o']) {
-    add('schedule.playoffSeriesSchedule', { season: '20232024', series }, (c) =>
-      c.schedule.playoffSeriesSchedule({ season: '20232024', series }),
+    add(
+      'schedule.playoffSeriesSchedule',
+      { season: '20232024', series },
+      (client) =>
+        client.schedule.playoffSeriesSchedule({ season: '20232024', series }),
     );
   }
+
   for (const year of [2024, 2023, 2015]) {
-    add('schedule.playoffBracket', { year: String(year) }, (c) =>
-      c.schedule.playoffBracket({ year }),
+    add('schedule.playoffBracket', { year: String(year) }, (client) =>
+      client.schedule.playoffBracket({ year }),
     );
   }
 
@@ -235,19 +268,22 @@ export async function buildSamples(): Promise<Sample[]> {
     ['ARI', '20232024'],
     ['BUF', '19992000'],
   ]) {
-    add('teams.teamRoster', { team, season }, (c) =>
-      c.teams.teamRoster({ teamAbbr: team, season }),
+    add('teams.teamRoster', { team, season }, (client) =>
+      client.teams.teamRoster({ teamAbbr: team, season }),
     );
-    add('players.playersByTeam', { team, season }, (c) =>
-      c.players.playersByTeam({ teamAbbr: team, season }),
+    add('players.playersByTeam', { team, season }, (client) =>
+      client.players.playersByTeam({ teamAbbr: team, season }),
     );
   }
-  add('teams.franchises', {}, (c) => c.teams.franchises());
+
+  add('teams.franchises', {}, (client) => client.teams.franchises());
+
   for (const teamAbbr of ['BUF', 'TOR', 'UTA', 'SEA', 'ARI']) {
-    add('players.prospectsByTeam', { team: teamAbbr }, (c) =>
-      c.players.prospectsByTeam({ teamAbbr }),
+    add('players.prospectsByTeam', { team: teamAbbr }, (client) =>
+      client.players.prospectsByTeam({ teamAbbr }),
     );
   }
+
   for (const [kind, params] of [
     ['now', {}],
     ['modern', { date: '2023-12-01' }],
@@ -255,25 +291,30 @@ export async function buildSamples(): Promise<Sample[]> {
     ['season', { season: '20222023' }],
     ['season-2005', { season: '20052006' }],
   ] as const) {
-    add('standings.leagueStandings', { variant: kind }, (c) =>
-      c.standings.leagueStandings(params),
+    add('standings.leagueStandings', { variant: kind }, (client) =>
+      client.standings.leagueStandings(params),
     );
   }
-  add('standings.seasonStandingManifest', {}, (c) =>
-    c.standings.seasonStandingManifest(),
+
+  add('standings.seasonStandingManifest', {}, (client) =>
+    client.standings.seasonStandingManifest(),
   );
-  add('misc.glossary', {}, (c) => c.misc.glossary());
-  add('misc.config', {}, (c) => c.misc.config());
-  add('misc.countries', {}, (c) => c.misc.countries());
-  add('misc.seasonSpecificRulesAndInfo', {}, (c) =>
-    c.misc.seasonSpecificRulesAndInfo(),
+  add('misc.glossary', {}, (client) => client.misc.glossary());
+  add('misc.config', {}, (client) => client.misc.config());
+  add('misc.countries', {}, (client) => client.misc.countries());
+  add('misc.seasonSpecificRulesAndInfo', {}, (client) =>
+    client.misc.seasonSpecificRulesAndInfo(),
   );
-  add('misc.draftYearAndRounds', {}, (c) => c.misc.draftYearAndRounds());
+  add('misc.draftYearAndRounds', {}, (client) =>
+    client.misc.draftYearAndRounds(),
+  );
 
   // ----- stats -----
   for (const teamAbbr of ['BUF', 'TOR', 'UTA']) {
-    add('stats.gametypesPerSeasonDirectoryByTeam', { team: teamAbbr }, (c) =>
-      c.stats.gametypesPerSeasonDirectoryByTeam({ teamAbbr }),
+    add(
+      'stats.gametypesPerSeasonDirectoryByTeam',
+      { team: teamAbbr },
+      (client) => client.stats.gametypesPerSeasonDirectoryByTeam({ teamAbbr }),
     );
   }
 
@@ -283,15 +324,20 @@ export async function buildSamples(): Promise<Sample[]> {
     ['veteran', VETERAN],
     ['retired', RETIRED],
   ] as const) {
-    add('stats.playerCareerStats', { player: kind }, (c) =>
-      c.stats.playerCareerStats({ playerId }),
+    add('stats.playerCareerStats', { player: kind }, (client) =>
+      client.stats.playerCareerStats({ playerId }),
     );
+
     for (const gameType of [1, 2, 3]) {
       add(
         'stats.playerGameLog',
         { player: kind, gameType: String(gameType) },
-        (c) =>
-          c.stats.playerGameLog({ playerId, seasonId: '20232024', gameType }),
+        (client) =>
+          client.stats.playerGameLog({
+            playerId,
+            seasonId: '20232024',
+            gameType,
+          }),
       );
     }
   }
@@ -301,8 +347,8 @@ export async function buildSamples(): Promise<Sample[]> {
       add(
         'stats.teamSummary',
         { isGame: String(isGame), aggregate: String(isAggregate) },
-        (c) =>
-          c.stats.teamSummary({
+        (client) =>
+          client.stats.teamSummary({
             startSeason: '20232024',
             endSeason: '20232024',
             isGame,
@@ -314,13 +360,16 @@ export async function buildSamples(): Promise<Sample[]> {
   }
 
   for (const aggregate of [false, true]) {
-    add('stats.skaterStatsSummary', { aggregate: String(aggregate) }, (c) =>
-      c.stats.skaterStatsSummary({
-        startSeason: '20222023',
-        endSeason: '20232024',
-        aggregate,
-        limit: 5,
-      }),
+    add(
+      'stats.skaterStatsSummary',
+      { aggregate: String(aggregate) },
+      (client) =>
+        client.stats.skaterStatsSummary({
+          startSeason: '20222023',
+          endSeason: '20232024',
+          aggregate,
+          limit: 5,
+        }),
     );
   }
 
@@ -329,8 +378,8 @@ export async function buildSamples(): Promise<Sample[]> {
       add(
         'stats.skaterStatsWithQueryContext',
         { reportType, aggregate: String(aggregate) },
-        async (c) =>
-          c.stats.skaterStatsWithQueryContext({
+        async (client) =>
+          client.stats.skaterStatsWithQueryContext({
             queryContext: {
               query:
                 'gameTypeId=2 and seasonId<=20232024 and seasonId>=20222023',
@@ -352,8 +401,8 @@ export async function buildSamples(): Promise<Sample[]> {
       add(
         'stats.goalieStatsSummary',
         { statsType, aggregate: String(aggregate) },
-        async (c) =>
-          c.stats.goalieStatsSummary({
+        async (client) =>
+          client.stats.goalieStatsSummary({
             startSeason: '20222023',
             endSeason: '20232024',
             statsType: statsType as keyof GoalieReportRows,
@@ -403,14 +452,14 @@ export async function buildSamples(): Promise<Sample[]> {
 
   for (const [variant, params] of Object.entries(seasonVariants)) {
     for (const method of skaterEdge) {
-      add(`edge.${method}`, { player: 'skater', variant }, (c) =>
-        c.edge[method]({ playerId: SKATER, ...params }),
+      add(`edge.${method}`, { player: 'skater', variant }, (client) =>
+        client.edge[method]({ playerId: SKATER, ...params }),
       );
     }
 
     for (const method of goalieEdge) {
-      add(`edge.${method}`, { player: 'goalie', variant }, (c) =>
-        c.edge[method]({ playerId: GOALIE, ...params }),
+      add(`edge.${method}`, { player: 'goalie', variant }, (client) =>
+        client.edge[method]({ playerId: GOALIE, ...params }),
       );
     }
 
@@ -419,17 +468,23 @@ export async function buildSamples(): Promise<Sample[]> {
       ['TOR', TOR_ID],
     ] as const) {
       for (const method of teamEdge) {
-        add(`edge.${method}`, { team, variant }, (c) =>
-          c.edge[method]({ teamId, ...params }),
+        add(`edge.${method}`, { team, variant }, (client) =>
+          client.edge[method]({ teamId, ...params }),
         );
       }
     }
   }
 
   for (const [variant, params] of Object.entries(seasonVariants)) {
-    add('edge.skaterLanding', { variant }, (c) => c.edge.skaterLanding(params));
-    add('edge.goalieLanding', { variant }, (c) => c.edge.goalieLanding(params));
-    add('edge.teamLanding', { variant }, (c) => c.edge.teamLanding(params));
+    add('edge.skaterLanding', { variant }, (client) =>
+      client.edge.skaterLanding(params),
+    );
+    add('edge.goalieLanding', { variant }, (client) =>
+      client.edge.goalieLanding(params),
+    );
+    add('edge.teamLanding', { variant }, (client) =>
+      client.edge.teamLanding(params),
+    );
   }
 
   return samples;
