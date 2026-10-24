@@ -125,6 +125,15 @@ response's category keys are optional since `categories` filters them out.
 | `location()` | misc | `location` | Geo-IP; answer depends on caller. Mention in JSDoc. |
 | `postalLookup({ postalCode })` | misc | `postal-lookup/{postalCode}` | |
 
+**Status: done (2026-10-24).** `scoreboard` and `teams.teamScoreboard` share
+`ScoreboardDate` / `ScoreboardGame` / `ScoreboardTeam` (the Phase 1
+`TeamScoreboardDate` / `Game` / `Team` were renamed). `meta` and `gameMeta`
+share `MetaTeam`. `playReplay` samples derive a goal and a shot `eventId` from
+the regular-season play-by-play. Canadian postal codes do return rows when the
+space is kept (`M5V 3L9`); `postalLookup` URL-encodes the code.
+`playoffSeriesMeta` returns `{ seriesTitle, teams: { topSeed, bottomSeed } }`,
+no season state. No validation was added to it or `playoffSeriesSchedule`.
+
 ## Phase 3: draft module (new)
 
 Create `src/api/draft.mts` exporting `draftApi`, wire `draft: bindModule(ctx, draftApi)`.
