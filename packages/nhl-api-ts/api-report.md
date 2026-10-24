@@ -292,8 +292,8 @@ export interface CalendarSchedule {
 }
 
 // @public
-function calendarSchedule(ctx: Context, input: {
-    date: string;
+function calendarSchedule(ctx: Context, input?: {
+    date?: string;
 }): Promise<CalendarSchedule>;
 
 // @public (undocumented)
@@ -601,11 +601,117 @@ export interface ClubScheduleGameAwayTeam {
 }
 
 // @public (undocumented)
+export interface ClubStats {
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    goalies: ClubStatsGoalie[];
+    season: string;
+    skaters: ClubStatsSkater[];
+}
+
+// @public
+function clubStats(ctx: Context, input: {
+    teamAbbr: string;
+    season?: Id;
+    gameType?: number;
+}): Promise<ClubStats>;
+
+// @public (undocumented)
+export interface ClubStatsGoalie {
+    // (undocumented)
+    assists: number;
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    gamesPlayed: number;
+    // (undocumented)
+    gamesStarted: number;
+    // (undocumented)
+    goals: number;
+    // (undocumented)
+    goalsAgainst: number;
+    // (undocumented)
+    goalsAgainstAverage: number;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    losses: number;
+    // (undocumented)
+    overtimeLosses?: number;
+    // (undocumented)
+    penaltyMinutes?: number;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    points: number;
+    // (undocumented)
+    savePercentage: number;
+    // (undocumented)
+    saves: number;
+    // (undocumented)
+    shotsAgainst: number;
+    // (undocumented)
+    shutouts: number;
+    ties?: number;
+    // (undocumented)
+    timeOnIce: number;
+    // (undocumented)
+    wins: number;
+}
+
+// @public (undocumented)
 export interface ClubStatsSeason {
     // (undocumented)
     gameTypes: GameType[];
     // (undocumented)
     season: number;
+}
+
+// @public (undocumented)
+export interface ClubStatsSkater {
+    // (undocumented)
+    assists: number;
+    // (undocumented)
+    avgShiftsPerGame: number;
+    // (undocumented)
+    avgTimeOnIcePerGame: number;
+    // (undocumented)
+    faceoffWinPctg: number;
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    gamesPlayed: number;
+    // (undocumented)
+    gameWinningGoals: number;
+    // (undocumented)
+    goals: number;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    overtimeGoals: number;
+    // (undocumented)
+    penaltyMinutes: number;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    plusMinus: number;
+    // (undocumented)
+    points: number;
+    // (undocumented)
+    positionCode: PositionCode;
+    // (undocumented)
+    powerPlayGoals: number;
+    // (undocumented)
+    shootingPctg: number;
+    // (undocumented)
+    shorthandedGoals: number;
+    // (undocumented)
+    shots: number;
 }
 
 // @public (undocumented)
@@ -669,6 +775,8 @@ export function createNHLClient(options?: ClientOptions): {
     readonly teams: Bound<{
         readonly teams: teams_2;
         readonly teamRoster: teamRoster;
+        readonly rosterSeasons: rosterSeasons;
+        readonly teamScoreboard: teamScoreboard;
         readonly franchises: franchises;
     }>;
     readonly standings: Bound<{
@@ -704,9 +812,16 @@ export function createNHLClient(options?: ClientOptions): {
         }) => Promise<PlayerLanding>;
         readonly playerGameLog: (args_0: {
             playerId: Id;
-            seasonId: Id;
-            gameType: number;
+            seasonId?: Id;
+            gameType?: number;
         }) => Promise<GameLogEntry[]>;
+        readonly skaterStatsLeaders: (params?: StatsLeadersParams<OpenUnion<SkaterLeaderCategory>> | undefined) => Promise<SkaterStatsLeaders>;
+        readonly goalieStatsLeaders: (params?: StatsLeadersParams<OpenUnion<GoalieLeaderCategory>> | undefined) => Promise<GoalieStatsLeaders>;
+        readonly clubStats: (args_0: {
+            teamAbbr: string;
+            season?: Id;
+            gameType?: number;
+        }) => Promise<ClubStats>;
         readonly teamSummary: (args_0: TeamSummaryParams) => Promise<TeamSummaryRow[]>;
         readonly skaterStatsSummary: (args_0: SkaterStatsSummaryParams) => Promise<SkaterSummaryRow[]>;
         readonly skaterStatsWithQueryContext: <Report extends keyof SkaterReportRows>(args_0: SkaterStatsWithQueryContextParams<Report>) => Promise<StatsApiPage<SkaterReportRows[Report]>>;
@@ -727,6 +842,7 @@ export function createNHLClient(options?: ClientOptions): {
     readonly players: Bound<{
         readonly prospectsByTeam: prospectsByTeam;
         readonly playersByTeam: playersByTeam;
+        readonly playerSpotlight: playerSpotlight;
     }>;
     readonly edge: Bound<{
         readonly skaterDetail: skaterDetail;
@@ -2383,6 +2499,9 @@ export interface GoalieLeader {
     sweaterNumber: number;
 }
 
+// @public
+export type GoalieLeaderCategory = 'wins' | 'shutouts' | 'savePctg' | 'goalsAgainstAverage';
+
 // @public (undocumented)
 export interface GoalieLocationArea {
     // (undocumented)
@@ -2739,6 +2858,21 @@ export interface GoalieStartedVsRelievedRow {
     // (undocumented)
     wins: number;
 }
+
+// @public
+export interface GoalieStatsLeaders {
+    // (undocumented)
+    goalsAgainstAverage?: StatsLeader[];
+    // (undocumented)
+    savePctg?: StatsLeader[];
+    // (undocumented)
+    shutouts?: StatsLeader[];
+    // (undocumented)
+    wins?: StatsLeader[];
+}
+
+// @public
+function goalieStatsLeaders(ctx: Context, params?: StatsLeadersParams<OpenUnion<GoalieLeaderCategory>>): Promise<GoalieStatsLeaders>;
 
 // @public
 export function goalieStatsSorts(report: string): SortExpr[];
@@ -3550,8 +3684,8 @@ function playerCareerStats(ctx: Context, input: {
 // @public
 function playerGameLog(ctx: Context, input: {
     playerId: Id;
-    seasonId: Id;
-    gameType: number;
+    seasonId?: Id;
+    gameType?: number;
 }): Promise<GameLogEntry[]>;
 
 // @public (undocumented)
@@ -3789,6 +3923,7 @@ declare namespace players {
     export {
         prospectsByTeam,
         playersByTeam,
+        playerSpotlight,
         playersApi
     }
 }
@@ -3797,13 +3932,41 @@ declare namespace players {
 const playersApi: {
     readonly prospectsByTeam: typeof prospectsByTeam;
     readonly playersByTeam: typeof playersByTeam;
+    readonly playerSpotlight: typeof playerSpotlight;
 };
 
 // @public
 function playersByTeam(ctx: Context, input: {
     teamAbbr: string;
-    season: Id;
+    season?: Id;
 }): Promise<Roster>;
+
+// @public (undocumented)
+export interface PlayerSpotlight {
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    playerSlug: string;
+    // (undocumented)
+    position: PositionCode;
+    // (undocumented)
+    sortId: number;
+    // (undocumented)
+    sweaterNumber: number;
+    // (undocumented)
+    teamId: number;
+    // (undocumented)
+    teamLogo: string;
+    // (undocumented)
+    teamTriCode: string;
+}
+
+// @public
+function playerSpotlight(ctx: Context): Promise<PlayerSpotlight[]>;
 
 // @public
 export interface PlayerSummaryStatistics extends SkaterSummaryRow, Partial<Omit<AllPlayersEntry, keyof SkaterSummaryRow>> {
@@ -4531,6 +4694,11 @@ export interface RosterPlayer {
     // (undocumented)
     weightInPounds: number;
 }
+
+// @public
+function rosterSeasons(ctx: Context, input: {
+    teamAbbr: string;
+}): Promise<SeasonId[]>;
 
 // @public (undocumented)
 export interface SavePctg5v5Leader {
@@ -5830,6 +5998,9 @@ export interface SkaterLandingLeaders {
     totalDistanceSkated: TotalDistanceLeader;
 }
 
+// @public
+export type SkaterLeaderCategory = 'goals' | 'assists' | 'points' | 'plusMinus' | 'penaltyMins' | 'goalsPp' | 'goalsSh' | 'faceoffLeaders' | 'toi';
+
 // @public (undocumented)
 export interface SkaterPenaltiesRow {
     // (undocumented)
@@ -6556,6 +6727,30 @@ export interface SkaterSpeedBreakdown {
 }
 
 // @public
+export interface SkaterStatsLeaders {
+    // (undocumented)
+    assists?: StatsLeader[];
+    // (undocumented)
+    faceoffLeaders?: StatsLeader[];
+    // (undocumented)
+    goals?: StatsLeader[];
+    // (undocumented)
+    goalsPp?: StatsLeader[];
+    // (undocumented)
+    goalsSh?: StatsLeader[];
+    // (undocumented)
+    penaltyMins?: StatsLeader[];
+    // (undocumented)
+    plusMinus?: StatsLeader[];
+    // (undocumented)
+    points?: StatsLeader[];
+    toi?: StatsLeader[];
+}
+
+// @public
+function skaterStatsLeaders(ctx: Context, params?: StatsLeadersParams<OpenUnion<SkaterLeaderCategory>>): Promise<SkaterStatsLeaders>;
+
+// @public
 function skaterStatsSummary(ctx: Context, input: SkaterStatsSummaryParams): Promise<SkaterReportRows['summary'][]>;
 
 // @public (undocumented)
@@ -7114,6 +7309,9 @@ declare namespace stats {
         gametypesPerSeasonDirectoryByTeam,
         playerCareerStats,
         playerGameLog,
+        skaterStatsLeaders,
+        goalieStatsLeaders,
+        clubStats,
         teamSummary,
         skaterStatsSummary,
         skaterStatsWithQueryContext,
@@ -7122,6 +7320,7 @@ declare namespace stats {
         SkaterStatsSummaryParams,
         SkaterStatsWithQueryContextParams,
         GoalieStatsSummaryParams,
+        StatsLeadersParams,
         statsApi
     }
 }
@@ -7131,6 +7330,9 @@ const statsApi: {
     readonly gametypesPerSeasonDirectoryByTeam: typeof gametypesPerSeasonDirectoryByTeam;
     readonly playerCareerStats: typeof playerCareerStats;
     readonly playerGameLog: typeof playerGameLog;
+    readonly skaterStatsLeaders: typeof skaterStatsLeaders;
+    readonly goalieStatsLeaders: typeof goalieStatsLeaders;
+    readonly clubStats: typeof clubStats;
     readonly teamSummary: typeof teamSummary;
     readonly skaterStatsSummary: typeof skaterStatsSummary;
     readonly skaterStatsWithQueryContext: typeof skaterStatsWithQueryContext;
@@ -7157,6 +7359,37 @@ export interface StatsConfig {
     playerReportData: Record<string, ReportConfig>;
     // (undocumented)
     teamReportData: Record<string, ReportConfig>;
+}
+
+// @public
+export interface StatsLeader {
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    position: PositionCode;
+    sweaterNumber?: number;
+    // (undocumented)
+    teamAbbrev: string;
+    // (undocumented)
+    teamLogo: string;
+    // (undocumented)
+    teamName: LocalizedString;
+    // (undocumented)
+    value: number;
+}
+
+// @public (undocumented)
+export interface StatsLeadersParams<Category extends string> {
+    categories?: readonly Category[];
+    gameType?: number;
+    limit?: number;
+    season?: Id;
 }
 
 // @public (undocumented)
@@ -7678,7 +7911,7 @@ export interface TeamOffensiveZoneTimeLeader {
 // @public
 function teamRoster(ctx: Context, input: {
     teamAbbr: string;
-    season: Id;
+    season?: Id;
 }): Promise<Roster>;
 
 declare namespace teams {
@@ -7687,6 +7920,8 @@ declare namespace teams {
         withFranchiseIds,
         teams_2 as teams,
         teamRoster,
+        rosterSeasons,
+        teamScoreboard,
         franchises,
         Team,
         teamsApi
@@ -7702,8 +7937,95 @@ function teams_2(ctx: Context, input?: {
 const teamsApi: {
     readonly teams: typeof teams_2;
     readonly teamRoster: typeof teamRoster;
+    readonly rosterSeasons: typeof rosterSeasons;
+    readonly teamScoreboard: typeof teamScoreboard;
     readonly franchises: typeof franchises;
 };
+
+// @public (undocumented)
+export interface TeamScoreboard {
+    // (undocumented)
+    clubScheduleLink: string;
+    // (undocumented)
+    clubTimeZone: string;
+    // (undocumented)
+    clubUTCOffset: string;
+    // (undocumented)
+    focusedDate: string;
+    // (undocumented)
+    focusedDateCount: number;
+    // (undocumented)
+    gamesByDate: TeamScoreboardDate[];
+}
+
+// @public
+function teamScoreboard(ctx: Context, input: {
+    teamAbbr: string;
+}): Promise<TeamScoreboard>;
+
+// @public (undocumented)
+export interface TeamScoreboardDate {
+    // (undocumented)
+    date: string;
+    // (undocumented)
+    games: TeamScoreboardGame[];
+}
+
+// @public (undocumented)
+export interface TeamScoreboardGame {
+    // (undocumented)
+    awayTeam: TeamScoreboardTeam;
+    // (undocumented)
+    easternUTCOffset: string;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    gameScheduleState: GameScheduleState;
+    // (undocumented)
+    gameState: GameState;
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    homeTeam: TeamScoreboardTeam;
+    // (undocumented)
+    id: number;
+    period?: number;
+    periodDescriptor?: PeriodDescriptor;
+    // (undocumented)
+    season: number;
+    // (undocumented)
+    startTimeUTC: string;
+    threeMinRecap?: string;
+    threeMinRecapFr?: string;
+    ticketsLink?: string;
+    ticketsLinkFr?: string;
+    // (undocumented)
+    tvBroadcasts: DailyScoresTvBroadcast[];
+    // (undocumented)
+    venue: LocalizedString;
+    // (undocumented)
+    venueUTCOffset: string;
+}
+
+// @public (undocumented)
+export interface TeamScoreboardTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    logo: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+    record?: string;
+    score?: number;
+}
 
 // @public (undocumented)
 export interface TeamSeasonSchedule {
@@ -7723,7 +8045,7 @@ export interface TeamSeasonSchedule {
 // @public
 function teamSeasonSchedule(ctx: Context, input: {
     teamAbbr: string;
-    season: Id;
+    season?: Id;
 }): Promise<TeamSeasonSchedule>;
 
 // @public (undocumented)

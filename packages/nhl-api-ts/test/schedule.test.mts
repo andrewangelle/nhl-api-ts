@@ -126,9 +126,19 @@ describe('Schedule', () => {
       'club-schedule-season/BUF/20202021',
     ],
     [
+      'teamSeasonSchedule (now)',
+      (client) => client.schedule.teamSeasonSchedule({ teamAbbr: 'BUF' }),
+      'club-schedule-season/BUF/now',
+    ],
+    [
       'calendarSchedule',
       (client) => client.schedule.calendarSchedule({ date: '2023-11-08' }),
       'schedule-calendar/2023-11-08',
+    ],
+    [
+      'calendarSchedule (now)',
+      (client) => client.schedule.calendarSchedule(),
+      'schedule-calendar/now',
     ],
     [
       'playoffCarousel',

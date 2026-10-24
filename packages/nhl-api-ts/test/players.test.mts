@@ -32,6 +32,23 @@ describe('Players', () => {
     assert.deepEqual(result, { roster: [{ name: 'Test Player' }] });
   });
 
+  it('playersByTeam defaults to current', async () => {
+    const fetchSpy = mockFetch();
+    await newClient().players.playersByTeam({ teamAbbr: 'BUF' });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/roster/BUF/current',
+    ]);
+  });
+
+  it('playerSpotlight', async () => {
+    const fetchSpy = mockFetch(() => ({ body: [{ playerId: 1 }] }));
+    const result = await newClient().players.playerSpotlight();
+    assert.deepEqual(result, [{ playerId: 1 }]);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/player-spotlight',
+    ]);
+  });
+
   it('playersByTeam matches teams.teamRoster', async () => {
     const body = { roster: [{ name: 'Test Player', position: 'C' }] };
     const fetchSpy = mockFetch(() => ({ body }));

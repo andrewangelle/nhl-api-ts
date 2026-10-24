@@ -12,15 +12,36 @@ import {
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
 import type {
+  ClubStats,
   ClubStatsSeason,
   GameLogEntry,
+  GoalieLeaderCategory,
   GoalieReportRows,
+  GoalieStatsLeaders,
+  OpenUnion,
   PlayerLanding,
+  SkaterLeaderCategory,
   SkaterReportRows,
+  SkaterStatsLeaders,
   StatsApiPage,
   TeamSummaryRow,
 } from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
+
+/**
+ * "<season>/<gameType>", or the API's current-season segment when no season is
+ * given. Most endpoints take `now`; the stats-leaders ones only take `current`.
+ */
+function seasonGameTypeSegments(
+  season: Id | undefined,
+  gameType: number,
+  current: 'now' | 'current',
+): string {
+  if (season === undefined || season === null) {
+    return current;
+  }
+  return `${season}/${gameType}`;
+}
 
 /** Skater reports whose rows have no `gamesPlayed`, so the API rejects the default fact filter. */
 const REPORTS_WITHOUT_GAMES_PLAYED: readonly string[] = [
@@ -139,11 +160,11 @@ export async function playerCareerStats(
 }
 
 /**
- * Gets a player's game log for a specific season and game type.
+ * Gets a player's game log for a season and game type.
  *
  * @param params.playerId NHL player id, e.g. 8481528
- * @param params.seasonId Season in YYYYYYYY format, e.g. 20232024
- * @param params.gameType 1=Preseason, 2=Regular season, 3=Playoffs
+ * @param params.seasonId Season in YYYYYYYY format, e.g. 20232024. Defaults to the current season ("now").
+ * @param params.gameType 1=Preseason, 2=Regular season (default), 3=Playoffs. Ignored when `seasonId` is omitted.
  * @example https://api-web.nhle.com/v1/player/8481528/game-log/20232024/2
  */
 export async function playerGameLog(
@@ -151,16 +172,109 @@ export async function playerGameLog(
   {
     playerId,
     seasonId,
-    gameType,
-  }: { playerId: Id; seasonId: Id; gameType: number },
+    gameType = 2,
+  }: { playerId: Id; seasonId?: Id; gameType?: number },
 ): Promise<GameLogEntry[]> {
   const data = await (
     await ctx.get(
       Endpoint.API_WEB_V1,
-      `player/${playerId}/game-log/${seasonId}/${gameType}`,
+      `player/${playerId}/game-log/${seasonGameTypeSegments(seasonId, gameType, 'now')}`,
     )
   ).json();
   return data.gameLog ?? [];
+}
+
+export interface StatsLeadersParams<Category extends string> {
+  /** Season in YYYYYYYY format, e.g. 20232024. Defaults to the current season ("current"). */
+  season?: Id;
+  /** 2=Regular season (default), 3=Playoffs. Ignored when `season` is omitted. */
+  gameType?: number;
+  /** Categories to include. Defaults to every category. An unknown category is a 400. */
+  categories?: readonly Category[];
+  /** Rows per category. The API defaults to 5; -1 returns every player. */
+  limit?: number;
+}
+
+function statsLeadersQuery({
+  categories,
+  limit,
+}: StatsLeadersParams<string>): Record<string, string | number> {
+  const query: Record<string, string | number> = {};
+  if (categories && categories.length > 0) {
+    query.categories = categories.join(',');
+  }
+  if (limit !== undefined) {
+    query.limit = limit;
+  }
+  return query;
+}
+
+/**
+ * Gets the skater stats leaders for a season, keyed by category.
+ *
+ * @param params.season Season in YYYYYYYY format. Defaults to the current season.
+ * @param params.gameType 2=Regular season (default), 3=Playoffs. Ignored when `season` is omitted.
+ * @param params.categories Categories to include, e.g. ['goals', 'points']. Defaults to all.
+ * @param params.limit Rows per category. The API defaults to 5; -1 returns every player.
+ * @example https://api-web.nhle.com/v1/skater-stats-leaders/20232024/2?categories=goals,points&limit=10
+ */
+export async function skaterStatsLeaders(
+  ctx: Context,
+  params: StatsLeadersParams<OpenUnion<SkaterLeaderCategory>> = {},
+): Promise<SkaterStatsLeaders> {
+  return (
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `skater-stats-leaders/${seasonGameTypeSegments(params.season, params.gameType ?? 2, 'current')}`,
+      statsLeadersQuery(params),
+    )
+  ).json();
+}
+
+/**
+ * Gets the goalie stats leaders for a season, keyed by category.
+ *
+ * @param params.season Season in YYYYYYYY format. Defaults to the current season.
+ * @param params.gameType 2=Regular season (default), 3=Playoffs. Ignored when `season` is omitted.
+ * @param params.categories Categories to include, e.g. ['wins', 'savePctg']. Defaults to all.
+ * @param params.limit Rows per category. The API defaults to 5; -1 returns every goalie.
+ * @example https://api-web.nhle.com/v1/goalie-stats-leaders/20232024/2?categories=wins&limit=10
+ */
+export async function goalieStatsLeaders(
+  ctx: Context,
+  params: StatsLeadersParams<OpenUnion<GoalieLeaderCategory>> = {},
+): Promise<GoalieStatsLeaders> {
+  return (
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `goalie-stats-leaders/${seasonGameTypeSegments(params.season, params.gameType ?? 2, 'current')}`,
+      statsLeadersQuery(params),
+    )
+  ).json();
+}
+
+/**
+ * Gets a team's skater and goalie stats for a season and game type.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024. Defaults to the current season ("now").
+ * @param params.gameType 2=Regular season (default), 3=Playoffs. Ignored when `season` is omitted.
+ * @example https://api-web.nhle.com/v1/club-stats/TOR/20232024/2
+ */
+export async function clubStats(
+  ctx: Context,
+  {
+    teamAbbr,
+    season,
+    gameType = 2,
+  }: { teamAbbr: string; season?: Id; gameType?: number },
+): Promise<ClubStats> {
+  return (
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `club-stats/${teamAbbr}/${seasonGameTypeSegments(season, gameType, 'now')}`,
+    )
+  ).json();
 }
 
 /**
@@ -367,6 +481,9 @@ export const statsApi = {
   gametypesPerSeasonDirectoryByTeam,
   playerCareerStats,
   playerGameLog,
+  skaterStatsLeaders,
+  goalieStatsLeaders,
+  clubStats,
   teamSummary,
   skaterStatsSummary,
   skaterStatsWithQueryContext,

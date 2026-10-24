@@ -1,6 +1,12 @@
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
-import type { Franchise, Roster, StandingsEntry } from '#src/types/index.mjs';
+import type {
+  Franchise,
+  Roster,
+  SeasonId,
+  StandingsEntry,
+  TeamScoreboard,
+} from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
 
 export interface Team {
@@ -114,15 +120,49 @@ export async function teams(
  * Get the roster for the given team and season.
  *
  * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
- * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024. Defaults to
+ *   the current season (`current`; this endpoint has no `now` alias).
  * @example https://api-web.nhle.com/v1/roster/BUF/20232024
  */
 export async function teamRoster(
   ctx: Context,
-  { teamAbbr, season }: { teamAbbr: string; season: Id },
+  { teamAbbr, season }: { teamAbbr: string; season?: Id },
 ): Promise<Roster> {
   return (
-    await ctx.get(Endpoint.API_WEB_V1, `roster/${teamAbbr}/${season}`)
+    await ctx.get(
+      Endpoint.API_WEB_V1,
+      `roster/${teamAbbr}/${season ?? 'current'}`,
+    )
+  ).json();
+}
+
+/**
+ * Get every season a team has a roster for.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @example https://api-web.nhle.com/v1/roster-season/TOR
+ */
+export async function rosterSeasons(
+  ctx: Context,
+  { teamAbbr }: { teamAbbr: string },
+): Promise<SeasonId[]> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `roster-season/${teamAbbr}`)
+  ).json();
+}
+
+/**
+ * Get a team's recent and upcoming games, grouped by date.
+ *
+ * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
+ * @example https://api-web.nhle.com/v1/scoreboard/TOR/now
+ */
+export async function teamScoreboard(
+  ctx: Context,
+  { teamAbbr }: { teamAbbr: string },
+): Promise<TeamScoreboard> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `scoreboard/${teamAbbr}/now`)
   ).json();
 }
 
@@ -138,4 +178,10 @@ export async function franchises(ctx: Context): Promise<Franchise[]> {
   return response.data ?? [];
 }
 
-export const teamsApi = { teams, teamRoster, franchises } as const;
+export const teamsApi = {
+  teams,
+  teamRoster,
+  rosterSeasons,
+  teamScoreboard,
+  franchises,
+} as const;

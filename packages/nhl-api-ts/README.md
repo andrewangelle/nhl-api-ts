@@ -73,7 +73,9 @@ optional.
 ### teams
 
 - `teams({ [date] })` — all teams with conference, division and `franchise_id`
-- `teamRoster({ teamAbbr, season })`
+- `teamRoster({ teamAbbr, [season] })` — no `season` → current roster
+- `rosterSeasons({ teamAbbr })` — every season the team has a roster for
+- `teamScoreboard({ teamAbbr })` — recent and upcoming games
 - `franchises()`
 
 ### standings
@@ -87,8 +89,8 @@ optional.
 - `weeklySchedule({ [date] })`
 - `teamMonthlySchedule({ teamAbbr, [month] })`
 - `teamWeeklySchedule({ teamAbbr, [date] })`
-- `teamSeasonSchedule({ teamAbbr, season })`
-- `calendarSchedule({ date })`
+- `teamSeasonSchedule({ teamAbbr, [season] })`
+- `calendarSchedule({ [date] })`
 - `playoffCarousel({ season })`
 - `playoffSeriesSchedule({ season, series })`
 - `playoffBracket({ year })`
@@ -107,7 +109,10 @@ optional.
 
 - `gametypesPerSeasonDirectoryByTeam({ teamAbbr })`
 - `playerCareerStats({ playerId })`
-- `playerGameLog({ playerId, seasonId, gameType })`
+- `playerGameLog({ playerId, [seasonId], [gameType] })`
+- `skaterStatsLeaders({ [season], [gameType], [categories], [limit] })` — leaders keyed by category (`goals`, `points`, `toi`, ...); `limit: -1` returns every player
+- `goalieStatsLeaders({ [season], [gameType], [categories], [limit] })` — `wins`, `shutouts`, `savePctg`, `goalsAgainstAverage`
+- `clubStats({ teamAbbr, [season], [gameType] })` — a team's skater and goalie stats
 - `teamSummary({ startSeason, endSeason, [gameTypeId], [isGame], [isAggregate], [sortExpr], [start], [limit], [factCayenneExp], [defaultCayenneExp] })`
 - `skaterStatsSummary({ startSeason, endSeason, [franchiseId], [gameTypeId], [aggregate], [sortExpr], [start], [limit], [factCayenneExp], [defaultCayenneExp] })`
 - `skaterStatsWithQueryContext({ queryContext, reportType, [sortExpr], [aggregate], [start], [limit] })`
@@ -133,7 +138,8 @@ default; 3 = playoffs). Without `season` the current season (`/now`) is used.
 ### players
 
 - `prospectsByTeam({ teamAbbr })`
-- `playersByTeam({ teamAbbr, season })`
+- `playersByTeam({ teamAbbr, [season] })`
+- `playerSpotlight()`
 
 ### misc
 

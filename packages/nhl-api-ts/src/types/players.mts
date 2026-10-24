@@ -6,6 +6,19 @@ import type {
 } from '#src/types/common.mjs';
 import type { RosterPlayer } from '#src/types/teams.mjs';
 
+export interface PlayerSpotlight {
+  playerId: number;
+  name: LocalizedString;
+  playerSlug: string;
+  position: PositionCode;
+  sweaterNumber: number;
+  teamId: number;
+  headshot: string;
+  teamTriCode: string;
+  teamLogo: string;
+  sortId: number;
+}
+
 export interface Prospects {
   forwards: ProspectsForward[];
   defensemen: RosterPlayer[];

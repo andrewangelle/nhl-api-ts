@@ -126,7 +126,12 @@ GET /v1/standings/now                       -> 307 /v1/standings/2026-10-14
 GET /v1/edge/skater-detail/8478402/now      -> 307 /v1/edge/skater-detail/8478402/20262027/2
 ```
 
-When you omit `date`, `season` or `month`, the SDK sends `now`. The client
+When you omit `date`, `season` or `month`, the SDK sends `now`. A few
+endpoints 404 on `now` and take `current` instead; for those the SDK sends
+`current`: `teams.teamRoster`, `players.playersByTeam`,
+`stats.skaterStatsLeaders` and `stats.goalieStatsLeaders`. When `season` is
+omitted, a `gameType` you pass is ignored (the redirect picks the regular
+season). The client
 follows redirects by default (`followRedirects: true`). If you turn that off,
 every `now` call fails with `NHLApiException` (status 307). See
 [errors.md](errors.md#nhlapiexception-3xx).

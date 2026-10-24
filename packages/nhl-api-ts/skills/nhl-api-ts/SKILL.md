@@ -25,14 +25,17 @@ npx nhl-api-ts <module> <command> --help
 | You want                                   | Call                                                                 |
 | ------------------------------------------ | -------------------------------------------------------------------- |
 | Team list, abbreviations, franchise ids    | `teams.teams()` returns `Team[]` with `abbr`, `name`, `franchise_id` |
-| A roster                                   | `teams.teamRoster({ teamAbbr, season })` returns `{ forwards, defensemen, goalies }` |
+| A roster                                   | `teams.teamRoster({ teamAbbr, season? })` returns `{ forwards, defensemen, goalies }` |
 | Games on a date                            | `schedule.dailySchedule({ date? })` returns `{ date, games?, numberOfGames? }` |
 | Live or final scores for a date            | `gameCenter.dailyScores({ date? })` returns `{ games: [{ gameState, awayTeam.score, ... }] }` |
-| A team's season schedule or game ids       | `schedule.teamSeasonSchedule({ teamAbbr, season })` returns `.games` |
+| A team's season schedule or game ids       | `schedule.teamSeasonSchedule({ teamAbbr, season? })` returns `.games` |
+| A team's recent and upcoming games         | `teams.teamScoreboard({ teamAbbr })` returns `.gamesByDate`          |
 | One game                                   | `gameCenter.boxscore` / `playByPlay` / `matchUp({ gameId })`         |
 | Standings                                  | `standings.leagueStandings({ date?, season? })` returns `.standings` |
 | A player's career totals or bio            | `stats.playerCareerStats({ playerId })`                              |
-| A player's game-by-game log                | `stats.playerGameLog({ playerId, seasonId, gameType })`              |
+| A player's game-by-game log                | `stats.playerGameLog({ playerId, seasonId?, gameType? })`            |
+| League leaders (goals, points, wins, ...)  | `stats.skaterStatsLeaders` / `goalieStatsLeaders({ categories?, limit? })`, keyed by category |
+| A team's player stats for a season         | `stats.clubStats({ teamAbbr, season?, gameType? })` returns `{ skaters, goalies }` |
 | Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `buildQuery`/`filter.*` (see below) |
 | Simple skater, goalie or team leaderboards | `stats.skaterStatsSummary` / `goalieStatsSummary` / `teamSummary`    |
 | Speed, distance, zone time, shot speed     | `edge.*` (`skaterDetail`, `skaterSkatingSpeedDetail`, `teamDetail`, ...) |
