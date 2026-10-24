@@ -180,7 +180,7 @@ export async function buildSamples(): Promise<Sample[]> {
       client.schedule.weeklySchedule({ date }),
     );
     add('schedule.calendarSchedule', { date: kind }, (client) =>
-      client.schedule.calendarSchedule({ date: date ?? 'now' }),
+      client.schedule.calendarSchedule({ date }),
     );
   }
   add('schedule.dailySchedule', { date: 'regular' }, (client) =>
@@ -203,8 +203,7 @@ export async function buildSamples(): Promise<Sample[]> {
     add(
       'schedule.teamSeasonSchedule',
       { team: teamAbbr, season: 'now' },
-      (client) =>
-        client.schedule.teamSeasonSchedule({ teamAbbr, season: 'now' }),
+      (client) => client.schedule.teamSeasonSchedule({ teamAbbr }),
     );
   }
   add(
@@ -276,7 +275,28 @@ export async function buildSamples(): Promise<Sample[]> {
     );
   }
 
+  for (const team of ['BUF', 'TOR']) {
+    add('teams.teamRoster', { team, season: 'current' }, (client) =>
+      client.teams.teamRoster({ teamAbbr: team }),
+    );
+    add('players.playersByTeam', { team, season: 'current' }, (client) =>
+      client.players.playersByTeam({ teamAbbr: team }),
+    );
+    add('teams.teamScoreboard', { team }, (client) =>
+      client.teams.teamScoreboard({ teamAbbr: team }),
+    );
+  }
+
+  for (const team of ['BUF', 'TOR', 'UTA', 'SEA']) {
+    add('teams.rosterSeasons', { team }, (client) =>
+      client.teams.rosterSeasons({ teamAbbr: team }),
+    );
+  }
+
   add('teams.franchises', {}, (client) => client.teams.franchises());
+  add('players.playerSpotlight', {}, (client) =>
+    client.players.playerSpotlight(),
+  );
 
   for (const teamAbbr of ['BUF', 'TOR', 'UTA', 'SEA', 'ARI']) {
     add('players.prospectsByTeam', { team: teamAbbr }, (client) =>
@@ -340,6 +360,36 @@ export async function buildSamples(): Promise<Sample[]> {
           }),
       );
     }
+  }
+
+  add('stats.playerGameLog', { player: 'skater', season: 'now' }, (client) =>
+    client.stats.playerGameLog({ playerId: SKATER }),
+  );
+
+  for (const [variant, params] of [
+    ['current', {}],
+    ['regular', { season: '20232024', gameType: 2 }],
+    ['playoffs', { season: '20232024', gameType: 3 }],
+    ['legacy', { season: '19992000', gameType: 2 }],
+  ] as const) {
+    add('stats.skaterStatsLeaders', { variant }, (client) =>
+      client.stats.skaterStatsLeaders(params),
+    );
+    add('stats.goalieStatsLeaders', { variant }, (client) =>
+      client.stats.goalieStatsLeaders(params),
+    );
+  }
+
+  for (const [team, variant, params] of [
+    ['TOR', 'now', {}],
+    ['BUF', 'regular', { season: '20232024', gameType: 2 }],
+    ['TOR', 'playoffs', { season: '20232024', gameType: 3 }],
+    ['BUF', 'no-playoffs', { season: '20232024', gameType: 3 }],
+    ['BUF', 'legacy', { season: '19992000', gameType: 2 }],
+  ] as const) {
+    add('stats.clubStats', { team, variant }, (client) =>
+      client.stats.clubStats({ teamAbbr: team, ...params }),
+    );
   }
 
   for (const isGame of [false, true]) {

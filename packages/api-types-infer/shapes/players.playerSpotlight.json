@@ -1,0 +1,15 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].headshot": "string",
+  "[].name": "object",
+  "[].name.default": "string",
+  "[].playerId": "integer",
+  "[].playerSlug": "string",
+  "[].position": "string",
+  "[].sortId": "integer",
+  "[].sweaterNumber": "integer",
+  "[].teamId": "integer",
+  "[].teamLogo": "string",
+  "[].teamTriCode": "string"
+}

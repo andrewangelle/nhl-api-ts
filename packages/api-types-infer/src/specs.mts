@@ -8,7 +8,10 @@ function cap(text: string) {
 export const SPECS: Record<string, EndpointSpec> = {
   'teams.franchises': { unwrap: 'data', name: 'Franchise' },
   'teams.teamRoster': { name: 'Roster' },
+  'teams.rosterSeasons': { name: 'SeasonId' },
+  'teams.teamScoreboard': { name: 'TeamScoreboard' },
   'players.playersByTeam': { name: 'Roster' },
+  'players.playerSpotlight': { name: 'PlayerSpotlight' },
   'players.prospectsByTeam': { name: 'Prospects' },
   'standings.leagueStandings': { name: 'LeagueStandings' },
   'standings.seasonStandingManifest': {
@@ -43,6 +46,9 @@ export const SPECS: Record<string, EndpointSpec> = {
   'stats.gametypesPerSeasonDirectoryByTeam': { name: 'ClubStatsSeason' },
   'stats.playerCareerStats': { name: 'PlayerLanding' },
   'stats.playerGameLog': { unwrap: 'gameLog', name: 'GameLogEntry' },
+  'stats.skaterStatsLeaders': { name: 'SkaterStatsLeaders' },
+  'stats.goalieStatsLeaders': { name: 'GoalieStatsLeaders' },
+  'stats.clubStats': { name: 'ClubStats' },
   'stats.teamSummary': { unwrap: 'data', name: 'TeamSummaryRow' },
   'stats.skaterStatsSummary': { unwrap: 'data', name: 'SkaterSummaryRow' },
   'stats.skaterStatsWithQueryContext': {
