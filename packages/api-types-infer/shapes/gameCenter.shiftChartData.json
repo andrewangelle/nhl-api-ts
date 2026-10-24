@@ -7,7 +7,7 @@
   ".data[].endTime": "string",
   ".data[].eventDescription": "null|string",
   ".data[].eventDetails": "null|string?",
-  ".data[].eventNumber": "integer",
+  ".data[].eventNumber": "integer|null",
   ".data[].firstName": "string",
   ".data[].gameId": "integer",
   ".data[].hexValue": "string",

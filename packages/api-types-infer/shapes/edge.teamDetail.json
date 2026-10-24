@@ -94,7 +94,7 @@
   ".sogSummary[].goalsLeagueAvg": "float|integer",
   ".sogSummary[].goalsRank": "integer",
   ".sogSummary[].locationCode": "string",
-  ".sogSummary[].shootingPctg": "float|integer",
+  ".sogSummary[].shootingPctg": "float",
   ".sogSummary[].shootingPctgLeagueAvg": "float",
   ".sogSummary[].shootingPctgRank": "integer",
   ".sogSummary[].shots": "integer",

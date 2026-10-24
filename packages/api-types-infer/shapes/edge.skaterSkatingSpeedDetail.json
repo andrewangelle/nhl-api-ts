@@ -3,7 +3,7 @@
   ".skatingSpeedDetails": "object",
   ".skatingSpeedDetails.bursts18To20": "object",
   ".skatingSpeedDetails.bursts18To20.leagueAvg": "float",
-  ".skatingSpeedDetails.bursts18To20.percentile": "float",
+  ".skatingSpeedDetails.bursts18To20.percentile": "float|integer",
   ".skatingSpeedDetails.bursts18To20.value": "integer",
   ".skatingSpeedDetails.bursts20To22": "object",
   ".skatingSpeedDetails.bursts20To22.leagueAvg": "float",
