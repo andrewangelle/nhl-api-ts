@@ -251,6 +251,25 @@ Notes:
   sortBy, category) placed before the season args, or add a sibling builder for
   leaderboards. Existing Edge commands must keep working unchanged.
 
+**Status: done (2026-10-24).** `edgeResource` takes `segments: Id[]`; `getEdge`
+wraps the id for the detail methods. Rows are `<Method>Row` (e.g.
+`SkaterDistanceTop10Row`, named via `specs.mts`; `fixtures.mts` no longer
+special-cases `edge.*`). Entities: no top-10 player has an `id`, except the
+goalie shot-location rows, which match the existing landing `EdgeLeaderPlayer`
+(and its slug-less `EdgeTeamRef`), so those reuse it. Every other player is
+`EdgeTop10Player`. Team rows use `EdgeGameTeam`, or `EdgeTop10Team` (with `id`)
+for team skating speed and shot location. The existing `{ imperial, metric, overlay }`
+interfaces (`SkaterComparisonDistanceMaxGame`, `SkaterComparisonMaxSpeed`,
+`SkaterComparisonTopShot`) are reused; team distance overlays have no `player`,
+so they get `EdgeTeamDistanceMax`. `teamComparison` reuses the
+skater-comparison sub-types. `byTheNumbers` returns different keys for `/now`
+(the latest night) and an explicit season (season bests), so most fields are
+optional. The CLI `edgeCommand` takes an extra `args` list and gives `choices`
+for every slot; `sortBy` is a required positional. Paths are in
+`openapi.yaml` (team-comparison is folded into `edgeReport`). Only the new
+`shapes/` were added; local cache drift in unrelated shapes and fixtures
+was reverted.
+
 ## Phase 5: stats API (`api.nhle.com/stats/rest`)
 
 Unwrap `response.data ?? []`. Base URL depends on the module: new `misc` methods

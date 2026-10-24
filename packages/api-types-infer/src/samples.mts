@@ -647,5 +647,144 @@ export async function buildSamples(): Promise<Sample[]> {
     );
   }
 
+  for (const [variant, params] of Object.entries(seasonVariants)) {
+    for (const [team, teamId] of [
+      ['BUF', BUF_ID],
+      ['TOR', TOR_ID],
+    ] as const) {
+      add('edge.teamComparison', { team, variant }, (client) =>
+        client.edge.teamComparison({ teamId, ...params }),
+      );
+    }
+    add('edge.byTheNumbers', { variant }, (client) =>
+      client.edge.byTheNumbers(params),
+    );
+  }
+
+  // Top-10 rows carry every metric whatever `sortBy` is, so one regular-season
+  // sample per sortBy plus now/playoffs and the position/strength slots.
+  const top10Variants: Record<string, { season?: string; gameType?: number }> =
+    {
+      now: {},
+      regular: { season: '20252026', gameType: 2 },
+      playoffs: { season: '20242025', gameType: 3 },
+    };
+  const top10: [
+    keyof NHLClient['edge'],
+    readonly string[],
+    { positions?: boolean; strength?: boolean; category?: boolean },
+  ][] = [
+    [
+      'skaterDistanceTop10',
+      ['total', 'per-60', 'max-game', 'max-period'],
+      { positions: true, strength: true },
+    ],
+    [
+      'skaterSpeedTop10',
+      ['max', 'over-22', '20-22', '18-20'],
+      { positions: true },
+    ],
+    [
+      'skaterZoneTimeTop10',
+      ['offensive', 'neutral', 'defensive'],
+      { positions: true, strength: true },
+    ],
+    [
+      'skaterShotSpeedTop10',
+      ['max', 'over-100', '90-99', '80-89', '70-79'],
+      { positions: true },
+    ],
+    [
+      'skaterShotLocationTop10',
+      ['sog', 'goals', 'shooting-pctg'],
+      { positions: true, category: true },
+    ],
+    [
+      'goalie5v5Top10',
+      ['save-pctg', 'save-pctg-close', 'shots', 'shots-per-60'],
+      {},
+    ],
+    [
+      'goalieShotLocationTop10',
+      ['save-pctg', 'saves', 'goals-against', 'shots-against'],
+      { category: true },
+    ],
+    ['goalieSavePercentageTop10', ['games', 'pctg'], {}],
+    [
+      'teamSkatingDistanceTop10',
+      ['total', 'per-60', 'max-game', 'max-period'],
+      { positions: true, strength: true },
+    ],
+    [
+      'teamSkatingSpeedTop10',
+      ['max', 'over-22', '20-22', '18-20'],
+      { positions: true },
+    ],
+    [
+      'teamZoneTimeTop10',
+      ['offensive', 'neutral', 'defensive'],
+      { strength: true },
+    ],
+    [
+      'teamShotSpeedTop10',
+      ['max', 'over-100', '90-99', '80-89', '70-79'],
+      { positions: true },
+    ],
+    [
+      'teamShotLocationTop10',
+      ['sog', 'goals', 'shooting-pctg'],
+      { positions: true, category: true },
+    ],
+  ];
+
+  for (const [method, sortBys, slots] of top10) {
+    const callTop10 =
+      (params: Record<string, unknown>) => (client: NHLClient) =>
+        (client.edge[method] as (params: object) => Promise<unknown>)(params);
+    const regular = top10Variants.regular;
+
+    for (const sortBy of sortBys) {
+      add(
+        `edge.${method}`,
+        { sortBy, variant: 'regular' },
+        callTop10({ sortBy, ...regular }),
+      );
+    }
+    for (const variant of ['now', 'playoffs']) {
+      add(
+        `edge.${method}`,
+        { sortBy: sortBys[0], variant },
+        callTop10({ sortBy: sortBys[0], ...top10Variants[variant] }),
+      );
+    }
+    if (slots.positions) {
+      for (const positions of ['forwards', 'defense']) {
+        add(
+          `edge.${method}`,
+          { sortBy: sortBys[0], positions, variant: 'regular' },
+          callTop10({ sortBy: sortBys[0], positions, ...regular }),
+        );
+      }
+    }
+    if (slots.strength) {
+      for (const strength of ['es', 'pp', 'pk']) {
+        add(
+          `edge.${method}`,
+          { sortBy: sortBys[0], strength, variant: 'regular' },
+          callTop10({ sortBy: sortBys[0], strength, ...regular }),
+        );
+      }
+    }
+    if (slots.category) {
+      for (const category of ['high', 'mid', 'long']) {
+        add(
+          `edge.${method}`,
+          { sortBy: sortBys[0], category, variant: 'regular' },
+          callTop10({ sortBy: sortBys[0], category, ...regular }),
+        );
+      }
+    }
+  }
+
   return samples;
 }
