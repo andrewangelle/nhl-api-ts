@@ -695,7 +695,23 @@ export function createNHLClient(options?: ClientOptions): {
         readonly seasonSeriesMatchup: seasonSeriesMatchup;
         readonly gameStory: gameStory;
     }>;
-    readonly stats: StatsClient;
+    readonly stats: {
+        readonly gametypesPerSeasonDirectoryByTeam: (args_0: {
+            teamAbbr: string;
+        }) => Promise<ClubStatsSeason[]>;
+        readonly playerCareerStats: (args_0: {
+            playerId: Id;
+        }) => Promise<PlayerLanding>;
+        readonly playerGameLog: (args_0: {
+            playerId: Id;
+            seasonId: Id;
+            gameType: number;
+        }) => Promise<GameLogEntry[]>;
+        readonly teamSummary: (args_0: TeamSummaryParams) => Promise<TeamSummaryRow[]>;
+        readonly skaterStatsSummary: (args_0: SkaterStatsSummaryParams) => Promise<SkaterSummaryRow[]>;
+        readonly skaterStatsWithQueryContext: <Report extends keyof SkaterReportRows>(args_0: SkaterStatsWithQueryContextParams<Report>) => Promise<StatsApiPage<SkaterReportRows[Report]>>;
+        readonly goalieStatsSummary: <Report extends keyof GoalieReportRows = "summary">(args_0: GoalieStatsSummaryParams<Report>) => Promise<GoalieReportRows[Report][]>;
+    };
     readonly misc: Bound<{
         readonly glossary: glossary;
         readonly config: config;
@@ -8277,8 +8293,7 @@ export type ZoneCode = OpenUnion<'O' | 'N' | 'D'>;
 
 // Warnings were encountered during analysis:
 //
-// dist/nhl-client.d.mts:28:5 - (ae-forgotten-export) The symbol "Bound" needs to be exported by the entry point index.d.mts
-// dist/nhl-client.d.mts:57:5 - (ae-forgotten-export) The symbol "StatsClient" needs to be exported by the entry point index.d.mts
+// dist/nhl-client.d.mts:16:5 - (ae-forgotten-export) The symbol "Bound" needs to be exported by the entry point index.d.mts
 
 // (No @packageDocumentation comment for this package)
 
