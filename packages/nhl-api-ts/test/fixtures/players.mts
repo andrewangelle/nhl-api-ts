@@ -6,6 +6,16 @@ import type {
   StatsPlayer,
 } from '#src/index.mjs';
 
+export const statsPlayerFixture: StatsPlayer = {
+  id: 8485629,
+  currentTeamId: 7,
+  firstName: 'Ashton',
+  fullName: 'Ashton Schultz',
+  lastName: 'Schultz',
+  positionCode: 'C',
+  sweaterNumber: null,
+};
+
 export const playerSpotlightFixture: PlayerSpotlight[] = [
   {
     playerId: 8484144,
@@ -152,14 +162,4 @@ export const prospectsFixture: Prospects = {
       birthCountry: 'FIN',
     },
   ],
-};
-
-export const statsPlayerFixture: StatsPlayer = {
-  id: 8485629,
-  currentTeamId: 7,
-  firstName: 'Ashton',
-  fullName: 'Ashton Schultz',
-  lastName: 'Schultz',
-  positionCode: 'C',
-  sweaterNumber: null,
 };

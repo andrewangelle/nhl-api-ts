@@ -134,6 +134,8 @@ export interface BoxscoreTeam {
   placeNameWithPreposition: LocalizedString;
   score?: number;
   sog?: number;
+  /** Only present while the game is live */
+  radioLink?: string;
 }
 
 export interface DailyScores {
@@ -368,6 +370,8 @@ export interface GameLandingAwayTeam {
   record?: string;
   score?: number;
   sog?: number;
+  /** Only present while the game is live */
+  radioLink?: string;
 }
 
 export interface GameLandingMatchup {
@@ -416,6 +420,8 @@ export interface GameLandingSummary {
   scoring: GameLandingSummaryScoring[];
   threeStars: GameLandingSummaryThreeStar[];
   penalties: SummaryPenalty[];
+  /** Only present while the game is live */
+  iceSurface?: SummaryIceSurface;
   /** Only for games decided by a shootout */
   shootout?: SummaryShootout;
 }
@@ -482,6 +488,8 @@ export interface GameStoryAwayTeam {
   record?: string;
   score?: number;
   sog?: number;
+  /** Only present while the game is live */
+  radioLink?: string;
 }
 
 export interface PreGameMatchup {
@@ -785,10 +793,15 @@ export interface PenaltyDetails {
     | 'hooking'
     | 'fighting'
     | 'tripping'
+    | 'instigator'
+    | 'instigator-misconduct'
   >;
   duration: number;
   committedByPlayerId: number;
-  drawnByPlayerId: number;
+  /** Absent for penalties nobody drew, e.g. misconducts */
+  drawnByPlayerId?: number;
+  /** Only when someone other than the committing player serves the penalty */
+  servedByPlayerId?: number;
   eventOwnerTeamId: number;
   xCoord?: number;
   yCoord?: number;
@@ -801,7 +814,10 @@ export interface PenaltyEntry {
   duration: number;
   committedByPlayer: PenaltyPlayer;
   teamAbbrev: LocalizedString;
-  drawnBy: PenaltyPlayer;
+  /** Absent for penalties nobody drew, e.g. misconducts */
+  drawnBy?: PenaltyPlayer;
+  /** Name of the player serving the penalty, when not the one who committed it */
+  servedBy?: LocalizedString;
   descKey: OpenUnion<
     | 'elbowing'
     | 'holding-obstruction'
@@ -815,6 +831,8 @@ export interface PenaltyEntry {
     | 'hooking'
     | 'fighting'
     | 'tripping'
+    | 'instigator'
+    | 'instigator-misconduct'
   >;
 }
 
@@ -906,8 +924,12 @@ export interface PlayByPlay {
   regPeriods: number;
   periodDescriptor?: PeriodDescriptor;
   gameOutcome?: GameOutcome;
-  /** Empty object in every sample seen. */
-  summary?: Record<string, never>;
+  summary?: PlayByPlaySummary;
+}
+
+export interface PlayByPlaySummary {
+  /** Only present while the game is live */
+  iceSurface?: SummaryIceSurface;
 }
 
 export interface PlayByPlayTeam {
@@ -920,6 +942,8 @@ export interface PlayByPlayTeam {
   placeName: LocalizedString;
   placeNameWithPreposition: LocalizedString;
   sog?: number;
+  /** Only present while the game is live */
+  radioLink?: string;
 }
 
 export interface PlayByPlayRosterSpot {
@@ -1031,6 +1055,8 @@ export interface RightRailSeasonSeries {
   periodDescriptor?: PeriodDescriptor;
   gameCenterLink: string;
   gameOutcome: GameOutcome;
+  /** Only present while the game is live */
+  clock?: GameClock;
 }
 
 export interface GameFullCoverageUrls {
@@ -1107,7 +1133,7 @@ export interface ShiftEntry {
   duration: string | null;
   endTime: string;
   eventDescription: string | null;
-  eventNumber: number;
+  eventNumber: number | null;
   firstName: string;
   gameId: number;
   hexValue: string;
@@ -1184,7 +1210,7 @@ export interface ShotOnGoalPlay {
 export interface SeasonStatsSkater {
   playerId: number;
   teamId: number;
-  sweaterNumber: number;
+  sweaterNumber?: number;
   name: LocalizedString;
   position: string;
   gamesPlayed?: number;
@@ -1241,6 +1267,29 @@ export interface StoppagePlay {
   typeDescKey: 'stoppage';
   sortOrder: number;
   details: StoppageDetails;
+}
+
+/** The players on the ice right now, with their shift time on ice (`totalSOI`, seconds). */
+export interface SummaryIceSurface {
+  awayTeam: IceSurfaceTeam;
+  homeTeam: IceSurfaceTeam;
+}
+
+export interface IceSurfaceTeam {
+  forwards: IceSurfacePlayer[];
+  defensemen: IceSurfacePlayer[];
+  goalies: IceSurfacePlayer[];
+  /** Empty in every sample seen. */
+  penaltyBox: unknown[];
+}
+
+export interface IceSurfacePlayer {
+  playerId: number;
+  name: LocalizedString;
+  sweaterNumber: number;
+  positionCode: PositionCode;
+  headshot: string;
+  totalSOI: number;
 }
 
 export interface SummaryPenalty {

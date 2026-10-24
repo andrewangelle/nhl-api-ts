@@ -51,21 +51,25 @@ const teamAbbr: ArgSpec = req({
   type: 'string',
   description: 'Team abbreviation, e.g. BUF, TOR',
 });
+
 const season: ArgSpec = {
   name: 'season',
   type: 'string',
   description: 'Season in YYYYYYYY format, e.g. 20232024',
 };
+
 const gameId: ArgSpec = req({
   name: 'gameId',
   type: 'string',
   description: 'Game id, e.g. 2023020280',
 });
+
 const playerId: ArgSpec = req({
   name: 'playerId',
   type: 'string',
   description: 'NHL player id, e.g. 8478402',
 });
+
 function date(description = 'Date in YYYY-MM-DD format'): ArgSpec {
   return {
     name: 'date',
@@ -73,24 +77,28 @@ function date(description = 'Date in YYYY-MM-DD format'): ArgSpec {
     description,
   };
 }
+
 const gameTypeId: ArgSpec = {
   name: 'gameTypeId',
   type: 'int',
   description: '1=Preseason, 2=Regular season, 3=Playoffs',
   default: '2',
 };
+
 const sortExpr: ArgSpec = {
   name: 'sortExpr',
   type: 'json',
   description:
     'Sort as JSON, e.g. \'[{"property":"points","direction":"DESC"}]\'',
 };
+
 const start: ArgSpec = {
   name: 'start',
   type: 'int',
   description: 'Pagination offset',
   default: '0',
 };
+
 function limit(def: string): ArgSpec {
   return {
     name: 'limit',
@@ -99,6 +107,7 @@ function limit(def: string): ArgSpec {
     default: def,
   };
 }
+
 function factCayenneExp(def?: string): ArgSpec {
   return {
     name: 'factCayenneExp',
@@ -107,34 +116,41 @@ function factCayenneExp(def?: string): ArgSpec {
     default: def,
   };
 }
+
 const defaultCayenneExp: ArgSpec = {
   name: 'defaultCayenneExp',
   type: 'string',
   description: 'Overrides the generated cayenneExp filter entirely',
 };
+
 const currentSeason: ArgSpec = {
   ...season,
   description: `${season.description}. Defaults to current`,
 };
+
 const nowSeason: ArgSpec = {
   ...season,
   description: `${season.description}. Defaults to now`,
 };
+
 const draftSeason: ArgSpec = {
   name: 'season',
   type: 'string',
   description: 'Draft year in YYYY format, e.g. 2023. Defaults to now',
 };
+
 const seasonGameType: ArgSpec = {
   name: 'gameType',
   type: 'int',
   description: '2=Regular season, 3=Playoffs (only used with --season)',
   default: '2',
 };
+
 const allTimeSeason: ArgSpec = {
   ...season,
   description: `${season.description}. Defaults to every season`,
 };
+
 function leaderCategories(choices: readonly string[]): ArgSpec {
   return {
     name: 'categories',
@@ -148,6 +164,7 @@ const leaderLimit: ArgSpec = {
   description: 'Rows per category (-1 for all)',
   default: '5',
 };
+
 function apiSleepRate(def: string): ArgSpec {
   return {
     name: 'apiSleepRate',
@@ -199,6 +216,7 @@ const edgePositions: ArgSpec = {
   default: 'all',
   choices: ['all', 'forwards', 'defense'],
 };
+
 const edgeStrength: ArgSpec = {
   name: 'strength',
   type: 'string',
@@ -206,6 +224,7 @@ const edgeStrength: ArgSpec = {
   default: 'all',
   choices: ['all', 'es', 'pp', 'pk'],
 };
+
 const edgeShotLocationCategory: ArgSpec = {
   name: 'category',
   type: 'string',
@@ -213,6 +232,7 @@ const edgeShotLocationCategory: ArgSpec = {
   default: 'all',
   choices: ['all', 'high', 'mid', 'long'],
 };
+
 function edgeSortBy(choices: readonly string[]): ArgSpec {
   return req({
     name: 'sortBy',
@@ -221,19 +241,23 @@ function edgeSortBy(choices: readonly string[]): ArgSpec {
     choices,
   });
 }
+
 const edgeZoneSortBy: ArgSpec = req({
   name: 'sortBy',
   type: 'string',
   description: 'Zone to rank by',
   choices: ['offensive', 'neutral', 'defensive'],
 });
+
 const distanceSortBy = edgeSortBy([
   'total',
   'per-60',
   'max-game',
   'max-period',
 ]);
+
 const skatingSpeedSortBy = edgeSortBy(['max', 'over-22', '20-22', '18-20']);
+
 const shotSpeedSortBy = edgeSortBy([
   'max',
   'over-100',
@@ -241,6 +265,7 @@ const shotSpeedSortBy = edgeSortBy([
   '80-89',
   '70-79',
 ]);
+
 const shotLocationSortBy = edgeSortBy(['sog', 'goals', 'shooting-pctg']);
 
 // ---- Stats query-context filters --------------------------------------------
@@ -329,39 +354,50 @@ function buildQueryContext(values: Record<string, any>) {
   if (values.gameType !== undefined) {
     filters.push(filter.gameType(values.gameType));
   }
+
   if (values.seasonStart !== undefined || values.seasonEnd !== undefined) {
     const first = values.seasonStart ?? values.seasonEnd;
     filters.push(filter.season(first, values.seasonEnd ?? first));
   }
+
   if (values.franchiseId !== undefined) {
     filters.push(filter.franchise(values.franchiseId));
   }
+
   if (values.position !== undefined) {
     filters.push(filter.position(values.position));
   }
+
   if (values.nationality !== undefined) {
     filters.push(filter.nationality(values.nationality));
   }
+
   if (values.decision !== undefined) {
     filters.push(filter.decision(values.decision));
   }
+
   if (values.draftYear !== undefined) {
     filters.push(filter.draft(values.draftYear, values.draftRound));
   } else if (values.draftRound !== undefined) {
     throw new UsageError('--draft-round requires --draft-year');
   }
+
   if (values.rookie !== undefined) {
     filters.push(filter.experience(values.rookie));
   }
+
   if (values.homeRoad !== undefined) {
     filters.push(filter.homeRoad(values.homeRoad));
   }
+
   if (values.opponentFranchiseId !== undefined) {
     filters.push(filter.opponent(values.opponentFranchiseId));
   }
+
   if (values.shootCatch !== undefined) {
     filters.push(filter.shootCatch(values.shootCatch));
   }
+
   if (values.active || values.hallOfFame) {
     filters.push(
       filter.status({
@@ -372,9 +408,11 @@ function buildQueryContext(values: Record<string, any>) {
   }
 
   const context = buildQuery(filters);
+
   if (!isValidQuery(context)) {
     throw new UsageError(`invalid filters: ${context.errors.join('; ')}`);
   }
+
   return context;
 }
 

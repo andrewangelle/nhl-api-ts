@@ -208,10 +208,10 @@ export const boxscoreFixture: Boxscore = {
 };
 
 export const dailyScoresFixture: DailyScores = {
-  prevDate: '2026-10-16',
-  currentDate: '2026-10-17',
-  nextDate: '2026-10-18',
-  gameWeek: [{ date: '2026-10-14', dayAbbrev: 'WED', numberOfGames: 2 }],
+  prevDate: '2026-10-23',
+  currentDate: '2026-10-24',
+  nextDate: '2026-10-25',
+  gameWeek: [{ date: '2026-10-21', dayAbbrev: 'WED', numberOfGames: 2 }],
   oddsPartners: [
     {
       partnerId: 2,
@@ -227,66 +227,56 @@ export const dailyScoresFixture: DailyScores = {
   ],
   games: [
     {
-      id: 2026020121,
+      id: 2026020168,
       season: 20262027,
       gameType: 2,
-      gameDate: '2026-10-17',
-      venue: { default: 'Capital One Arena' },
-      startTimeUTC: '2026-10-17T17:00:00Z',
+      gameDate: '2026-10-24',
+      venue: { default: 'Xfinity Mobile Arena' },
+      startTimeUTC: '2026-10-24T17:00:00Z',
       easternUTCOffset: '-04:00',
       venueUTCOffset: '-04:00',
       tvBroadcasts: [
         {
-          id: 282,
-          market: 'N',
-          countryCode: 'CA',
-          network: 'SN',
-          sequenceNumber: 21,
-          languageCode: 'en',
-          parentId: 282,
-          logoUrls: {
-            light: 'https://assets.nhle.com/logos/broadcast/282-light.svg',
-            dark: 'https://assets.nhle.com/logos/broadcast/282-dark.svg',
-          },
+          id: 786,
+          market: 'A',
+          countryCode: 'US',
+          network: 'FOXLA+',
+          sequenceNumber: 1,
         },
       ],
-      gameState: 'OFF',
+      gameState: 'LIVE',
       gameScheduleState: 'OK',
       awayTeam: {
-        id: 1,
-        name: { default: 'Devils' },
-        abbrev: 'NJD',
+        id: 24,
+        name: { default: 'Ducks' },
+        abbrev: 'ANA',
         score: 2,
-        sog: 31,
-        logo: 'https://assets.nhle.com/logos/nhl/svg/NJD_light.svg',
+        sog: 13,
+        logo: 'https://assets.nhle.com/logos/nhl/svg/ANA_light.svg',
       },
       homeTeam: {
-        id: 15,
-        name: { default: 'Capitals' },
-        abbrev: 'WSH',
-        score: 4,
-        sog: 25,
-        logo: 'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_light.svg',
+        id: 4,
+        name: { default: 'Flyers' },
+        abbrev: 'PHI',
+        score: 2,
+        sog: 17,
+        logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
       },
-      gameCenterLink: '/gamecenter/njd-vs-wsh/2026/10/17/2026020121',
-      threeMinRecap: '/video/njd-at-wsh-recap-6407021399112',
-      threeMinRecapFr: '/fr/video/njd-vs-wsh-17-10-2026-resume-6407020619112',
-      condensedGame: '/video/njd-at-wsh-condensed-game-6407021598112',
+      gameCenterLink: '/gamecenter/ana-vs-phi/2026/10/24/2026020168',
       clock: {
-        timeRemaining: '00:00',
-        secondsRemaining: 0,
-        running: false,
+        timeRemaining: '06:46',
+        secondsRemaining: 406,
+        running: true,
         inIntermission: false,
       },
       neutralSite: false,
       venueTimezone: 'US/Eastern',
-      period: 3,
+      period: 2,
       periodDescriptor: {
-        number: 3,
+        number: 2,
         periodType: 'REG',
         maxRegulationPeriods: 3,
       },
-      gameOutcome: { lastPeriodType: 'REG' },
       goals: [
         {
           period: 1,
@@ -295,37 +285,60 @@ export const dailyScoresFixture: DailyScores = {
             periodType: 'REG',
             maxRegulationPeriods: 3,
           },
-          timeInPeriod: '10:04',
-          playerId: 8481721,
-          name: { default: 'A. Gritsyuk' },
-          firstName: { default: 'Arseny' },
-          lastName: { default: 'Gritsyuk' },
+          timeInPeriod: '13:59',
+          playerId: 8484387,
+          name: {
+            default: 'M. Michkov',
+            cs: 'M. Mičkov',
+            fi: 'M. Mitshkov',
+            sk: 'M. Mičkov',
+          },
+          firstName: { default: 'Matvei', cs: 'Matvej', sk: 'Matvej' },
+          lastName: {
+            default: 'Michkov',
+            cs: 'Mičkov',
+            fi: 'Mitshkov',
+            sk: 'Mičkov',
+          },
           goalModifier: 'none',
           assists: [
             {
-              playerId: 8482110,
-              name: { default: 'D. Mercer' },
-              assistsToDate: 4,
+              playerId: 8482142,
+              name: { default: 'J. Drysdale' },
+              assistsToDate: 2,
             },
           ],
-          mugshot: 'https://assets.nhle.com/mugs/nhl/20262027/NJD/8481721.png',
-          teamAbbrev: 'NJD',
-          goalsToDate: 3,
-          awayScore: 1,
-          homeScore: 0,
-          strength: 'ev',
+          mugshot: 'https://assets.nhle.com/mugs/nhl/20262027/PHI/8484387.png',
+          teamAbbrev: 'PHI',
+          goalsToDate: 7,
+          awayScore: 0,
+          homeScore: 1,
+          strength: 'pp',
           highlightClipSharingUrl:
-            'https://nhl.com/video/njd-wsh-gritsyuk-scores-goal-against-logan-thompson-6407017963112',
+            'https://nhl.com/video/ana-phi-michkov-scores-goal-against-lukas-dostal-6407344638112',
           highlightClipSharingUrlFr:
-            'https://nhl.com/fr/video/njd-wsh-gritsyuk-marque-un-but-contre-logan-thompson-6407019440112',
-          highlightClip: 6407017963112,
-          highlightClipFr: 6407019440112,
-          discreteClip: 6407018853112,
-          discreteClipFr: 6407018650112,
+            'https://nhl.com/fr/video/ana-phi-michkov-marque-un-but-contre-lukas-dostal-6407344434112',
+          highlightClip: 6407344638112,
+          highlightClipFr: 6407344434112,
+          discreteClip: 6407346882112,
+          discreteClipFr: 6407346487112,
         },
       ],
     },
   ],
+};
+
+export const gameMetaFixture: GameMeta = {
+  teams: [
+    {
+      name: { default: 'Chicago Blackhawks', fr: 'Blackhawks de Chicago' },
+      tricode: 'CHI',
+      teamId: 16,
+      teamSlug: 'chicago-blackhawks-16',
+    },
+  ],
+  seasonStates: { date: '2023-11-22', gameType: 2, season: 20232024 },
+  gameState: 'OFF',
 };
 
 export const gameStoryFixture: GameStory = {
@@ -447,42 +460,29 @@ export const gameStoryFixture: GameStory = {
 };
 
 export const gameLandingFixture: GameLanding = {
-  id: 2026020152,
+  id: 2026020173,
   season: 20262027,
   gameType: 2,
   limitedScoring: false,
-  gameDate: '2026-10-21',
-  venue: { default: 'KeyBank Center' },
-  venueLocation: { default: 'Buffalo' },
-  startTimeUTC: '2026-10-21T23:30:00Z',
+  gameDate: '2026-10-24',
+  venue: { default: 'Capital One Arena' },
+  venueLocation: { default: 'Washington' },
+  startTimeUTC: '2026-10-24T23:00:00Z',
   easternUTCOffset: '-04:00',
   venueUTCOffset: '-04:00',
-  venueTimezone: 'America/New_York',
+  venueTimezone: 'US/Eastern',
   tvBroadcasts: [
     {
-      id: 385,
-      market: 'N',
+      id: 28,
+      market: 'A',
       countryCode: 'US',
-      network: 'TNT',
-      sequenceNumber: 11,
+      network: 'MSG-B',
+      sequenceNumber: 392,
     },
   ],
   gameState: 'FUT',
   gameScheduleState: 'OK',
   awayTeam: {
-    id: 4,
-    commonName: { default: 'Flyers' },
-    abbrev: 'PHI',
-    placeName: { default: 'Philadelphia', fr: 'Philadelphie' },
-    placeNameWithPreposition: {
-      default: 'Philadelphia',
-      fr: 'de Philadelphie',
-    },
-    logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
-    darkLogo: 'https://assets.nhle.com/logos/nhl/svg/PHI_dark.svg',
-    record: '1-6-3',
-  },
-  homeTeam: {
     id: 7,
     commonName: { default: 'Sabres' },
     abbrev: 'BUF',
@@ -490,7 +490,17 @@ export const gameLandingFixture: GameLanding = {
     placeNameWithPreposition: { default: 'Buffalo', fr: 'de Buffalo' },
     logo: 'https://assets.nhle.com/logos/nhl/svg/BUF_light.svg',
     darkLogo: 'https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg',
-    record: '4-3-2',
+    record: '4-4-2',
+  },
+  homeTeam: {
+    id: 15,
+    commonName: { default: 'Capitals' },
+    abbrev: 'WSH',
+    placeName: { default: 'Washington' },
+    placeNameWithPreposition: { default: 'Washington', fr: 'de Washington' },
+    logo: 'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_light.svg',
+    darkLogo: 'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_dark.svg',
+    record: '5-4-0',
   },
   shootoutInUse: true,
   maxPeriods: 5,
@@ -498,9 +508,9 @@ export const gameLandingFixture: GameLanding = {
   otInUse: true,
   tiesInUse: false,
   ticketsLink:
-    'https://www.ticketmaster.com/event/000064EFCB237FEF?brand=nhl&wt.mc_id=NHL_LEAGUE_BUF_GAMECENTER_PREVIEW_GM6&utm_source=NHL.com&utm_medium=client&utm_campaign=NHL_LEAGUE_BUF&utm_content=GAMECENTER_PREVIEW_GM6',
+    'https://www.ticketmaster.com/event/150064F0346DE29C?brand=nhl&wt.mc_id=NHL_LEAGUE_WSH_GAMECENTER_PREVIEW_GM7&utm_source=league_gamecenter_preview&utm_medium=web_organic&utm_campaign=2627sgb_ca1024bs',
   ticketsLinkFr:
-    'https://www.ticketmaster.com/event/000064EFCB237FEF?brand=nhl&wt.mc_id=NHL_LEAGUE_BUF_GAMECENTER_PREVIEW_GM6&utm_source=NHL.com&utm_medium=client&utm_campaign=NHL_LEAGUE_BUF&utm_content=GAMECENTER_PREVIEW_GM6',
+    'https://www.ticketmaster.com/event/150064F0346DE29C?brand=nhl&wt.mc_id=NHL_LEAGUE_WSH_GAMECENTER_PREVIEW_GM7&utm_source=league_gamecenter_preview&utm_medium=web_organic&utm_campaign=2627sgb_ca1024bs',
   matchup: {
     season: 20262027,
     gameType: 2,
@@ -511,27 +521,6 @@ export const gameLandingFixture: GameLanding = {
         {
           category: 'points',
           awayLeader: {
-            playerId: 8484387,
-            name: {
-              default: 'M. Michkov',
-              cs: 'M. Mičkov',
-              fi: 'M. Mitshkov',
-              sk: 'M. Mičkov',
-            },
-            firstName: { default: 'Matvei', cs: 'Matvej', sk: 'Matvej' },
-            lastName: {
-              default: 'Michkov',
-              cs: 'Mičkov',
-              fi: 'Mitshkov',
-              sk: 'Mičkov',
-            },
-            sweaterNumber: 39,
-            positionCode: 'R',
-            headshot:
-              'https://assets.nhle.com/mugs/nhl/20262027/PHI/8484387.png',
-            value: 3,
-          },
-          homeLeader: {
             playerId: 8482097,
             name: { default: 'J. Quinn' },
             firstName: { default: 'Jack' },
@@ -540,7 +529,18 @@ export const gameLandingFixture: GameLanding = {
             positionCode: 'R',
             headshot:
               'https://assets.nhle.com/mugs/nhl/20262027/BUF/8482097.png',
-            value: 7,
+            value: 8,
+          },
+          homeLeader: {
+            playerId: 8484186,
+            name: { default: 'R. Leonard' },
+            firstName: { default: 'Ryan' },
+            lastName: { default: 'Leonard' },
+            sweaterNumber: 9,
+            positionCode: 'R',
+            headshot:
+              'https://assets.nhle.com/mugs/nhl/20262027/WSH/8484186.png',
+            value: 5,
           },
         },
       ],
@@ -550,11 +550,38 @@ export const gameLandingFixture: GameLanding = {
       contextSeason: 20262027,
       homeTeam: {
         teamTotals: {
-          record: '4-3-2',
-          gaa: 3.666667,
-          savePctg: 0.857143,
+          record: '5-4-0',
+          gaa: 3.222222,
+          savePctg: 0.889734,
           shutouts: 0,
           gamesPlayed: 9,
+        },
+        leaders: [
+          {
+            playerId: 8480313,
+            name: { default: 'L. Thompson' },
+            firstName: { default: 'Logan' },
+            lastName: { default: 'Thompson' },
+            sweaterNumber: 48,
+            headshot:
+              'https://assets.nhle.com/mugs/nhl/20262027/WSH/8480313.png',
+            positionCode: 'G',
+            gamesPlayed: 7,
+            seasonPoints: 8,
+            record: '4-3-0',
+            gaa: 2.9,
+            savePctg: 0.901,
+            shutouts: 0,
+          },
+        ],
+      },
+      awayTeam: {
+        teamTotals: {
+          record: '4-4-2',
+          gaa: 3.6,
+          savePctg: 0.860465,
+          shutouts: 0,
+          gamesPlayed: 10,
         },
         leaders: [
           {
@@ -566,38 +593,11 @@ export const gameLandingFixture: GameLanding = {
             headshot:
               'https://assets.nhle.com/mugs/nhl/20262027/BUF/8480045.png',
             positionCode: 'G',
-            gamesPlayed: 7,
+            gamesPlayed: 8,
             seasonPoints: 8,
-            record: '3-2-2',
-            gaa: 3.59,
-            savePctg: 0.86,
-            shutouts: 0,
-          },
-        ],
-      },
-      awayTeam: {
-        teamTotals: {
-          record: '1-6-3',
-          gaa: 3.3,
-          savePctg: 0.899696,
-          shutouts: 0,
-          gamesPlayed: 10,
-        },
-        leaders: [
-          {
-            playerId: 8478435,
-            name: { default: 'D. Vladar', cs: 'D. Vladař', sk: 'D. Vladař' },
-            firstName: { default: 'Dan' },
-            lastName: { default: 'Vladar', cs: 'Vladař', sk: 'Vladař' },
-            sweaterNumber: 80,
-            headshot:
-              'https://assets.nhle.com/mugs/nhl/20262027/PHI/8478435.png',
-            positionCode: 'G',
-            gamesPlayed: 5,
-            seasonPoints: 3,
-            record: '1-3-1',
-            gaa: 3.58,
-            savePctg: 0.889,
+            record: '3-3-2',
+            gaa: 3.53,
+            savePctg: 0.864,
             shutouts: 0,
           },
         ],
@@ -608,26 +608,26 @@ export const gameLandingFixture: GameLanding = {
       contextSeason: 20262027,
       skaters: [
         {
-          playerId: 8482169,
-          teamId: 4,
+          playerId: 8478911,
+          teamId: 15,
           sweaterNumber: 3,
-          name: { default: 'H. Grans' },
+          name: { default: 'M. Roy' },
           position: 'D',
-          gamesPlayed: 1,
+          gamesPlayed: 3,
           goals: 0,
           assists: 0,
           points: 0,
-          plusMinus: -1,
+          plusMinus: 0,
           pim: 0,
           avgPoints: 0,
-          avgTimeOnIce: '12:26',
+          avgTimeOnIce: '18:07',
           gameWinningGoals: 0,
-          shots: 0,
+          shots: 2,
           shootingPctg: 0,
           faceoffWinningPctg: 0,
           powerPlayGoals: 0,
-          blockedShots: 1,
-          hits: 0,
+          blockedShots: 5,
+          hits: 7,
         },
       ],
     },
@@ -1023,6 +1023,140 @@ export const playByPlayFixture: PlayByPlay = {
   summary: {},
 };
 
+export const playReplayFixture: PlayReplay = {
+  id: 2023020280,
+  gameDate: '2023-11-22',
+  awayTeam: {
+    id: 16,
+    name: { default: 'Blackhawks' },
+    abbrev: 'CHI',
+    placeName: { default: 'Chicago' },
+    placeNameWithPreposition: { default: 'Chicago', fr: 'de Chicago' },
+    logo: 'https://assets.nhle.com/logos/nhl/svg/CHI_19981999-20242025_light.svg',
+    darkLogo:
+      'https://assets.nhle.com/logos/nhl/svg/CHI_19981999-20242025_dark.svg',
+  },
+  homeTeam: {
+    id: 29,
+    name: { default: 'Blue Jackets' },
+    abbrev: 'CBJ',
+    placeName: { default: 'Columbus' },
+    placeNameWithPreposition: { default: 'Columbus', fr: 'de Columbus' },
+    logo: 'https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg',
+    darkLogo: 'https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg',
+  },
+  gameState: 'OFF',
+  gameType: 2,
+  goal: {
+    periodDescriptor: { number: 1, periodType: 'REG', maxRegulationPeriods: 3 },
+    situationCode: '1551',
+    strength: 'ev',
+    playerId: 8476432,
+    firstName: { default: 'Boone' },
+    lastName: { default: 'Jenner' },
+    name: { default: 'B. Jenner' },
+    teamAbbrev: { default: 'CBJ' },
+    headshot: 'https://assets.nhle.com/mugs/nhl/20232024/CBJ/8476432.png',
+    highlightClip: 6341628790112,
+    logoUrl: 'https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg',
+    highlightClipSharingUrl:
+      'https://nhl.com/video/chi-cbj-jenner-scores-goal-against-blackhawks-6341628790112',
+    goalsToDate: 9,
+    sweaterNumber: 38,
+    awayScore: 0,
+    homeScore: 1,
+    leadingTeamAbbrev: { default: 'CBJ' },
+    timeInPeriod: '02:57',
+    shotType: 'wrap-around',
+    goalModifier: 'none',
+    assists: [
+      {
+        playerId: 8478460,
+        firstName: { default: 'Zach' },
+        lastName: { default: 'Werenski' },
+        name: { default: 'Z. Werenski' },
+        assistsToDate: 11,
+        sweaterNumber: 8,
+      },
+    ],
+    pptReplayUrl: 'https://wsr.nhle.com/sprites/20232024/2023020280/ev153.json',
+    homeTeamDefendingSide: 'left',
+    isHome: true,
+    eventId: 153,
+  },
+};
+
+export const scoreboardFixture: Scoreboard = {
+  focusedDate: '2026-10-24',
+  focusedDateCount: 11,
+  gamesByDate: [
+    {
+      date: '2026-10-21',
+      games: [
+        {
+          id: 2026020152,
+          season: 20262027,
+          gameType: 2,
+          gameDate: '2026-10-21',
+          gameCenterLink: '/gamecenter/phi-vs-buf/2026/10/21/2026020152',
+          venue: { default: 'KeyBank Center' },
+          startTimeUTC: '2026-10-21T23:30:00Z',
+          easternUTCOffset: '-04:00',
+          venueUTCOffset: '-04:00',
+          tvBroadcasts: [
+            {
+              id: 385,
+              market: 'N',
+              countryCode: 'US',
+              network: 'TNT',
+              sequenceNumber: 11,
+              logoUrls: {
+                light: 'https://assets.nhle.com/logos/broadcast/385-light.svg',
+                dark: 'https://assets.nhle.com/logos/broadcast/385-dark.svg',
+              },
+            },
+          ],
+          gameState: 'OFF',
+          gameScheduleState: 'OK',
+          awayTeam: {
+            id: 4,
+            name: {
+              default: 'Philadelphia Flyers',
+              fr: 'Flyers de Philadelphie',
+            },
+            commonName: { default: 'Flyers' },
+            placeNameWithPreposition: {
+              default: 'Philadelphia',
+              fr: 'de Philadelphie',
+            },
+            abbrev: 'PHI',
+            score: 3,
+            logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
+          },
+          homeTeam: {
+            id: 7,
+            name: { default: 'Buffalo Sabres', fr: 'Sabres de Buffalo' },
+            commonName: { default: 'Sabres' },
+            placeNameWithPreposition: { default: 'Buffalo', fr: 'de Buffalo' },
+            abbrev: 'BUF',
+            score: 1,
+            logo: 'https://assets.nhle.com/logos/nhl/svg/BUF_light.svg',
+          },
+          period: 3,
+          periodDescriptor: {
+            number: 3,
+            periodType: 'REG',
+            maxRegulationPeriods: 3,
+          },
+          threeMinRecap: '/video/phi-at-buf-recap-6407212465112',
+          threeMinRecapFr:
+            '/fr/video/phi-vs-buf-21-10-2026-resume-6407211868112',
+        },
+      ],
+    },
+  ],
+};
+
 export const rightRailFixture: RightRail = {
   seasonSeries: [
     {
@@ -1161,77 +1295,6 @@ export const shiftChartFixture: ShiftChart = {
     },
   ],
   total: 797,
-};
-
-export const scoreboardFixture: Scoreboard = {
-  focusedDate: '2026-10-24',
-  focusedDateCount: 11,
-  gamesByDate: [
-    {
-      date: '2026-10-21',
-      games: [
-        {
-          id: 2026020152,
-          season: 20262027,
-          gameType: 2,
-          gameDate: '2026-10-21',
-          gameCenterLink: '/gamecenter/phi-vs-buf/2026/10/21/2026020152',
-          venue: { default: 'KeyBank Center' },
-          startTimeUTC: '2026-10-21T23:30:00Z',
-          easternUTCOffset: '-04:00',
-          venueUTCOffset: '-04:00',
-          tvBroadcasts: [
-            {
-              id: 385,
-              market: 'N',
-              countryCode: 'US',
-              network: 'TNT',
-              sequenceNumber: 11,
-              logoUrls: {
-                light: 'https://assets.nhle.com/logos/broadcast/385-light.svg',
-                dark: 'https://assets.nhle.com/logos/broadcast/385-dark.svg',
-              },
-            },
-          ],
-          gameState: 'OFF',
-          gameScheduleState: 'OK',
-          awayTeam: {
-            id: 4,
-            name: {
-              default: 'Philadelphia Flyers',
-              fr: 'Flyers de Philadelphie',
-            },
-            commonName: { default: 'Flyers' },
-            placeNameWithPreposition: {
-              default: 'Philadelphia',
-              fr: 'de Philadelphie',
-            },
-            abbrev: 'PHI',
-            score: 3,
-            logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
-          },
-          homeTeam: {
-            id: 7,
-            name: { default: 'Buffalo Sabres', fr: 'Sabres de Buffalo' },
-            commonName: { default: 'Sabres' },
-            placeNameWithPreposition: { default: 'Buffalo', fr: 'de Buffalo' },
-            abbrev: 'BUF',
-            score: 1,
-            logo: 'https://assets.nhle.com/logos/nhl/svg/BUF_light.svg',
-          },
-          period: 3,
-          periodDescriptor: {
-            number: 3,
-            periodType: 'REG',
-            maxRegulationPeriods: 3,
-          },
-          threeMinRecap: '/video/phi-at-buf-recap-6407212465112',
-          threeMinRecapFr:
-            '/fr/video/phi-vs-buf-21-10-2026-resume-6407211868112',
-        },
-      ],
-    },
-  ],
 };
 
 export const wscPlayFixture: WscPlay[] = [
@@ -1479,79 +1542,3 @@ export const wscPlayFixture: WscPlay[] = [
     utc: '2024-06-09T02:56:56.749',
   },
 ];
-
-export const playReplayFixture: PlayReplay = {
-  id: 2023020280,
-  gameDate: '2023-11-22',
-  awayTeam: {
-    id: 16,
-    name: { default: 'Blackhawks' },
-    abbrev: 'CHI',
-    placeName: { default: 'Chicago' },
-    placeNameWithPreposition: { default: 'Chicago', fr: 'de Chicago' },
-    logo: 'https://assets.nhle.com/logos/nhl/svg/CHI_19981999-20242025_light.svg',
-    darkLogo:
-      'https://assets.nhle.com/logos/nhl/svg/CHI_19981999-20242025_dark.svg',
-  },
-  homeTeam: {
-    id: 29,
-    name: { default: 'Blue Jackets' },
-    abbrev: 'CBJ',
-    placeName: { default: 'Columbus' },
-    placeNameWithPreposition: { default: 'Columbus', fr: 'de Columbus' },
-    logo: 'https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg',
-    darkLogo: 'https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg',
-  },
-  gameState: 'OFF',
-  gameType: 2,
-  goal: {
-    periodDescriptor: { number: 1, periodType: 'REG', maxRegulationPeriods: 3 },
-    situationCode: '1551',
-    strength: 'ev',
-    playerId: 8476432,
-    firstName: { default: 'Boone' },
-    lastName: { default: 'Jenner' },
-    name: { default: 'B. Jenner' },
-    teamAbbrev: { default: 'CBJ' },
-    headshot: 'https://assets.nhle.com/mugs/nhl/20232024/CBJ/8476432.png',
-    highlightClip: 6341628790112,
-    logoUrl: 'https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg',
-    highlightClipSharingUrl:
-      'https://nhl.com/video/chi-cbj-jenner-scores-goal-against-blackhawks-6341628790112',
-    goalsToDate: 9,
-    sweaterNumber: 38,
-    awayScore: 0,
-    homeScore: 1,
-    leadingTeamAbbrev: { default: 'CBJ' },
-    timeInPeriod: '02:57',
-    shotType: 'wrap-around',
-    goalModifier: 'none',
-    assists: [
-      {
-        playerId: 8478460,
-        firstName: { default: 'Zach' },
-        lastName: { default: 'Werenski' },
-        name: { default: 'Z. Werenski' },
-        assistsToDate: 11,
-        sweaterNumber: 8,
-      },
-    ],
-    pptReplayUrl: 'https://wsr.nhle.com/sprites/20232024/2023020280/ev153.json',
-    homeTeamDefendingSide: 'left',
-    isHome: true,
-    eventId: 153,
-  },
-};
-
-export const gameMetaFixture: GameMeta = {
-  teams: [
-    {
-      name: { default: 'Chicago Blackhawks', fr: 'Blackhawks de Chicago' },
-      tricode: 'CHI',
-      teamId: 16,
-      teamSlug: 'chicago-blackhawks-16',
-    },
-  ],
-  seasonStates: { date: '2023-11-22', gameType: 2, season: 20232024 },
-  gameState: 'OFF',
-};

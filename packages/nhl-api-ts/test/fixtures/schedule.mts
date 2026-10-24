@@ -32,86 +32,71 @@ export const calendarScheduleFixture: CalendarSchedule = {
 };
 
 export const weeklyScheduleFixture: WeeklySchedule = {
-  nextStartDate: '2026-10-24',
-  previousStartDate: '2026-10-10',
+  nextStartDate: '2026-10-31',
+  previousStartDate: '2026-10-17',
   gameWeek: [
     {
-      date: '2026-10-17',
+      date: '2026-10-24',
       dayAbbrev: 'SAT',
-      numberOfGames: 14,
+      numberOfGames: 12,
       datePromo: [],
       games: [
         {
-          id: 2026020121,
+          id: 2026020168,
           season: 20262027,
           gameType: 2,
-          venue: { default: 'Capital One Arena' },
+          venue: { default: 'Xfinity Mobile Arena' },
           neutralSite: false,
-          startTimeUTC: '2026-10-17T17:00:00Z',
+          startTimeUTC: '2026-10-24T17:00:00Z',
           easternUTCOffset: '-04:00',
           venueUTCOffset: '-04:00',
           venueTimezone: 'US/Eastern',
-          gameState: 'OFF',
+          gameState: 'LIVE',
           gameScheduleState: 'OK',
           tvBroadcasts: [
             {
-              id: 282,
-              market: 'N',
-              countryCode: 'CA',
-              network: 'SN',
-              sequenceNumber: 21,
+              id: 786,
+              market: 'A',
+              countryCode: 'US',
+              network: 'FOXLA+',
+              sequenceNumber: 1,
             },
           ],
           awayTeam: {
-            id: 1,
-            commonName: { default: 'Devils' },
-            placeName: { default: 'New Jersey' },
-            placeNameWithPreposition: {
-              default: 'New Jersey',
-              fr: 'du New Jersey',
-            },
-            abbrev: 'NJD',
-            logo: 'https://assets.nhle.com/logos/nhl/svg/NJD_light.svg',
-            darkLogo: 'https://assets.nhle.com/logos/nhl/svg/NJD_dark.svg',
+            id: 24,
+            commonName: { default: 'Ducks' },
+            placeName: { default: 'Anaheim' },
+            placeNameWithPreposition: { default: 'Anaheim', fr: "d'Anaheim" },
+            abbrev: 'ANA',
+            logo: 'https://assets.nhle.com/logos/nhl/svg/ANA_light.svg',
+            darkLogo: 'https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg',
             awaySplitSquad: false,
+            radioLink:
+              'https://d2igy0yla8zi0u.cloudfront.net/ANA/20262027/ANA-radio.m3u8',
             score: 2,
           },
           homeTeam: {
-            id: 15,
-            commonName: { default: 'Capitals' },
-            placeName: { default: 'Washington' },
+            id: 4,
+            commonName: { default: 'Flyers' },
+            placeName: { default: 'Philadelphia', fr: 'Philadelphie' },
             placeNameWithPreposition: {
-              default: 'Washington',
-              fr: 'de Washington',
+              default: 'Philadelphia',
+              fr: 'de Philadelphie',
             },
-            abbrev: 'WSH',
-            logo: 'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_light.svg',
-            darkLogo:
-              'https://assets.nhle.com/logos/nhl/svg/WSH_secondary_dark.svg',
+            abbrev: 'PHI',
+            logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
+            darkLogo: 'https://assets.nhle.com/logos/nhl/svg/PHI_dark.svg',
             homeSplitSquad: false,
-            score: 4,
+            radioLink:
+              'https://d2igy0yla8zi0u.cloudfront.net/PHI/20262027/PHI-radio.m3u8',
+            score: 2,
           },
           periodDescriptor: {
-            number: 3,
+            number: 2,
             periodType: 'REG',
             maxRegulationPeriods: 3,
           },
-          gameOutcome: { lastPeriodType: 'REG' },
-          winningGoalie: {
-            playerId: 8480313,
-            firstInitial: { default: 'L.' },
-            lastName: { default: 'Thompson' },
-          },
-          winningGoalScorer: {
-            playerId: 8478440,
-            firstInitial: { default: 'D.' },
-            lastName: { default: 'Strome' },
-          },
-          threeMinRecap: '/video/njd-at-wsh-recap-6407021399112',
-          threeMinRecapFr:
-            '/fr/video/njd-vs-wsh-17-10-2026-resume-6407020619112',
-          condensedGame: '/video/njd-at-wsh-condensed-game-6407021598112',
-          gameCenterLink: '/gamecenter/njd-vs-wsh/2026/10/17/2026020121',
+          gameCenterLink: '/gamecenter/ana-vs-phi/2026/10/24/2026020168',
         },
       ],
     },
@@ -133,7 +118,7 @@ export const weeklyScheduleFixture: WeeklySchedule = {
   regularSeasonStartDate: '2026-09-29',
   regularSeasonEndDate: '2027-04-10',
   playoffEndDate: '2027-06-10',
-  numberOfGames: 47,
+  numberOfGames: 49,
 };
 
 export const playoffBracketFixture: PlayoffBracket = {
@@ -216,6 +201,24 @@ export const playoffCarouselFixture: PlayoffCarousel = {
       ],
     },
   ],
+};
+
+export const playoffSeriesMetaFixture: PlayoffSeriesMeta = {
+  seriesTitle: '1st Round',
+  teams: {
+    topSeed: {
+      name: { default: 'Florida Panthers', fr: 'Panthers de la Floride' },
+      commonName: { default: 'Panthers' },
+      tricode: 'FLA',
+      teamSlug: 'florida-panthers-13',
+    },
+    bottomSeed: {
+      name: { default: 'Tampa Bay Lightning', fr: 'Lightning de Tampa Bay' },
+      commonName: { default: 'Lightning' },
+      tricode: 'TBL',
+      teamSlug: 'tampa-bay-lightning-14',
+    },
+  },
 };
 
 export const playoffSeriesScheduleFixture: PlayoffSeriesSchedule = {
@@ -473,22 +476,4 @@ export const teamSeasonScheduleFixture: TeamSeasonSchedule = {
       gameCenterLink: '/gamecenter/mtl-vs-tor/2026/09/19/2026010006',
     },
   ],
-};
-
-export const playoffSeriesMetaFixture: PlayoffSeriesMeta = {
-  seriesTitle: '1st Round',
-  teams: {
-    topSeed: {
-      name: { default: 'Florida Panthers', fr: 'Panthers de la Floride' },
-      commonName: { default: 'Panthers' },
-      tricode: 'FLA',
-      teamSlug: 'florida-panthers-13',
-    },
-    bottomSeed: {
-      name: { default: 'Tampa Bay Lightning', fr: 'Lightning de Tampa Bay' },
-      commonName: { default: 'Lightning' },
-      tricode: 'TBL',
-      teamSlug: 'tampa-bay-lightning-14',
-    },
-  },
 };
