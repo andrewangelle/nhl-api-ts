@@ -105,6 +105,10 @@ Tests: one URL case per variant (`now`/`current` and explicit season or date) in
 `test/schedule.test.mts` (including both `calendarSchedule` variants). Assert
 `categories`/`limit` with `queryOf(url)`.
 
+**Status: done (2026-10-24).** Leader `categories` are typed with
+`SkaterLeaderCategory` / `GoalieLeaderCategory` (wrapped in `OpenUnion`), and the
+response's category keys are optional since `categories` filters them out.
+
 ## Phase 2: game and league web endpoints
 
 | Method | Module | URL | Notes |

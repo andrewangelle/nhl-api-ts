@@ -353,6 +353,14 @@ const EDGE_REPORTS = [
 /** Named responses (`#/components/responses/<name>`) and the body schema each carries. */
 const RESPONSES: Record<string, { description: string; schema: Schema }> = {
   Roster: { description: 'Team roster.', schema: ref('Roster') },
+  RosterSeasons: {
+    description: 'Seasons a team has a roster for, in YYYYYYYY format.',
+    schema: { type: 'array', items: { type: 'integer' } },
+  },
+  TeamScoreboard: {
+    description: "A team's recent and upcoming games.",
+    schema: ref('TeamScoreboard'),
+  },
   LeagueStandings: {
     description: 'League standings.',
     schema: ref('LeagueStandings'),
@@ -402,6 +410,10 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
     schema: ref('DailyScores'),
   },
   Prospects: { description: 'Team prospects.', schema: ref('Prospects') },
+  PlayerSpotlight: {
+    description: 'Players featured in the nhl.com spotlight.',
+    schema: arrayOf('PlayerSpotlight'),
+  },
   ClubStatsSeasons: {
     description: 'Seasons and game types a team played.',
     schema: arrayOf('ClubStatsSeason'),
@@ -413,6 +425,18 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
   PlayerGameLog: {
     description: 'Player game log.',
     schema: wrapped('gameLog', 'GameLogEntry'),
+  },
+  SkaterStatsLeaders: {
+    description: 'Skater leaders keyed by category.',
+    schema: ref('SkaterStatsLeaders'),
+  },
+  GoalieStatsLeaders: {
+    description: 'Goalie leaders keyed by category.',
+    schema: ref('GoalieStatsLeaders'),
+  },
+  ClubStats: {
+    description: "A team's skater and goalie stats.",
+    schema: ref('ClubStats'),
   },
   EdgeReport: {
     description: 'EDGE report; the shape depends on the `report` path segment.',
