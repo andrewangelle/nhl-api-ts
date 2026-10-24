@@ -425,7 +425,9 @@ export interface SeasonScheduleSeriesStatus {
   seriesTitle: string;
   seriesLetter: string;
   neededToWin: number;
+  topSeedTeamAbbrev: string;
   topSeedWins: number;
+  bottomSeedTeamAbbrev: string;
   bottomSeedWins: number;
   gameNumberOfSeries: number;
 }

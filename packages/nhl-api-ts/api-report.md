@@ -255,6 +255,7 @@ export interface BoxscoreTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    radioLink?: string;
     // (undocumented)
     score?: number;
     // (undocumented)
@@ -2336,6 +2337,7 @@ export interface GameLandingAwayTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    radioLink?: string;
     record?: string;
     // (undocumented)
     score?: number;
@@ -2416,6 +2418,7 @@ export interface GameLandingScoringGoal {
 
 // @public (undocumented)
 export interface GameLandingSummary {
+    iceSurface?: SummaryIceSurface;
     // (undocumented)
     penalties: SummaryPenalty[];
     // (undocumented)
@@ -2648,6 +2651,7 @@ export interface GameStoryAwayTeam {
     name: LocalizedString;
     // (undocumented)
     placeName: LocalizedString;
+    radioLink?: string;
     record?: string;
     // (undocumented)
     score?: number;
@@ -2855,7 +2859,7 @@ export interface Goalie5v5Detail {
     // (undocumented)
     savePctg5v5Details: Goalie5v5Details;
     // (undocumented)
-    savePctg5v5Last10: unknown[];
+    savePctg5v5Last10: Goalie5v5Last10Game[];
 }
 
 // @public
@@ -2871,6 +2875,24 @@ export interface Goalie5v5Details {
     shots: Goalie5v5Stat;
     // (undocumented)
     shotsPer60: Goalie5v5Stat;
+}
+
+// @public (undocumented)
+export interface Goalie5v5Last10Game {
+    // (undocumented)
+    awayTeam: EdgeGameTeam;
+    // (undocumented)
+    decision: string;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    homeTeam: EdgeGameTeam;
+    // (undocumented)
+    playerOnHomeTeam: boolean;
+    // (undocumented)
+    savePctg: number;
 }
 
 // @public (undocumented)
@@ -3002,11 +3024,11 @@ export interface GoalieComparison {
     // (undocumented)
     savePctg5v5Details: GoalieComparison5v5Details;
     // (undocumented)
-    savePctg5v5Last10: unknown[];
+    savePctg5v5Last10: GoalieComparisonLast10Game[];
     // (undocumented)
     savePctgDetails: GoalieComparisonSaveDetails;
     // (undocumented)
-    savePctgLast10: unknown[];
+    savePctgLast10: GoalieComparisonLast10Game[];
     // (undocumented)
     seasonsWithEdgeStats: EdgeSeasonAvailability[];
     // (undocumented)
@@ -3028,6 +3050,22 @@ export interface GoalieComparison5v5Details {
     shots: number;
     // (undocumented)
     shotsPer60: number;
+}
+
+// @public (undocumented)
+export interface GoalieComparisonLast10Game {
+    // (undocumented)
+    awayTeam: EdgeTeamRef;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    homeTeam: EdgeTeamRef;
+    // (undocumented)
+    playerOnHomeTeam: boolean;
+    // (undocumented)
+    savePctg: number;
 }
 
 // @public (undocumented)
@@ -4012,6 +4050,33 @@ export interface HitPlay {
     typeDescKey: 'hit';
 }
 
+// @public (undocumented)
+export interface IceSurfacePlayer {
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    positionCode: PositionCode;
+    // (undocumented)
+    sweaterNumber: number;
+    // (undocumented)
+    totalSOI: number;
+}
+
+// @public (undocumented)
+export interface IceSurfaceTeam {
+    // (undocumented)
+    defensemen: IceSurfacePlayer[];
+    // (undocumented)
+    forwards: IceSurfacePlayer[];
+    // (undocumented)
+    goalies: IceSurfacePlayer[];
+    penaltyBox: unknown[];
+}
+
 // @public
 export type Id = string | number;
 
@@ -4464,13 +4529,13 @@ export interface PenaltyDetails {
     // (undocumented)
     committedByPlayerId: number;
     // (undocumented)
-    descKey: OpenUnion<'elbowing' | 'holding-obstruction' | 'high-sticking' | 'interference' | 'holding-the-stick' | 'slashing' | 'cross-checking' | 'roughing' | 'holding' | 'hooking' | 'fighting' | 'tripping'>;
-    // (undocumented)
-    drawnByPlayerId: number;
+    descKey: OpenUnion<'elbowing' | 'holding-obstruction' | 'high-sticking' | 'interference' | 'holding-the-stick' | 'slashing' | 'cross-checking' | 'roughing' | 'holding' | 'hooking' | 'fighting' | 'tripping' | 'instigator' | 'instigator-misconduct'>;
+    drawnByPlayerId?: number;
     // (undocumented)
     duration: number;
     // (undocumented)
     eventOwnerTeamId: number;
+    servedByPlayerId?: number;
     // (undocumented)
     typeCode: string;
     // (undocumented)
@@ -4486,11 +4551,11 @@ export interface PenaltyEntry {
     // (undocumented)
     committedByPlayer: PenaltyPlayer;
     // (undocumented)
-    descKey: OpenUnion<'elbowing' | 'holding-obstruction' | 'high-sticking' | 'interference' | 'holding-the-stick' | 'slashing' | 'cross-checking' | 'roughing' | 'holding' | 'hooking' | 'fighting' | 'tripping'>;
-    // (undocumented)
-    drawnBy: PenaltyPlayer;
+    descKey: OpenUnion<'elbowing' | 'holding-obstruction' | 'high-sticking' | 'interference' | 'holding-the-stick' | 'slashing' | 'cross-checking' | 'roughing' | 'holding' | 'hooking' | 'fighting' | 'tripping' | 'instigator' | 'instigator-misconduct'>;
+    drawnBy?: PenaltyPlayer;
     // (undocumented)
     duration: number;
+    servedBy?: LocalizedString;
     // (undocumented)
     teamAbbrev: LocalizedString;
     // (undocumented)
@@ -4642,7 +4707,8 @@ export interface PlayByPlay {
     shootoutInUse: boolean;
     // (undocumented)
     startTimeUTC: string;
-    summary?: Record<string, never>;
+    // (undocumented)
+    summary?: PlayByPlaySummary;
     // (undocumented)
     tvBroadcasts: TvBroadcast[];
     // (undocumented)
@@ -4677,6 +4743,11 @@ export interface PlayByPlayRosterSpot {
 }
 
 // @public (undocumented)
+export interface PlayByPlaySummary {
+    iceSurface?: SummaryIceSurface;
+}
+
+// @public (undocumented)
 export interface PlayByPlayTeam {
     // (undocumented)
     abbrev: string;
@@ -4692,6 +4763,7 @@ export interface PlayByPlayTeam {
     placeName: LocalizedString;
     // (undocumented)
     placeNameWithPreposition: LocalizedString;
+    radioLink?: string;
     // (undocumented)
     score: number;
     // (undocumented)
@@ -5807,6 +5879,7 @@ export interface RightRailLinescore {
 export interface RightRailSeasonSeries {
     // (undocumented)
     awayTeam: SeasonSeriesTeam;
+    clock?: GameClock;
     // (undocumented)
     easternUTCOffset: string;
     // (undocumented)
@@ -6251,6 +6324,8 @@ export interface SeasonRules {
 // @public (undocumented)
 export interface SeasonScheduleSeriesStatus {
     // (undocumented)
+    bottomSeedTeamAbbrev: string;
+    // (undocumented)
     bottomSeedWins: number;
     // (undocumented)
     gameNumberOfSeries: number;
@@ -6264,6 +6339,8 @@ export interface SeasonScheduleSeriesStatus {
     seriesLetter: string;
     // (undocumented)
     seriesTitle: string;
+    // (undocumented)
+    topSeedTeamAbbrev: string;
     // (undocumented)
     topSeedWins: number;
 }
@@ -6402,7 +6479,7 @@ export interface SeasonStatsSkater {
     // (undocumented)
     shots?: number;
     // (undocumented)
-    sweaterNumber: number;
+    sweaterNumber?: number;
     // (undocumented)
     teamId: number;
 }
@@ -6463,7 +6540,7 @@ export interface ShiftEntry {
     // (undocumented)
     eventDetails?: string | null;
     // (undocumented)
-    eventNumber: number;
+    eventNumber: number | null;
     // (undocumented)
     firstName: string;
     // (undocumented)
@@ -9035,6 +9112,14 @@ export interface StoppagePlay {
     typeCode: number;
     // (undocumented)
     typeDescKey: 'stoppage';
+}
+
+// @public
+export interface SummaryIceSurface {
+    // (undocumented)
+    awayTeam: IceSurfaceTeam;
+    // (undocumented)
+    homeTeam: IceSurfaceTeam;
 }
 
 // @public (undocumented)

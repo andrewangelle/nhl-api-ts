@@ -476,6 +476,9 @@ components:
           type: number
         sog:
           type: number
+        radioLink:
+          type: string
+          description: Only present while the game is live
     BoxscoreTeamPlayers:
       type: object
       required:
@@ -2659,6 +2662,9 @@ components:
           type: number
         sog:
           type: number
+        radioLink:
+          type: string
+          description: Only present while the game is live
     GameLandingMatchup:
       type: object
       required:
@@ -2782,6 +2788,8 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/SummaryPenalty'
+        iceSurface:
+          '$ref': '#/components/schemas/SummaryIceSurface'
         shootout:
           '$ref': '#/components/schemas/SummaryShootout'
     GameLandingSummaryScoring:
@@ -3073,6 +3081,9 @@ components:
           type: number
         sog:
           type: number
+        radioLink:
+          type: string
+          description: Only present while the game is live
     GameStorySummary:
       type: object
       required:
@@ -3351,7 +3362,8 @@ components:
       properties:
         savePctg5v5Last10:
           type: array
-          items: {}
+          items:
+            '$ref': '#/components/schemas/Goalie5v5Last10Game'
         savePctg5v5Details:
           '$ref': '#/components/schemas/Goalie5v5Details'
     Goalie5v5Details:
@@ -3370,6 +3382,31 @@ components:
           '$ref': '#/components/schemas/Goalie5v5Stat'
         shotsPer60:
           '$ref': '#/components/schemas/Goalie5v5Stat'
+    Goalie5v5Last10Game:
+      type: object
+      required:
+        - gameCenterLink
+        - savePctg
+        - gameDate
+        - decision
+        - playerOnHomeTeam
+        - homeTeam
+        - awayTeam
+      properties:
+        gameCenterLink:
+          type: string
+        savePctg:
+          type: number
+        gameDate:
+          type: string
+        decision:
+          type: string
+        playerOnHomeTeam:
+          type: boolean
+        homeTeam:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+        awayTeam:
+          '$ref': '#/components/schemas/EdgeGameTeam'
     Goalie5v5Stat:
       type: object
       required:
@@ -3587,12 +3624,14 @@ components:
             '$ref': '#/components/schemas/GoalieComparisonLocationArea'
         savePctg5v5Last10:
           type: array
-          items: {}
+          items:
+            '$ref': '#/components/schemas/GoalieComparisonLast10Game'
         savePctg5v5Details:
           '$ref': '#/components/schemas/GoalieComparison5v5Details'
         savePctgLast10:
           type: array
-          items: {}
+          items:
+            '$ref': '#/components/schemas/GoalieComparisonLast10Game'
         savePctgDetails:
           '$ref': '#/components/schemas/GoalieComparisonSaveDetails'
     GoalieComparison5v5Details:
@@ -3611,6 +3650,28 @@ components:
           type: number
         shotsPer60:
           type: number
+    GoalieComparisonLast10Game:
+      type: object
+      required:
+        - gameCenterLink
+        - savePctg
+        - gameDate
+        - playerOnHomeTeam
+        - homeTeam
+        - awayTeam
+      properties:
+        gameCenterLink:
+          type: string
+        savePctg:
+          type: number
+        gameDate:
+          type: string
+        playerOnHomeTeam:
+          type: boolean
+        homeTeam:
+          '$ref': '#/components/schemas/EdgeTeamRef'
+        awayTeam:
+          '$ref': '#/components/schemas/EdgeTeamRef'
     GoalieComparisonLocationArea:
       type: object
       required:
@@ -4914,6 +4975,53 @@ components:
           type: number
         details:
           '$ref': '#/components/schemas/HitDetails'
+    IceSurfacePlayer:
+      type: object
+      required:
+        - playerId
+        - name
+        - sweaterNumber
+        - positionCode
+        - headshot
+        - totalSOI
+      properties:
+        playerId:
+          type: number
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        sweaterNumber:
+          type: number
+        positionCode:
+          type: string
+          description: 'Known values: C, L, R, D, G. Others may appear.'
+        headshot:
+          type: string
+        totalSOI:
+          type: number
+    IceSurfaceTeam:
+      type: object
+      required:
+        - forwards
+        - defensemen
+        - goalies
+        - penaltyBox
+      properties:
+        forwards:
+          type: array
+          items:
+            '$ref': '#/components/schemas/IceSurfacePlayer'
+        defensemen:
+          type: array
+          items:
+            '$ref': '#/components/schemas/IceSurfacePlayer'
+        goalies:
+          type: array
+          items:
+            '$ref': '#/components/schemas/IceSurfacePlayer'
+        penaltyBox:
+          type: array
+          items: {}
+          description: Empty in every sample seen.
     LandingDistanceOverlay:
       type: object
       required:
@@ -5415,20 +5523,23 @@ components:
         - descKey
         - duration
         - committedByPlayerId
-        - drawnByPlayerId
         - eventOwnerTeamId
       properties:
         typeCode:
           type: string
         descKey:
           type: string
-          description: 'Known values: elbowing, holding-obstruction, high-sticking, interference, holding-the-stick, slashing, cross-checking, roughing, holding, hooking, fighting, tripping. Others may appear.'
+          description: 'Known values: elbowing, holding-obstruction, high-sticking, interference, holding-the-stick, slashing, cross-checking, roughing, holding, hooking, fighting, tripping, instigator, instigator-misconduct. Others may appear.'
         duration:
           type: number
         committedByPlayerId:
           type: number
         drawnByPlayerId:
           type: number
+          description: 'Absent for penalties nobody drew, e.g. misconducts'
+        servedByPlayerId:
+          type: number
+          description: Only when someone other than the committing player serves the penalty
         eventOwnerTeamId:
           type: number
         xCoord:
@@ -5446,7 +5557,6 @@ components:
         - duration
         - committedByPlayer
         - teamAbbrev
-        - drawnBy
         - descKey
       properties:
         timeInPeriod:
@@ -5461,9 +5571,11 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         drawnBy:
           '$ref': '#/components/schemas/PenaltyPlayer'
+        servedBy:
+          '$ref': '#/components/schemas/LocalizedString'
         descKey:
           type: string
-          description: 'Known values: elbowing, holding-obstruction, high-sticking, interference, holding-the-stick, slashing, cross-checking, roughing, holding, hooking, fighting, tripping. Others may appear.'
+          description: 'Known values: elbowing, holding-obstruction, high-sticking, interference, holding-the-stick, slashing, cross-checking, roughing, holding, hooking, fighting, tripping, instigator, instigator-misconduct. Others may appear.'
     PenaltyPlay:
       type: object
       required:
@@ -5678,9 +5790,7 @@ components:
         gameOutcome:
           '$ref': '#/components/schemas/GameOutcome'
         summary:
-          type: object
-          maxProperties: 0
-          description: Empty object in every sample seen.
+          '$ref': '#/components/schemas/PlayByPlaySummary'
     PlayByPlayRosterSpot:
       type: object
       required:
@@ -5707,6 +5817,11 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         headshot:
           type: string
+    PlayByPlaySummary:
+      type: object
+      properties:
+        iceSurface:
+          '$ref': '#/components/schemas/SummaryIceSurface'
     PlayByPlayTeam:
       type: object
       required:
@@ -5737,6 +5852,9 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         sog:
           type: number
+        radioLink:
+          type: string
+          description: Only present while the game is live
     PlayerLanding:
       type: object
       required:
@@ -7137,6 +7255,8 @@ components:
           type: string
         gameOutcome:
           '$ref': '#/components/schemas/GameOutcome'
+        clock:
+          '$ref': '#/components/schemas/GameClock'
     RightRailSeasonSeriesWins:
       type: object
       required:
@@ -7703,7 +7823,9 @@ components:
         - seriesTitle
         - seriesLetter
         - neededToWin
+        - topSeedTeamAbbrev
         - topSeedWins
+        - bottomSeedTeamAbbrev
         - bottomSeedWins
         - gameNumberOfSeries
       properties:
@@ -7717,8 +7839,12 @@ components:
           type: string
         neededToWin:
           type: number
+        topSeedTeamAbbrev:
+          type: string
         topSeedWins:
           type: number
+        bottomSeedTeamAbbrev:
+          type: string
         bottomSeedWins:
           type: number
         gameNumberOfSeries:
@@ -7832,7 +7958,6 @@ components:
       required:
         - playerId
         - teamId
-        - sweaterNumber
         - name
         - position
       properties:
@@ -7959,7 +8084,9 @@ components:
             - type: string
             - type: 'null'
         eventNumber:
-          type: number
+          oneOf:
+            - type: number
+            - type: 'null'
         firstName:
           type: string
         gameId:
@@ -11460,6 +11587,16 @@ components:
           type: number
         details:
           '$ref': '#/components/schemas/StoppageDetails'
+    SummaryIceSurface:
+      type: object
+      required:
+        - awayTeam
+        - homeTeam
+      properties:
+        awayTeam:
+          '$ref': '#/components/schemas/IceSurfaceTeam'
+        homeTeam:
+          '$ref': '#/components/schemas/IceSurfaceTeam'
     SummaryPenalty:
       type: object
       required:

@@ -16,6 +16,24 @@ export const franchiseFixture: Franchise = {
 
 export const seasonIdFixture: SeasonId[] = [19271928];
 
+export const statsTeamFixture: StatsTeam = {
+  id: 32,
+  franchiseId: 27,
+  fullName: 'Quebec Nordiques',
+  leagueId: 133,
+  rawTricode: 'QUE',
+  triCode: 'QUE',
+};
+
+export const statsTeamFixture2: StatsTeam = {
+  id: 10,
+  franchiseId: 5,
+  fullName: 'Toronto Maple Leafs',
+  leagueId: 133,
+  rawTricode: 'TOR',
+  triCode: 'TOR',
+};
+
 export const rosterFixture: Roster = {
   forwards: [
     {
@@ -148,22 +166,4 @@ export const teamScoreboardFixture: TeamScoreboard = {
       ],
     },
   ],
-};
-
-export const statsTeamFixture: StatsTeam = {
-  id: 32,
-  franchiseId: 27,
-  fullName: 'Quebec Nordiques',
-  leagueId: 133,
-  rawTricode: 'QUE',
-  triCode: 'QUE',
-};
-
-export const statsTeamFixture2: StatsTeam = {
-  id: 10,
-  franchiseId: 5,
-  fullName: 'Toronto Maple Leafs',
-  leagueId: 133,
-  rawTricode: 'TOR',
-  triCode: 'TOR',
 };

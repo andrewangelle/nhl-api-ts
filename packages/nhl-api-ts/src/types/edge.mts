@@ -97,8 +97,18 @@ export interface EdgeRankedMeasurement {
 }
 
 export interface Goalie5v5Detail {
-  savePctg5v5Last10: unknown[];
+  savePctg5v5Last10: Goalie5v5Last10Game[];
   savePctg5v5Details: Goalie5v5Details;
+}
+
+export interface Goalie5v5Last10Game {
+  gameCenterLink: string;
+  savePctg: number;
+  gameDate: string;
+  decision: string;
+  playerOnHomeTeam: boolean;
+  homeTeam: EdgeGameTeam;
+  awayTeam: EdgeGameTeam;
 }
 
 export interface Goalie5v5Details {
@@ -113,10 +123,19 @@ export interface GoalieComparison {
   seasonsWithEdgeStats: EdgeSeasonAvailability[];
   shotLocationSummary: GoalieComparisonLocationSummary[];
   shotLocationDetails: GoalieComparisonLocationArea[];
-  savePctg5v5Last10: unknown[];
+  savePctg5v5Last10: GoalieComparisonLast10Game[];
   savePctg5v5Details: GoalieComparison5v5Details;
-  savePctgLast10: unknown[];
+  savePctgLast10: GoalieComparisonLast10Game[];
   savePctgDetails: GoalieComparisonSaveDetails;
+}
+
+export interface GoalieComparisonLast10Game {
+  gameCenterLink: string;
+  savePctg: number;
+  gameDate: string;
+  playerOnHomeTeam: boolean;
+  homeTeam: EdgeTeamRef;
+  awayTeam: EdgeTeamRef;
 }
 
 export interface GoalieComparison5v5Details {
