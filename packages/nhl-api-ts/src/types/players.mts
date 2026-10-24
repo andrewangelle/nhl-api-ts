@@ -60,3 +60,14 @@ export interface ProspectsGoalie {
   birthCity: LocalizedString;
   birthCountry: string;
 }
+
+/** One row of the stats API player search (`en/players`). */
+export interface StatsPlayer {
+  id: number;
+  currentTeamId: number | null;
+  firstName: string;
+  fullName: string;
+  lastName: string;
+  positionCode: PositionCode;
+  sweaterNumber: number | null;
+}

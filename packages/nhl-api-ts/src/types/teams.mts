@@ -1,6 +1,7 @@
 // Response types derived from live NHL API probing. See CONTRIBUTING.md.
 import type {
   LocalizedString,
+  OpenUnion,
   PositionCode,
   ShootsCatches,
 } from '#src/types/common.mjs';
@@ -35,6 +36,27 @@ export interface RosterPlayer {
   birthCity: LocalizedString;
   birthCountry: string;
   birthStateProvince?: LocalizedString;
+}
+
+/** One team of the stats API (`en/team`), past or present. */
+export interface StatsTeam {
+  id: number;
+  /** `null` for the placeholder teams (TBD, NHL) */
+  franchiseId: number | null;
+  fullName: string;
+  leagueId: number;
+  rawTricode: string;
+  triCode: string;
+}
+
+export interface StatsTeamLogo {
+  id: number;
+  background: OpenUnion<'light' | 'dark' | 'alt' | 'black'>;
+  endSeason: number;
+  secureUrl: string;
+  startSeason: number;
+  teamId: number;
+  url: string;
 }
 
 export interface TeamScoreboard {

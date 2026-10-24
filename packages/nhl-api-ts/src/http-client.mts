@@ -18,7 +18,11 @@ export const Endpoint = {
 export type Endpoint = (typeof Endpoint)[keyof typeof Endpoint];
 
 export type QueryParamValue = string | number | boolean | null | undefined;
-export type QueryParams = Record<string, QueryParamValue>;
+/** An array value repeats the key once per element (`include=a&include=b`). */
+export type QueryParams = Record<
+  string,
+  QueryParamValue | readonly QueryParamValue[]
+>;
 
 /** Converts a query param value the same way httpx does (True -> "true", None -> ""). */
 function paramToString(value: QueryParamValue): string {
@@ -39,7 +43,13 @@ export function buildUrl(
   }
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(queryParams)) {
-    search.append(key, paramToString(value));
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        search.append(key, paramToString(item));
+      }
+    } else {
+      search.append(key, paramToString(value as QueryParamValue));
+    }
   }
   const qs = search.toString();
   if (!qs) {

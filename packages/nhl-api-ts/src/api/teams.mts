@@ -5,6 +5,7 @@ import type {
   Roster,
   SeasonId,
   StandingsEntry,
+  StatsTeam,
   TeamScoreboard,
 } from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
@@ -178,10 +179,40 @@ export async function franchises(ctx: Context): Promise<Franchise[]> {
   return response.data ?? [];
 }
 
+/**
+ * Get every team in the stats API, past and present (62 rows), with its
+ * franchise id and tricode. Unlike `teams()`, this is the raw stats API row.
+ *
+ * @example https://api.nhle.com/stats/rest/en/team
+ */
+export async function statsTeams(ctx: Context): Promise<StatsTeam[]> {
+  const response = await (await ctx.get(Endpoint.API_STATS, 'en/team')).json();
+  return response.data ?? [];
+}
+
+/**
+ * Get one team from the stats API by its team id. An unknown id throws
+ * `ResourceNotFoundException`.
+ *
+ * @param params.teamId NHL team id, e.g. 10
+ * @example https://api.nhle.com/stats/rest/en/team/id/10
+ */
+export async function teamById(
+  ctx: Context,
+  { teamId }: { teamId: Id },
+): Promise<StatsTeam> {
+  const response = await (
+    await ctx.get(Endpoint.API_STATS, `en/team/id/${teamId}`)
+  ).json();
+  return response.data[0];
+}
+
 export const teamsApi = {
   teams,
   teamRoster,
   rosterSeasons,
   teamScoreboard,
   franchises,
+  statsTeams,
+  teamById,
 } as const;

@@ -75,6 +75,8 @@ export function createNHLClient(options: ClientOptions = {}) {
         statsApi.skaterStatsWithQueryContext,
       ),
       goalieStatsSummary: bindFn(ctx, statsApi.goalieStatsSummary),
+      skaterLeaders: bindFn(ctx, statsApi.skaterLeaders),
+      goalieLeaders: bindFn(ctx, statsApi.goalieLeaders),
     },
     misc: bindModule(ctx, miscApi),
     helpers: bindModule(ctx, helpersApi),

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
 import { toTeam, withFranchiseIds } from '#src/api/teams.mjs';
+import { ResourceNotFoundException } from '#src/index.mjs';
 import { calledUrls, mockFetch, newClient } from './fetch-mock.mts';
 
 afterEach(() => mock.restoreAll());
@@ -219,5 +220,33 @@ describe('Teams', () => {
     const fetchSpy = mockFetch();
     await newClient().teams.teams({ date: '2024-01-01' });
     assert.match(calledUrls(fetchSpy)[0], /standings\/2024-01-01$/);
+  });
+});
+
+describe('Teams: stats API', () => {
+  it('statsTeams unwraps data', async () => {
+    const row = { id: 10, triCode: 'TOR' };
+    const fetchSpy = mockFetch(() => ({ body: { data: [row], total: 1 } }));
+    assert.deepEqual(await newClient().teams.statsTeams(), [row]);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api.nhle.com/stats/rest/en/team',
+    ]);
+  });
+
+  it('teamById returns the single row', async () => {
+    const row = { id: 10, triCode: 'TOR' };
+    const fetchSpy = mockFetch(() => ({ body: { data: [row], total: 1 } }));
+    assert.deepEqual(await newClient().teams.teamById({ teamId: 10 }), row);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api.nhle.com/stats/rest/en/team/id/10',
+    ]);
+  });
+
+  it('teamById throws ResourceNotFoundException for an unknown id', async () => {
+    mockFetch(() => ({ status: 404, body: { message: 'Not found' } }));
+    await assert.rejects(
+      newClient().teams.teamById({ teamId: 999 }),
+      ResourceNotFoundException,
+    );
   });
 });

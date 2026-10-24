@@ -1431,6 +1431,23 @@ components:
           type: number
         faceoffWinPctg:
           type: number
+    ComponentSeason:
+      type: object
+      required:
+        - id
+        - component
+        - gameTypeId
+        - seasonId
+      properties:
+        id:
+          type: string
+        component:
+          type: string
+        gameTypeId:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        seasonId:
+          type: number
     Country:
       type: object
       required:
@@ -3833,6 +3850,35 @@ components:
           '$ref': '#/components/schemas/EdgePercentileStat'
         pointPctg:
           '$ref': '#/components/schemas/EdgePercentileStat'
+    GoalieGaaLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - gaa
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        gaa:
+          oneOf:
+            - type: number
+            - type: 'null'
+          description: '`null` in every all-time row (no minimum games), set when filtered to a season'
+    GoalieGamesPlayedLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - gamesPlayed
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        gamesPlayed:
+          type: number
     GoalieLanding:
       type: object
       required:
@@ -3969,6 +4015,63 @@ components:
           type: number
         savePctgLeagueAvg:
           type: number
+    GoalieMilestone:
+      type: object
+      required:
+        - id
+        - currentTeamId
+        - firstName
+        - gameTypeId
+        - gamesPlayed
+        - lastName
+        - milestone
+        - milestoneAmount
+        - playerFullName
+        - playerId
+        - so
+        - teamAbbrev
+        - teamCommonName
+        - teamFullName
+        - teamPlaceName
+        - toiMinutes
+        - wins
+      properties:
+        id:
+          type: number
+        currentTeamId:
+          type: number
+        firstName:
+          type: string
+        gameTypeId:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        gamesPlayed:
+          type: number
+        lastName:
+          type: string
+        milestone:
+          type: string
+          description: 'Known values: Games Played, Minutes Played, Shutouts, Wins. Others may appear.'
+        milestoneAmount:
+          type: number
+        playerFullName:
+          type: string
+        playerId:
+          type: number
+        so:
+          type: number
+        teamAbbrev:
+          type: string
+        teamCommonName:
+          type: string
+        teamFullName:
+          type: string
+        teamPlaceName:
+          type: string
+        toiMinutes:
+          type: number
+        wins:
+          type: number
     GoaliePenaltyShotsRow:
       type: object
       required:
@@ -4054,6 +4157,19 @@ components:
           '$ref': '#/components/schemas/EdgeTeamRef'
         awayTeam:
           '$ref': '#/components/schemas/EdgeTeamRef'
+    GoalieSavePctgLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - savePctg
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        savePctg:
+          type: number
     GoalieSavePercentageDetail:
       type: object
       required:
@@ -4354,6 +4470,19 @@ components:
           type: number
         savePctgLeagueAvg:
           type: number
+    GoalieShutoutsLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - shutouts
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        shutouts:
+          type: number
     GoalieStartedVsRelievedRow:
       type: object
       required:
@@ -4571,6 +4700,20 @@ components:
           type: number
         gamesPlayed:
           type: number
+    GoalieTimeOnIceLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - timeOnIce
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        timeOnIce:
+          type: number
+          description: Seconds
     GoalPlay:
       type: object
       required:
@@ -8019,6 +8162,19 @@ components:
         gameType:
           type: integer
           description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+    SkaterAssistsLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - assists
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        assists:
+          type: number
     SkaterBiosRow:
       type: object
       required:
@@ -8893,6 +9049,19 @@ components:
           type: number
         totalFaceoffs:
           type: number
+    SkaterGamesPlayedLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - gamesPlayed
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        gamesPlayed:
+          type: number
     SkaterGoalsForAgainstRow:
       type: object
       required:
@@ -8961,6 +9130,19 @@ components:
         teamAbbrevs:
           type: string
           description: 'Absent when `aggregate: true`'
+    SkaterGoalsLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - goals
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        goals:
+          type: number
     SkaterHardestShot:
       type: object
       required:
@@ -9030,6 +9212,63 @@ components:
           '$ref': '#/components/schemas/OffensiveZoneTimeLeader'
         defensiveZoneTime:
           '$ref': '#/components/schemas/OffensiveZoneTimeLeader'
+    SkaterMilestone:
+      type: object
+      required:
+        - id
+        - assists
+        - currentTeamId
+        - firstName
+        - gameTypeId
+        - gamesPlayed
+        - goals
+        - lastName
+        - milestone
+        - milestoneAmount
+        - playerFullName
+        - playerId
+        - points
+        - teamAbbrev
+        - teamCommonName
+        - teamFullName
+        - teamPlaceName
+      properties:
+        id:
+          type: number
+        assists:
+          type: number
+        currentTeamId:
+          type: number
+        firstName:
+          type: string
+        gameTypeId:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        gamesPlayed:
+          type: number
+        goals:
+          type: number
+        lastName:
+          type: string
+        milestone:
+          type: string
+          description: 'Known values: Assists, Games Played, Goals, Points. Others may appear.'
+        milestoneAmount:
+          type: number
+        playerFullName:
+          type: string
+        playerId:
+          type: number
+        points:
+          type: number
+        teamAbbrev:
+          type: string
+        teamCommonName:
+          type: string
+        teamFullName:
+          type: string
+        teamPlaceName:
+          type: string
     SkaterPenaltiesRow:
       type: object
       required:
@@ -9325,6 +9564,19 @@ components:
         usatRelative:
           type: number
         zoneStartPct5v5:
+          type: number
+    SkaterPointsLeaderRow:
+      type: object
+      required:
+        - player
+        - team
+        - points
+      properties:
+        player:
+          '$ref': '#/components/schemas/StatsPlayer'
+        team:
+          '$ref': '#/components/schemas/StatsLeaderTeam'
+        points:
           type: number
     SkaterPowerPlayRow:
       type: object
@@ -10974,6 +11226,50 @@ components:
           type: array
           items:
             type: string
+    StatsGame:
+      type: object
+      required:
+        - id
+        - easternStartTime
+        - gameDate
+        - gameNumber
+        - gameScheduleStateId
+        - gameStateId
+        - gameType
+        - homeScore
+        - homeTeamId
+        - period
+        - season
+        - visitingScore
+        - visitingTeamId
+      properties:
+        id:
+          type: number
+        easternStartTime:
+          type: string
+        gameDate:
+          type: string
+        gameNumber:
+          type: number
+        gameScheduleStateId:
+          type: number
+        gameStateId:
+          type: number
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        homeScore:
+          type: number
+        homeTeamId:
+          type: number
+        period:
+          type: number
+        season:
+          type: number
+        visitingScore:
+          type: number
+        visitingTeamId:
+          type: number
     StatsLeader:
       type: object
       required:
@@ -11009,6 +11305,114 @@ components:
           description: 'Known values: C, L, R, D, G. Others may appear.'
         value:
           type: number
+    StatsLeaderTeam:
+      type: object
+      required:
+        - id
+        - franchiseId
+        - fullName
+        - leagueId
+        - logos
+        - rawTricode
+        - triCode
+      properties:
+        id:
+          type: number
+        franchiseId:
+          type: number
+        fullName:
+          type: string
+        leagueId:
+          type: number
+        logos:
+          type: array
+          items:
+            '$ref': '#/components/schemas/StatsTeamLogo'
+        rawTricode:
+          type: string
+        triCode:
+          type: string
+    StatsPlayer:
+      type: object
+      required:
+        - id
+        - currentTeamId
+        - firstName
+        - fullName
+        - lastName
+        - positionCode
+        - sweaterNumber
+      properties:
+        id:
+          type: number
+        currentTeamId:
+          oneOf:
+            - type: number
+            - type: 'null'
+        firstName:
+          type: string
+        fullName:
+          type: string
+        lastName:
+          type: string
+        positionCode:
+          type: string
+          description: 'Known values: C, L, R, D, G. Others may appear.'
+        sweaterNumber:
+          oneOf:
+            - type: number
+            - type: 'null'
+    StatsTeam:
+      type: object
+      required:
+        - id
+        - franchiseId
+        - fullName
+        - leagueId
+        - rawTricode
+        - triCode
+      properties:
+        id:
+          type: number
+        franchiseId:
+          oneOf:
+            - type: number
+            - type: 'null'
+          description: '`null` for the placeholder teams (TBD, NHL)'
+        fullName:
+          type: string
+        leagueId:
+          type: number
+        rawTricode:
+          type: string
+        triCode:
+          type: string
+    StatsTeamLogo:
+      type: object
+      required:
+        - id
+        - background
+        - endSeason
+        - secureUrl
+        - startSeason
+        - teamId
+        - url
+      properties:
+        id:
+          type: number
+        background:
+          type: string
+          description: 'Known values: light, dark, alt, black. Others may appear.'
+        endSeason:
+          type: number
+        secureUrl:
+          type: string
+        startSeason:
+          type: number
+        teamId:
+          type: number
+        url:
+          type: string
     StoppageDetails:
       type: object
       required:
@@ -13406,6 +13810,149 @@ components:
                     - '$ref': '#/components/schemas/GoalieStartedVsRelievedRow'
               total:
                 type: integer
+    PlayerSearch:
+      description: 'Players matching a filter, at most 5 per page.'
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/StatsPlayer'
+              total:
+                type: integer
+    SkaterLeaders:
+      description: 'Top 10 single-season skater records; the stat key is `attribute`.'
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  oneOf:
+                    - '$ref': '#/components/schemas/SkaterPointsLeaderRow'
+                    - '$ref': '#/components/schemas/SkaterGoalsLeaderRow'
+                    - '$ref': '#/components/schemas/SkaterAssistsLeaderRow'
+                    - '$ref': '#/components/schemas/SkaterGamesPlayedLeaderRow'
+              total:
+                type: integer
+    GoalieLeaders:
+      description: 'Top 10 single-season goalie records; the stat key is `attribute`.'
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  oneOf:
+                    - '$ref': '#/components/schemas/GoalieGaaLeaderRow'
+                    - '$ref': '#/components/schemas/GoalieSavePctgLeaderRow'
+                    - '$ref': '#/components/schemas/GoalieShutoutsLeaderRow'
+                    - '$ref': '#/components/schemas/GoalieTimeOnIceLeaderRow'
+                    - '$ref': '#/components/schemas/GoalieGamesPlayedLeaderRow'
+              total:
+                type: integer
+    SkaterMilestones:
+      description: Career milestones active skaters are approaching.
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/SkaterMilestone'
+              total:
+                type: integer
+    GoalieMilestones:
+      description: Career milestones active goalies are approaching.
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/GoalieMilestone'
+              total:
+                type: integer
+    StatsTeams:
+      description: Stats API teams.
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/StatsTeam'
+              total:
+                type: integer
+    ComponentSeasons:
+      description: Default season and game type of the stats API.
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/ComponentSeason'
+              total:
+                type: integer
+    StatsGames:
+      description: Games.
+      content:
+        'application/json':
+          schema:
+            type: object
+            required:
+              - data
+              - total
+            properties:
+              data:
+                type: array
+                items:
+                  '$ref': '#/components/schemas/StatsGame'
+              total:
+                type: integer
+    Ping:
+      description: 'Empty object; the stats API is up.'
+      content:
+        'application/json':
+          schema:
+            type: object
     Glossary:
       description: Glossary.
       content:
@@ -14428,6 +14975,65 @@ paths:
       summary: 'Every past and current franchise (`id`, `fullName`, ...).'
       responses:
         '200': { $ref: '#/components/responses/Franchises' }
+  /en/team:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [teams]
+      operationId: statsTeams
+      x-sdk-method: [teams.statsTeams]
+      summary: 'Every team in the stats API, past and present (`id`, `franchiseId`, `triCode`, ...).'
+      responses:
+        '200': { $ref: '#/components/responses/StatsTeams' }
+  /en/team/id/{teamId}:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [teams]
+      operationId: teamById
+      x-sdk-method: [teams.teamById]
+      summary: One stats API team by id. The SDK returns the single row.
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema: { type: integer, example: 10 }
+      responses:
+        '200': { $ref: '#/components/responses/StatsTeams' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /en/players:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [players]
+      operationId: playerSearch
+      x-sdk-method: [players.playerSearch]
+      summary: 'Search every player on record. At most 5 rows per request; page with `start`.'
+      parameters:
+        - name: cayenneExp
+          in: query
+          required: true
+          description: 'Filter on the row fields only (`fullName likeIgnoreCase ''%matth%''`, `currentTeamId=10`, `positionCode=''C''`); other columns are a 400. Without it the response is empty. The SDK builds it from `name` / `teamId` / `position`.'
+          schema: { type: string }
+        - name: sort
+          in: query
+          schema: { type: string, example: lastName }
+        - name: dir
+          in: query
+          schema: { type: string, enum: [ASC, DESC] }
+        - $ref: '#/components/parameters/Start'
+        - name: include
+          in: query
+          description: Only return this field. Repeat for several; a comma list is a 400.
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: exclude
+          in: query
+          description: Leave out this field. Repeat for several; a comma list is a 400.
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+      responses:
+        '200': { $ref: '#/components/responses/PlayerSearch' }
+        '400': { $ref: '#/components/responses/BadRequest' }
   /en/shiftcharts:
     servers: [{ url: https://api.nhle.com/stats/rest }]
     get:
@@ -14542,6 +15148,66 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/GoalieReport' }
         '400': { $ref: '#/components/responses/BadRequest' }
+  /en/leaders/skaters/{attribute}:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: skaterLeaders
+      x-sdk-method: [stats.skaterLeaders]
+      summary: Top 10 single-season skater records for a stat (all seasons unless filtered).
+      parameters:
+        - name: attribute
+          in: path
+          required: true
+          description: Case-sensitive. Unknown values return 500.
+          schema: { type: string, enum: [points, goals, assists, gamesPlayed] }
+        - name: cayenneExp
+          in: query
+          description: 'Only `season=<YYYYYYYY>` works; other columns (`seasonId`, `gameTypeId`, ...) are a 400. The SDK builds it from `season`.'
+          schema: { type: string, example: season=20232024 }
+      responses:
+        '200': { $ref: '#/components/responses/SkaterLeaders' }
+        '500': { description: Unknown attribute. }
+  /en/leaders/goalies/{attribute}:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: goalieLeaders
+      x-sdk-method: [stats.goalieLeaders]
+      summary: Top 10 single-season goalie records for a stat (all seasons unless filtered).
+      parameters:
+        - name: attribute
+          in: path
+          required: true
+          description: Case-sensitive. Unknown values (including `wins`) return 500.
+          schema:
+            type: string
+            enum: [gaa, savePctg, shutouts, timeOnIce, gamesPlayed]
+        - name: cayenneExp
+          in: query
+          description: 'Only `season=<YYYYYYYY>` works; other columns (`seasonId`, `gameTypeId`, ...) are a 400. The SDK builds it from `season`.'
+          schema: { type: string, example: season=20232024 }
+      responses:
+        '200': { $ref: '#/components/responses/GoalieLeaders' }
+        '500': { description: Unknown attribute. }
+  /en/milestones/skaters:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: skaterMilestones
+      x-sdk-method: [stats.skaterMilestones]
+      summary: Career milestones active skaters are approaching.
+      responses:
+        '200': { $ref: '#/components/responses/SkaterMilestones' }
+  /en/milestones/goalies:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [stats]
+      operationId: goalieMilestones
+      x-sdk-method: [stats.goalieMilestones]
+      summary: Career milestones active goalies are approaching.
+      responses:
+        '200': { $ref: '#/components/responses/GoalieMilestones' }
   /en/glossary:
     servers: [{ url: https://api.nhle.com/stats/rest }]
     get:
@@ -14582,6 +15248,39 @@ paths:
       x-sdk-method: [misc.seasonSpecificRulesAndInfo]
       responses:
         '200': { $ref: '#/components/responses/Seasons' }
+  /en/componentSeason:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: componentSeasons
+      x-sdk-method: [misc.componentSeasons]
+      summary: Season and game type the stats API serves by default.
+      responses:
+        '200': { $ref: '#/components/responses/ComponentSeasons' }
+  /en/game:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: games
+      x-sdk-method: [misc.games]
+      summary: 'Games matching a filter on the row fields (`season`, `gameType`, `gameDate`, `homeTeamId`, ...; `seasonId` is a 400). Unfiltered it is every game ever (about 19 MB), so the SDK requires a filter.'
+      parameters:
+        - name: cayenneExp
+          in: query
+          required: true
+          schema: { type: string, example: season=20232024 }
+      responses:
+        '200': { $ref: '#/components/responses/StatsGames' }
+  /ping:
+    servers: [{ url: https://api.nhle.com/stats/rest }]
+    get:
+      tags: [misc]
+      operationId: ping
+      x-sdk-method: [misc.ping]
+      summary: 'Stats API health check. The body is `{}`; the SDK resolves `true`.'
+      responses:
+        '200': { $ref: '#/components/responses/Ping' }
+        '5XX': { description: The stats API is down. }
   /en/draft:
     servers: [{ url: https://api.nhle.com/stats/rest }]
     get:

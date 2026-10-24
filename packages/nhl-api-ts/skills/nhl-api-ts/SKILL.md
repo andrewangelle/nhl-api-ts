@@ -36,6 +36,8 @@ npx nhl-api-ts <module> <command> --help
 | A player's career totals or bio            | `stats.playerCareerStats({ playerId })`                              |
 | A player's game-by-game log                | `stats.playerGameLog({ playerId, seasonId?, gameType? })`            |
 | League leaders (goals, points, wins, ...)  | `stats.skaterStatsLeaders` / `goalieStatsLeaders({ categories?, limit? })`, keyed by category |
+| All-time single-season records (top 10)    | `stats.skaterLeaders` / `goalieLeaders({ attribute, season? })` (stats API; all time without `season`) |
+| Find a player id by name                   | `players.playerSearch({ name: 'matthews', teamId?, position? })` returns `{ data, total }`, 5 rows per page |
 | A team's player stats for a season         | `stats.clubStats({ teamAbbr, season?, gameType? })` returns `{ skaters, goalies }` |
 | Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `buildQuery`/`filter.*` (see below) |
 | Simple skater, goalie or team leaderboards | `stats.skaterStatsSummary` / `goalieStatsSummary` / `teamSummary`    |
@@ -92,6 +94,8 @@ An unknown report type makes the API return 500.
 - **The stats API pages are capped at 100 rows.** A larger `limit` is cut to
   100. Page with `start: rows.length` until you have `total` rows, or pass
   `limit: -1` to get everything (undocumented).
+- `players.playerSearch` returns **at most 5 rows** per request whatever the
+  limit; page with `start` until you have `total`.
 - `stats.*Summary` methods return just the `data` array. `skaterStatsWithQueryContext`
   returns `{ data, total }`.
 - `helpers.gameIdsBySeason` returns each game twice (once per team), so dedupe

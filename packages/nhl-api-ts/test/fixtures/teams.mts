@@ -3,6 +3,7 @@ import type {
   Franchise,
   Roster,
   SeasonId,
+  StatsTeam,
   TeamScoreboard,
 } from '#src/index.mjs';
 
@@ -147,4 +148,22 @@ export const teamScoreboardFixture: TeamScoreboard = {
       ],
     },
   ],
+};
+
+export const statsTeamFixture: StatsTeam = {
+  id: 32,
+  franchiseId: 27,
+  fullName: 'Quebec Nordiques',
+  leagueId: 133,
+  rawTricode: 'QUE',
+  triCode: 'QUE',
+};
+
+export const statsTeamFixture2: StatsTeam = {
+  id: 10,
+  franchiseId: 5,
+  fullName: 'Toronto Maple Leafs',
+  leagueId: 133,
+  rawTricode: 'TOR',
+  triCode: 'TOR',
 };

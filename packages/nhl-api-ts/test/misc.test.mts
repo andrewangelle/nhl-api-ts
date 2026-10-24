@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it, mock } from 'node:test';
+import { ServerErrorException } from '#src/index.mjs';
 import {
   calledUrls,
   mockFetch,
@@ -103,5 +104,82 @@ describe('Misc', () => {
   it('seasonIds returns the bare array', async () => {
     mockFetch(() => ({ body: [19171918, 20262027] }));
     assert.deepEqual(await newClient().misc.seasonIds(), [19171918, 20262027]);
+  });
+
+  it('componentSeasons', async () => {
+    const row = { id: 'stats', seasonId: 20262027 };
+    const fetchSpy = mockFetch(() => ({ body: { data: [row], total: 1 } }));
+    assert.deepEqual(await newClient().misc.componentSeasons(), [row]);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api.nhle.com/stats/rest/en/componentSeason',
+    ]);
+  });
+
+  async function gamesExp(
+    params: Parameters<ReturnType<typeof newClient>['misc']['games']>[0],
+  ): Promise<string> {
+    const fetchSpy = mockFetch();
+    await newClient().misc.games(params);
+    const [url] = calledUrls(fetchSpy);
+    assert.equal(pathOf(url), 'https://api.nhle.com/stats/rest/en/game');
+    return queryOf(url).cayenneExp;
+  }
+
+  it('games filters by season', async () => {
+    const fetchSpy = mockFetch(() => ({ body: { data: [], total: 0 } }));
+    assert.deepEqual(await newClient().misc.games({ season: 20232024 }), []);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api.nhle.com/stats/rest/en/game?cayenneExp=season%3D20232024',
+    ]);
+  });
+
+  it('games teamId matches home or away', async () => {
+    assert.equal(
+      await gamesExp({ teamId: 10 }),
+      'homeTeamId=10 or visitingTeamId=10',
+    );
+  });
+
+  it('games joins every filter with and', async () => {
+    assert.equal(
+      await gamesExp({
+        season: '20232024',
+        gameType: 3,
+        teamId: 10,
+        startDate: '2024-4-1',
+        endDate: '2024-05-31',
+        cayenneExp: 'homeScore>=5',
+      }),
+      "(season=20232024) and (gameType=3) and (homeTeamId=10 or visitingTeamId=10) and (gameDate>='2024-04-01') and (gameDate<='2024-05-31') and (homeScore>=5)",
+    );
+  });
+
+  it('games rejects a call without a filter, without a request', async () => {
+    const fetchSpy = mockFetch();
+    for (const params of [{}, { cayenneExp: ' ' }]) {
+      await assert.rejects(newClient().misc.games(params), RangeError);
+    }
+    assert.equal(fetchSpy.mock.callCount(), 0);
+  });
+
+  it('games rejects a bad date', async () => {
+    mockFetch();
+    await assert.rejects(
+      newClient().misc.games({ startDate: '2024/01/01' }),
+      RangeError,
+    );
+  });
+
+  it('ping resolves true', async () => {
+    const fetchSpy = mockFetch();
+    assert.equal(await newClient().misc.ping(), true);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api.nhle.com/stats/rest/ping',
+    ]);
+  });
+
+  it('ping throws when the stats API is down', async () => {
+    mockFetch(() => ({ status: 503 }));
+    await assert.rejects(newClient().misc.ping(), ServerErrorException);
   });
 });
