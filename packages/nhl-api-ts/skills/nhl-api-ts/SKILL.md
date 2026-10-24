@@ -40,6 +40,7 @@ npx nhl-api-ts <module> <command> --help
 | Leaderboards, filtered skater stats        | `stats.skaterStatsWithQueryContext` + `buildQuery`/`filter.*` (see below) |
 | Simple skater, goalie or team leaderboards | `stats.skaterStatsSummary` / `goalieStatsSummary` / `teamSummary`    |
 | Speed, distance, zone time, shot speed     | `edge.*` (`skaterDetail`, `skaterSkatingSpeedDetail`, `teamDetail`, ...) |
+| League top 10 by speed, distance, zone time, shot speed/location | `edge.*Top10({ sortBy, positions?, strength?, category? })` (bare array of 10 rows) |
 | Draft rankings, picks or the live tracker  | `draft.rankings({ season?, category? })` / `picks({ season?, round? })` / `tracker()`; `season` is YYYY |
 | Every game id or every player in a season  | `helpers.gameIdsBySeason` / `helpers.allPlayers` (slow, 30+ requests) |
 | Country codes for nationality filters      | `misc.countries()`                                                   |

@@ -8,11 +8,29 @@ export type {
 export * as draft from '#src/api/draft.mjs';
 export { ProspectCategory } from '#src/api/draft.mjs';
 export type {
+  EdgeGoalie5v5SortBy,
+  EdgeGoalieSavePercentageSortBy,
+  EdgeGoalieShotLocationSortBy,
+  EdgeGoalieShotLocationTop10Params,
   EdgePlayerParams,
+  EdgePosition,
+  EdgePositionTop10Params,
   EdgeSeasonParams,
+  EdgeShotLocationCategory,
+  EdgeShotLocationSortBy,
+  EdgeShotLocationTop10Params,
+  EdgeShotSpeedSortBy,
+  EdgeSkatingDistanceSortBy,
+  EdgeSkatingSpeedSortBy,
+  EdgeStrength,
+  EdgeStrengthTop10Params,
   EdgeTeamParams,
+  EdgeTeamZoneTimeTop10Params,
+  EdgeTop10Params,
+  EdgeZone,
 } from '#src/api/edge.mjs';
 export * as edge from '#src/api/edge.mjs';
+export { EdgePositions, EdgeStrengths, EdgeZones } from '#src/api/edge.mjs';
 export * as gameCenter from '#src/api/game-center.mjs';
 export * as helpers from '#src/api/helpers.mjs';
 export * as misc from '#src/api/misc.mjs';

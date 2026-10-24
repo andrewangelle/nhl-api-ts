@@ -270,6 +270,33 @@ describe('cli', () => {
     ]);
   });
 
+  it('edge top-10 commands fill the path slots', async () => {
+    const defaults = await run([
+      'edge',
+      'skater-shot-location-top-10',
+      'goals',
+    ]);
+    assert.equal(defaults.code, 0);
+    assert.deepEqual(defaults.urls, [
+      'https://api-web.nhle.com/v1/edge/skater-shot-location-top-10/all/goals/all/now',
+    ]);
+    const full = await run([
+      'edge',
+      'team-zone-time-top-10',
+      '--strength',
+      'pp',
+      '--sort-by',
+      'defensive',
+      '--season',
+      '20242025',
+      '--game-type',
+      '3',
+    ]);
+    assert.deepEqual(full.urls, [
+      'https://api-web.nhle.com/v1/edge/team-zone-time-top-10/pp/defensive/20242025/3',
+    ]);
+  });
+
   it('maps global options to client options', async () => {
     const { options } = await run(
       ['--debug', '--timeout', '3', 'misc', 'config', '--no-follow-redirects'],
@@ -326,6 +353,11 @@ describe('cli', () => {
       ['draft', 'picks', '--season', '2023', '--round', '8'],
       /--round must be one of/,
     ],
+    [
+      ['edge', 'skater-speed-top-10', '--sort-by', 'fastest'],
+      /--sort-by must be one of/,
+    ],
+    [['edge', 'team-zone-time-top-10', '--strength', 'pp'], /sort-by/],
     [
       ['misc', 'config', '--timeout', '0'],
       /--timeout must be a positive number/,
