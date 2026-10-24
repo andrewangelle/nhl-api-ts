@@ -5,20 +5,11 @@ import { miscApi } from '#src/api/misc.mjs';
 import { playersApi } from '#src/api/players.mjs';
 import { scheduleApi } from '#src/api/schedule.mjs';
 import { standingsApi } from '#src/api/standings.mjs';
-import {
-  type GoalieStatsSummaryParams,
-  type SkaterStatsWithQueryContextParams,
-  statsApi,
-} from '#src/api/stats.mjs';
+import { statsApi } from '#src/api/stats.mjs';
 import { teamsApi } from '#src/api/teams.mjs';
 import { type ClientOptions, resolveConfig } from '#src/config.mjs';
 import type { Context } from '#src/context.mjs';
 import { createGet } from '#src/http-client.mjs';
-import type {
-  GoalieReportRows,
-  SkaterReportRows,
-  StatsApiPage,
-} from '#src/types/index.mjs';
 import { sleep } from '#src/utils.mjs';
 
 type Bound<Module> = {
@@ -31,26 +22,11 @@ type Bound<Module> = {
 };
 
 /**
- * `Bound` erases generic parameters, so the report-typed stats methods are
- * spelled out here (without `ctx`) to keep `reportType` / `statsType`
- * flowing into the row type.
+ * Binds `ctx` to every function in an API module. Generic methods lose their
+ * type parameters here (they're instantiated with their constraints), so
+ * override those with `bindFn`.
  */
-interface StatsGenericMethods {
-  skaterStatsWithQueryContext<Report extends keyof SkaterReportRows>(
-    params: SkaterStatsWithQueryContextParams<Report>,
-  ): Promise<StatsApiPage<SkaterReportRows[Report]>>;
-  goalieStatsSummary<Report extends keyof GoalieReportRows = 'summary'>(
-    params: GoalieStatsSummaryParams<Report>,
-  ): Promise<GoalieReportRows[Report][]>;
-}
-
-type StatsClient = Omit<
-  Bound<typeof statsApi>,
-  'skaterStatsWithQueryContext' | 'goalieStatsSummary'
-> &
-  StatsGenericMethods;
-
-function bind<
+function bindModule<
   Module extends Record<string, (ctx: Context, ...args: never[]) => unknown>,
 >(ctx: Context, api: Module): Bound<Module> {
   return Object.fromEntries(
@@ -62,11 +38,23 @@ function bind<
 }
 
 /**
+ * Binds `ctx` to a single function. Keeps its generics through higher-order
+ * function inference, e.g. so `reportType` / `statsType` still decide the
+ * row type.
+ */
+function bindFn<Args extends unknown[], Result>(
+  ctx: Context,
+  fn: (ctx: Context, ...args: Args) => Result,
+): (...args: Args) => Result {
+  return (...args) => fn(ctx, ...args);
+}
+
+/**
  * Builds the main client used to access the NHL API.
  *
  * @example
  * const client = createNHLClient();
- * const client = createNHLClient({ debug: true }); // for a lil extra logging
+ * const client = createNHLClient({ debug: true }); // for a little extra logging
  * const teams = await client.teams.teams();
  */
 export function createNHLClient(options: ClientOptions = {}) {
@@ -75,15 +63,22 @@ export function createNHLClient(options: ClientOptions = {}) {
 
   return {
     config,
-    teams: bind(ctx, teamsApi),
-    standings: bind(ctx, standingsApi),
-    schedule: bind(ctx, scheduleApi),
-    gameCenter: bind(ctx, gameCenterApi),
-    stats: bind(ctx, statsApi) as StatsClient,
-    misc: bind(ctx, miscApi),
-    helpers: bind(ctx, helpersApi),
-    players: bind(ctx, playersApi),
-    edge: bind(ctx, edgeApi),
+    teams: bindModule(ctx, teamsApi),
+    standings: bindModule(ctx, standingsApi),
+    schedule: bindModule(ctx, scheduleApi),
+    gameCenter: bindModule(ctx, gameCenterApi),
+    stats: {
+      ...bindModule(ctx, statsApi),
+      skaterStatsWithQueryContext: bindFn(
+        ctx,
+        statsApi.skaterStatsWithQueryContext,
+      ),
+      goalieStatsSummary: bindFn(ctx, statsApi.goalieStatsSummary),
+    },
+    misc: bindModule(ctx, miscApi),
+    helpers: bindModule(ctx, helpersApi),
+    players: bindModule(ctx, playersApi),
+    edge: bindModule(ctx, edgeApi),
   } as const;
 }
 
