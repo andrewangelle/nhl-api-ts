@@ -1,6 +1,13 @@
 // Namespace re-exports move each module's interfaces under the namespace, so
 // the public param/result types are also exported by name here.
 export type {
+  DraftPicksParams,
+  DraftRankingsParams,
+  DraftRound,
+} from '#src/api/draft.mjs';
+export * as draft from '#src/api/draft.mjs';
+export { ProspectCategory } from '#src/api/draft.mjs';
+export type {
   EdgePlayerParams,
   EdgeSeasonParams,
   EdgeTeamParams,

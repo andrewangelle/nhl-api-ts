@@ -880,6 +880,11 @@ export function createNHLClient(options?: ClientOptions): {
         readonly teamShotSpeedDetail: teamShotSpeedDetail;
         readonly teamSkatingSpeedDetail: teamSkatingSpeedDetail;
     }>;
+    readonly draft: Bound<{
+        readonly rankings: rankings;
+        readonly tracker: tracker;
+        readonly picks: picks;
+    }>;
 };
 
 // @public (undocumented)
@@ -1075,6 +1080,226 @@ export interface DistanceMaxGameLeader {
     overlay: LandingDistanceOverlay;
     // (undocumented)
     player: EdgeLeaderPlayer;
+}
+
+declare namespace draft {
+    export {
+        rankings,
+        tracker,
+        picks,
+        ProspectCategory,
+        DraftRound,
+        DraftRankingsParams,
+        DraftPicksParams,
+        draftApi
+    }
+}
+
+// @public (undocumented)
+const draftApi: {
+    readonly rankings: typeof rankings;
+    readonly tracker: typeof tracker;
+    readonly picks: typeof picks;
+};
+
+// @public (undocumented)
+export interface DraftPick {
+    // (undocumented)
+    amateurClubName?: string;
+    // (undocumented)
+    amateurLeague: string;
+    // (undocumented)
+    countryCode: string;
+    // (undocumented)
+    displayAbbrev: LocalizedString;
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    height: number;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    overallPick: number;
+    // (undocumented)
+    pickInRound: number;
+    // (undocumented)
+    positionCode: DraftPositionCode;
+    // (undocumented)
+    round: number;
+    // (undocumented)
+    teamAbbrev: string;
+    // (undocumented)
+    teamCommonName: LocalizedString;
+    // (undocumented)
+    teamId: number;
+    // (undocumented)
+    teamLogoDark: string;
+    // (undocumented)
+    teamLogoLight: string;
+    // (undocumented)
+    teamName: LocalizedString;
+    // (undocumented)
+    teamPickHistory: string;
+    // (undocumented)
+    teamPlaceNameWithPreposition: LocalizedString;
+    // (undocumented)
+    weight: number;
+}
+
+// @public (undocumented)
+export interface DraftPicks {
+    // (undocumented)
+    broadcastStartTimeUTC?: string;
+    draftYear: number;
+    // (undocumented)
+    draftYears: number[];
+    // (undocumented)
+    picks: DraftPick[];
+    // (undocumented)
+    selectableRounds: number[];
+    // (undocumented)
+    state: string;
+}
+
+// @public (undocumented)
+export interface DraftPicksParams {
+    round?: DraftRound;
+    season?: Id;
+}
+
+// @public
+export type DraftPositionCode = OpenUnion<'C' | 'LW' | 'RW' | 'D' | 'G'>;
+
+// @public (undocumented)
+export interface DraftProspect {
+    // (undocumented)
+    birthCity: string;
+    // (undocumented)
+    birthCountry: string;
+    // (undocumented)
+    birthDate: string;
+    // (undocumented)
+    birthStateProvince?: string;
+    // (undocumented)
+    finalRank?: number;
+    // (undocumented)
+    firstName: string;
+    // (undocumented)
+    heightInInches: number;
+    // (undocumented)
+    lastAmateurClub?: string;
+    // (undocumented)
+    lastAmateurLeague?: string;
+    // (undocumented)
+    lastName: string;
+    // (undocumented)
+    midtermRank?: number;
+    // (undocumented)
+    positionCode: DraftPositionCode;
+    // (undocumented)
+    shootsCatches: OpenUnion<'L' | 'R'>;
+    // (undocumented)
+    weightInPounds: number;
+}
+
+// @public (undocumented)
+export interface DraftRankingCategory {
+    // (undocumented)
+    consumerKey: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    name: string;
+}
+
+// @public (undocumented)
+export interface DraftRankings {
+    // (undocumented)
+    categories: DraftRankingCategory[];
+    // (undocumented)
+    categoryId: number;
+    // (undocumented)
+    categoryKey: string;
+    draftYear: number;
+    // (undocumented)
+    draftYears: number[];
+    // (undocumented)
+    rankings: DraftProspect[];
+}
+
+// @public (undocumented)
+export interface DraftRankingsParams {
+    category?: ProspectCategory;
+    season?: Id;
+}
+
+// @public
+export type DraftRound = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'all';
+
+// @public (undocumented)
+export interface DraftTracker {
+    // (undocumented)
+    broadcastStartTimeUTC: string;
+    // (undocumented)
+    currentDraftDate: string;
+    // (undocumented)
+    logoFrUrl: string;
+    // (undocumented)
+    logoUrl: string;
+    // (undocumented)
+    picks: DraftTrackerPick[];
+    // (undocumented)
+    round: number;
+    // (undocumented)
+    state: string;
+    // (undocumented)
+    tvBroadcasts: DraftTrackerTvBroadcast[];
+    // (undocumented)
+    uiAccentColor: string;
+}
+
+// @public (undocumented)
+export interface DraftTrackerPick {
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    overallPick: number;
+    // (undocumented)
+    pickInRound: number;
+    // (undocumented)
+    positionCode: DraftPositionCode;
+    // (undocumented)
+    state: string;
+    // (undocumented)
+    teamAbbrev: string;
+    // (undocumented)
+    teamCommonName: LocalizedString;
+    // (undocumented)
+    teamFullName: LocalizedString;
+    // (undocumented)
+    teamId: number;
+    // (undocumented)
+    teamLogoDark: string;
+    // (undocumented)
+    teamLogoLight: string;
+    // (undocumented)
+    teamPlaceNameWithPreposition: LocalizedString;
+}
+
+// @public (undocumented)
+export interface DraftTrackerTvBroadcast {
+    // (undocumented)
+    countryCode: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    market: string;
+    // (undocumented)
+    network: string;
+    // (undocumented)
+    sequenceNumber: number;
 }
 
 // @public (undocumented)
@@ -3746,6 +3971,9 @@ export interface PeriodStartPlay {
 // @public (undocumented)
 export type PeriodType = OpenUnion<'REG' | 'OT' | 'SO'>;
 
+// @public
+function picks(ctx: Context, input?: DraftPicksParams): Promise<DraftPicks>;
+
 // @public (undocumented)
 export type Play = PlayTypes[keyof PlayTypes];
 
@@ -4703,6 +4931,17 @@ export interface PreGameMatchupTeamSeasonStats {
     homeTeam: TeamSeasonStats;
 }
 
+// @public
+export const ProspectCategory: {
+    readonly NORTH_AMERICAN_SKATER: 1;
+    readonly INTERNATIONAL_SKATER: 2;
+    readonly NORTH_AMERICAN_GOALIE: 3;
+    readonly INTERNATIONAL_GOALIE: 4;
+};
+
+// @public (undocumented)
+export type ProspectCategory = (typeof ProspectCategory)[keyof typeof ProspectCategory];
+
 // @public (undocumented)
 export interface Prospects {
     // (undocumented)
@@ -4800,6 +5039,9 @@ export type QueryParams = Record<string, QueryParamValue>;
 
 // @public (undocumented)
 export type QueryParamValue = string | number | boolean | null | undefined;
+
+// @public
+function rankings(ctx: Context, input?: DraftRankingsParams): Promise<DraftRankings>;
 
 // @public
 export class RateLimitExceededException extends NHLApiException {
@@ -8853,6 +9095,9 @@ export interface TotalDistanceLeader {
 
 // @public
 function toTeam(teamData: Partial<StandingsEntry>): Team;
+
+// @public
+function tracker(ctx: Context): Promise<DraftTracker>;
 
 // @public (undocumented)
 export interface TvBroadcast {

@@ -1,3 +1,4 @@
+import { draftApi } from '#src/api/draft.mjs';
 import { edgeApi } from '#src/api/edge.mjs';
 import { gameCenterApi } from '#src/api/game-center.mjs';
 import { helpersApi } from '#src/api/helpers.mjs';
@@ -79,6 +80,7 @@ export function createNHLClient(options: ClientOptions = {}) {
     helpers: bindModule(ctx, helpersApi),
     players: bindModule(ctx, playersApi),
     edge: bindModule(ctx, edgeApi),
+    draft: bindModule(ctx, draftApi),
   } as const;
 }
 

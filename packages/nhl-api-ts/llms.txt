@@ -5,7 +5,7 @@
 Key facts:
 
 - `import { createNHLClient } from 'nhl-api-ts'; const client = createNHLClient();` then `await client.<module>.<method>({ ...options })`.
-- Modules: teams, standings, schedule, gameCenter, stats, edge, players, misc, helpers. Every method is async and takes one options object with camelCase keys.
+- Modules: teams, standings, schedule, gameCenter, stats, edge, players, draft, misc, helpers. Every method is async and takes one options object with camelCase keys.
 - Every SDK method is also a CLI command: `npx nhl-api-ts <module-kebab> <method-kebab> [args] --compact` prints JSON.
 - Seasons are `YYYYYYYY` (20232024). Game ids are `YYYYTTNNNN` (2023020280). Game type: 1 preseason, 2 regular, 3 playoffs.
 - Stats API pages are capped at 100 rows. HTTP errors extend `NHLApiException`. Invalid input throws `RangeError`.
