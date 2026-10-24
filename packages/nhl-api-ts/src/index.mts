@@ -19,6 +19,7 @@ export type {
   GoalieStatsSummaryParams,
   SkaterStatsSummaryParams,
   SkaterStatsWithQueryContextParams,
+  StatsLeadersParams,
   TeamSummaryParams,
 } from '#src/api/stats.mjs';
 export * as stats from '#src/api/stats.mjs';

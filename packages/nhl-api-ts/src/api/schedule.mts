@@ -137,17 +137,17 @@ export async function teamWeeklySchedule(
  * Gets the full season schedule for a specified team.
  *
  * @param params.teamAbbr Team abbreviation, e.g. BUF, TOR
- * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024. Defaults to "now".
  * @example https://api-web.nhle.com/v1/club-schedule-season/BUF/20232024
  */
 export async function teamSeasonSchedule(
   ctx: Context,
-  { teamAbbr, season }: { teamAbbr: string; season: Id },
+  { teamAbbr, season }: { teamAbbr: string; season?: Id },
 ): Promise<TeamSeasonSchedule> {
   return (
     await ctx.get(
       Endpoint.API_WEB_V1,
-      `club-schedule-season/${teamAbbr}/${season}`,
+      `club-schedule-season/${teamAbbr}/${season ?? 'now'}`,
     )
   ).json();
 }
@@ -155,15 +155,15 @@ export async function teamSeasonSchedule(
 /**
  * Gets the schedule in calendar format for a specified date.
  *
- * @param params.date Date in YYYY-MM-DD format
+ * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
  * @example https://api-web.nhle.com/v1/schedule-calendar/2023-11-08
  */
 export async function calendarSchedule(
   ctx: Context,
-  { date }: { date: string },
+  { date }: { date?: string } = {},
 ): Promise<CalendarSchedule> {
   return (
-    await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date}`)
+    await ctx.get(Endpoint.API_WEB_V1, `schedule-calendar/${date ?? 'now'}`)
   ).json();
 }
 

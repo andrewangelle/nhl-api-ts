@@ -95,6 +95,31 @@ describe('Teams', () => {
     ]);
   });
 
+  it('teamRoster defaults to current', async () => {
+    const fetchSpy = mockFetch();
+    await newClient().teams.teamRoster({ teamAbbr: 'BUF' });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/roster/BUF/current',
+    ]);
+  });
+
+  it('rosterSeasons', async () => {
+    const fetchSpy = mockFetch(() => ({ body: [20222023, 20232024] }));
+    const seasons = await newClient().teams.rosterSeasons({ teamAbbr: 'TOR' });
+    assert.deepEqual(seasons, [20222023, 20232024]);
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/roster-season/TOR',
+    ]);
+  });
+
+  it('teamScoreboard', async () => {
+    const fetchSpy = mockFetch();
+    await newClient().teams.teamScoreboard({ teamAbbr: 'TOR' });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/scoreboard/TOR/now',
+    ]);
+  });
+
   it('franchises', async () => {
     const fetchSpy = mockFetch(() => ({ body: { data: [{ id: 1 }] } }));
     assert.deepEqual(await newClient().teams.franchises(), [{ id: 1 }]);

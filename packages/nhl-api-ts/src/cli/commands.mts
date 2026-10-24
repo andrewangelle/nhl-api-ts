@@ -112,6 +112,33 @@ const defaultCayenneExp: ArgSpec = {
   type: 'string',
   description: 'Overrides the generated cayenneExp filter entirely',
 };
+const currentSeason: ArgSpec = {
+  ...season,
+  description: `${season.description}. Defaults to current`,
+};
+const nowSeason: ArgSpec = {
+  ...season,
+  description: `${season.description}. Defaults to now`,
+};
+const seasonGameType: ArgSpec = {
+  name: 'gameType',
+  type: 'int',
+  description: '2=Regular season, 3=Playoffs (only used with --season)',
+  default: '2',
+};
+function leaderCategories(choices: readonly string[]): ArgSpec {
+  return {
+    name: 'categories',
+    type: 'list',
+    description: `Comma-separated categories (${choices.join(', ')}). Defaults to all`,
+  };
+}
+const leaderLimit: ArgSpec = {
+  name: 'limit',
+  type: 'int',
+  description: 'Rows per category (-1 for all)',
+  default: '5',
+};
 function apiSleepRate(def: string): ArgSpec {
   return {
     name: 'apiSleepRate',
@@ -123,15 +150,7 @@ function apiSleepRate(def: string): ArgSpec {
 
 // ---- Edge -------------------------------------------------------------------
 
-const edgeSeasonArgs: ArgSpec[] = [
-  { ...season, description: `${season.description}. Defaults to current` },
-  {
-    name: 'gameType',
-    type: 'int',
-    description: '2=Regular season, 3=Playoffs (only used with --season)',
-    default: '2',
-  },
-];
+const edgeSeasonArgs: ArgSpec[] = [currentSeason, seasonGameType];
 
 type EdgeMethod = keyof NHLClient['edge'] & string;
 
@@ -315,8 +334,20 @@ export const MODULES: ModuleSpec[] = [
       {
         name: 'team-roster',
         description: 'Roster for a team and season',
-        args: [teamAbbr, req(season)],
+        args: [teamAbbr, currentSeason],
         run: (client, values) => client.teams.teamRoster(values),
+      },
+      {
+        name: 'roster-seasons',
+        description: 'Every season a team has a roster for',
+        args: [teamAbbr],
+        run: (client, values) => client.teams.rosterSeasons(values),
+      },
+      {
+        name: 'team-scoreboard',
+        description: "A team's recent and upcoming games",
+        args: [teamAbbr],
+        run: (client, values) => client.teams.teamScoreboard(values),
       },
       {
         name: 'franchises',
@@ -383,13 +414,13 @@ export const MODULES: ModuleSpec[] = [
       {
         name: 'team-season-schedule',
         description: "A team's full season schedule",
-        args: [teamAbbr, req(season)],
+        args: [teamAbbr, nowSeason],
         run: (client, values) => client.schedule.teamSeasonSchedule(values),
       },
       {
         name: 'calendar-schedule',
         description: 'Schedule in calendar format for a date',
-        args: [req(date())],
+        args: [date('Date in YYYY-MM-DD format. Defaults to now')],
         run: (client, values) => client.schedule.calendarSchedule(values),
       },
       {
@@ -499,18 +530,63 @@ export const MODULES: ModuleSpec[] = [
         description: "A player's game log for a season",
         args: [
           playerId,
-          req({
+          {
             name: 'seasonId',
             type: 'string',
-            description: 'Season in YYYYYYYY format',
-          }),
-          req({
+            description: 'Season in YYYYYYYY format. Defaults to now',
+          },
+          {
             name: 'gameType',
             type: 'int',
-            description: '1=Preseason, 2=Regular, 3=Playoffs',
-          }),
+            description:
+              '1=Preseason, 2=Regular, 3=Playoffs (only used with --season-id)',
+            default: '2',
+          },
         ],
         run: (client, values) => client.stats.playerGameLog(values),
+      },
+      {
+        name: 'skater-stats-leaders',
+        description: 'Skater stats leaders by category for a season',
+        args: [
+          currentSeason,
+          seasonGameType,
+          leaderCategories([
+            'goals',
+            'assists',
+            'points',
+            'plusMinus',
+            'penaltyMins',
+            'goalsPp',
+            'goalsSh',
+            'faceoffLeaders',
+            'toi',
+          ]),
+          leaderLimit,
+        ],
+        run: (client, values) => client.stats.skaterStatsLeaders(values),
+      },
+      {
+        name: 'goalie-stats-leaders',
+        description: 'Goalie stats leaders by category for a season',
+        args: [
+          currentSeason,
+          seasonGameType,
+          leaderCategories([
+            'wins',
+            'shutouts',
+            'savePctg',
+            'goalsAgainstAverage',
+          ]),
+          leaderLimit,
+        ],
+        run: (client, values) => client.stats.goalieStatsLeaders(values),
+      },
+      {
+        name: 'club-stats',
+        description: "A team's skater and goalie stats for a season",
+        args: [teamAbbr, nowSeason, seasonGameType],
+        run: (client, values) => client.stats.clubStats(values),
       },
       {
         name: 'team-summary',
@@ -807,8 +883,14 @@ export const MODULES: ModuleSpec[] = [
       {
         name: 'players-by-team',
         description: "A team's roster for a season",
-        args: [teamAbbr, req(season)],
+        args: [teamAbbr, currentSeason],
         run: (client, values) => client.players.playersByTeam(values),
+      },
+      {
+        name: 'player-spotlight',
+        description: 'Players featured in the nhl.com spotlight',
+        args: [],
+        run: (client) => client.players.playerSpotlight(),
       },
     ],
   },

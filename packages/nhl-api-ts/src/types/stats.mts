@@ -68,6 +68,63 @@ export interface CareerTotalsRegularSeason {
   faceoffWinningPctg?: number;
 }
 
+export interface ClubStats {
+  /** Season in YYYYYYYY format, as a string */
+  season: string;
+  gameType: GameType;
+  /** Empty when the team has no games of this type (e.g. missed the playoffs) */
+  skaters: ClubStatsSkater[];
+  goalies: ClubStatsGoalie[];
+}
+
+export interface ClubStatsSkater {
+  playerId: number;
+  headshot: string;
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  positionCode: PositionCode;
+  gamesPlayed: number;
+  goals: number;
+  assists: number;
+  points: number;
+  plusMinus: number;
+  penaltyMinutes: number;
+  powerPlayGoals: number;
+  shorthandedGoals: number;
+  gameWinningGoals: number;
+  overtimeGoals: number;
+  shots: number;
+  shootingPctg: number;
+  avgTimeOnIcePerGame: number;
+  avgShiftsPerGame: number;
+  faceoffWinPctg: number;
+}
+
+export interface ClubStatsGoalie {
+  playerId: number;
+  headshot: string;
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  gamesPlayed: number;
+  gamesStarted: number;
+  wins: number;
+  losses: number;
+  /** Only in seasons that had ties (before 2005-06) */
+  ties?: number;
+  goalsAgainstAverage: number;
+  savePercentage: number;
+  shotsAgainst: number;
+  saves: number;
+  goalsAgainst: number;
+  shutouts: number;
+  goals: number;
+  assists: number;
+  points: number;
+  penaltyMinutes?: number;
+  timeOnIce: number;
+  overtimeLosses?: number;
+}
+
 export interface ClubStatsSeason {
   season: number;
   gameTypes: GameType[];
@@ -112,6 +169,62 @@ export interface GameLogEntry {
   shifts?: number;
   shorthandedGoals?: number;
   shorthandedPoints?: number;
+}
+
+/** `categories` values accepted by `stats.skaterStatsLeaders`. */
+export type SkaterLeaderCategory =
+  | 'goals'
+  | 'assists'
+  | 'points'
+  | 'plusMinus'
+  | 'penaltyMins'
+  | 'goalsPp'
+  | 'goalsSh'
+  | 'faceoffLeaders'
+  | 'toi';
+
+/** `categories` values accepted by `stats.goalieStatsLeaders`. */
+export type GoalieLeaderCategory =
+  | 'wins'
+  | 'shutouts'
+  | 'savePctg'
+  | 'goalsAgainstAverage';
+
+/** One row of a web stats-leaders category. */
+export interface StatsLeader {
+  id: number;
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  /** Absent for some players without a current number */
+  sweaterNumber?: number;
+  headshot: string;
+  teamAbbrev: string;
+  teamName: LocalizedString;
+  teamLogo: string;
+  position: PositionCode;
+  value: number;
+}
+
+/** Skater leaders keyed by category. A category is absent when `categories` leaves it out. */
+export interface SkaterStatsLeaders {
+  goals?: StatsLeader[];
+  assists?: StatsLeader[];
+  points?: StatsLeader[];
+  plusMinus?: StatsLeader[];
+  penaltyMins?: StatsLeader[];
+  goalsPp?: StatsLeader[];
+  goalsSh?: StatsLeader[];
+  faceoffLeaders?: StatsLeader[];
+  /** `value` is average time on ice per game, in seconds */
+  toi?: StatsLeader[];
+}
+
+/** Goalie leaders keyed by category. A category is absent when `categories` leaves it out. */
+export interface GoalieStatsLeaders {
+  wins?: StatsLeader[];
+  shutouts?: StatsLeader[];
+  savePctg?: StatsLeader[];
+  goalsAgainstAverage?: StatsLeader[];
 }
 
 export interface GoalieAdvancedRow {

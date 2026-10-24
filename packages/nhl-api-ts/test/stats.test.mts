@@ -55,6 +55,81 @@ describe('Stats', () => {
     });
   }
 
+  it('playerGameLog defaults to now', async () => {
+    const fetchSpy = mockFetch(() => ({ body: { gameLog: [] } }));
+    await newClient().stats.playerGameLog({ playerId: 8481528, gameType: 3 });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/player/8481528/game-log/now',
+    ]);
+  });
+
+  it('playerGameLog defaults gameType to 2', async () => {
+    const fetchSpy = mockFetch(() => ({ body: { gameLog: [] } }));
+    await newClient().stats.playerGameLog({
+      playerId: 8481528,
+      seasonId: 20232024,
+    });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/player/8481528/game-log/20232024/2',
+    ]);
+  });
+
+  for (const kind of ['skater', 'goalie'] as const) {
+    const method = `${kind}StatsLeaders` as const;
+
+    it(`${method} defaults to current`, async () => {
+      const fetchSpy = mockFetch();
+      await newClient().stats[method]({ gameType: 3 });
+      assert.deepEqual(calledUrls(fetchSpy), [
+        `https://api-web.nhle.com/v1/${kind}-stats-leaders/current`,
+      ]);
+    });
+
+    it(`${method} with season, categories and limit`, async () => {
+      const fetchSpy = mockFetch();
+      await newClient().stats[method]({
+        season: '20232024',
+        gameType: 3,
+        categories: ['goals', 'wins'],
+        limit: -1,
+      });
+      const [url] = calledUrls(fetchSpy);
+      assert.equal(
+        pathOf(url),
+        `https://api-web.nhle.com/v1/${kind}-stats-leaders/20232024/3`,
+      );
+      assert.deepEqual(queryOf(url), { categories: 'goals,wins', limit: '-1' });
+    });
+
+    it(`${method} omits empty categories`, async () => {
+      const fetchSpy = mockFetch();
+      await newClient().stats[method]({ season: 20232024, categories: [] });
+      assert.deepEqual(calledUrls(fetchSpy), [
+        `https://api-web.nhle.com/v1/${kind}-stats-leaders/20232024/2`,
+      ]);
+    });
+  }
+
+  it('clubStats defaults to now', async () => {
+    const fetchSpy = mockFetch();
+    await newClient().stats.clubStats({ teamAbbr: 'TOR' });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/club-stats/TOR/now',
+    ]);
+  });
+
+  it('clubStats with season and gameType', async () => {
+    const fetchSpy = mockFetch();
+    await newClient().stats.clubStats({
+      teamAbbr: 'TOR',
+      season: '20232024',
+      gameType: 3,
+    });
+    assert.deepEqual(calledUrls(fetchSpy), [
+      'https://api-web.nhle.com/v1/club-stats/TOR/20232024/3',
+    ]);
+  });
+
   it('teamSummary single year', async () => {
     const fetchSpy = mockFetch(() => ({ body: { data: [{ teamId: 1 }] } }));
     const data = await newClient().stats.teamSummary({
