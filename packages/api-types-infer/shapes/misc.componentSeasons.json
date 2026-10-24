@@ -1,0 +1,8 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].component": "string",
+  "[].gameTypeId": "integer",
+  "[].id": "string",
+  "[].seasonId": "integer"
+}

@@ -32,6 +32,8 @@ const SKIPPED = new Set([
   'StatsApiPage',
   'SkaterReportRows',
   'GoalieReportRows',
+  'SkaterLeaderRows',
+  'GoalieLeaderRows',
   'AllPlayersEntry',
   'PlayerSummaryStatistics',
 ]);
@@ -591,6 +593,69 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
         total: { type: 'integer' },
       },
     },
+  },
+  PlayerSearch: {
+    description: 'Players matching a filter, at most 5 per page.',
+    schema: page('StatsPlayer'),
+  },
+  SkaterLeaders: {
+    description:
+      'Top 10 single-season skater records; the stat key is `attribute`.',
+    schema: {
+      type: 'object',
+      required: ['data', 'total'],
+      properties: {
+        data: {
+          type: 'array',
+          items: oneOf([
+            'SkaterPointsLeaderRow',
+            'SkaterGoalsLeaderRow',
+            'SkaterAssistsLeaderRow',
+            'SkaterGamesPlayedLeaderRow',
+          ]),
+        },
+        total: { type: 'integer' },
+      },
+    },
+  },
+  GoalieLeaders: {
+    description:
+      'Top 10 single-season goalie records; the stat key is `attribute`.',
+    schema: {
+      type: 'object',
+      required: ['data', 'total'],
+      properties: {
+        data: {
+          type: 'array',
+          items: oneOf([
+            'GoalieGaaLeaderRow',
+            'GoalieSavePctgLeaderRow',
+            'GoalieShutoutsLeaderRow',
+            'GoalieTimeOnIceLeaderRow',
+            'GoalieGamesPlayedLeaderRow',
+          ]),
+        },
+        total: { type: 'integer' },
+      },
+    },
+  },
+  SkaterMilestones: {
+    description: 'Career milestones active skaters are approaching.',
+    schema: page('SkaterMilestone'),
+  },
+  GoalieMilestones: {
+    description: 'Career milestones active goalies are approaching.',
+    schema: page('GoalieMilestone'),
+  },
+  StatsTeams: { description: 'Stats API teams.', schema: page('StatsTeam') },
+  ComponentSeasons: {
+    description: 'Default season and game type of the stats API.',
+    schema: page('ComponentSeason'),
+  },
+  StatsGames: { description: 'Games.', schema: page('StatsGame') },
+  Ping: {
+    description: 'Empty object; the stats API is up.',
+    schema: { type: 'object' },
   },
   Glossary: { description: 'Glossary.', schema: page('GlossaryEntry') },
   StatsConfig: {

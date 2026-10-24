@@ -1,0 +1,11 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].currentTeamId": "integer|null",
+  "[].firstName": "string",
+  "[].fullName": "string",
+  "[].id": "integer",
+  "[].lastName": "string",
+  "[].positionCode": "string",
+  "[].sweaterNumber": "integer|null"
+}

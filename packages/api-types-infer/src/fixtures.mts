@@ -119,6 +119,10 @@ for (const [key, group] of groupAll(loadSamples(RAW_DIR))) {
     type = `SkaterReportRows['${suffix}']`;
   } else if (group.endpoint.endsWith('goalieStatsSummary')) {
     type = `GoalieReportRows['${suffix}']`;
+  } else if (group.endpoint.endsWith('skaterLeaders')) {
+    type = `SkaterLeaderRows['${suffix}']`;
+  } else if (group.endpoint.endsWith('goalieLeaders')) {
+    type = `GoalieLeaderRows['${suffix}']`;
   } else {
     type = spec.name;
   }

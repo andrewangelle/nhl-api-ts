@@ -1,0 +1,10 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].franchiseId": "integer",
+  "[].fullName": "string",
+  "[].id": "integer",
+  "[].leagueId": "integer",
+  "[].rawTricode": "string",
+  "[].triCode": "string"
+}
