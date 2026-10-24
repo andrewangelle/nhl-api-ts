@@ -164,6 +164,7 @@ function edgeCommand(
   method: EdgeMethod,
   idKind: 'player' | 'team' | 'none',
   description: string,
+  extraArgs: ArgSpec[] = [],
 ): CommandSpec {
   const idArg: ArgSpec[] =
     idKind === 'player'
@@ -180,12 +181,63 @@ function edgeCommand(
   return {
     name,
     description,
-    args: [...idArg, ...edgeSeasonArgs],
+    args: [...idArg, ...extraArgs, ...edgeSeasonArgs],
     run: (client, values) =>
       // biome-ignore lint/suspicious/noExplicitAny: dispatch by method name
       (client.edge[method] as any).call(client.edge, values),
   };
 }
+
+const edgePositions: ArgSpec = {
+  name: 'positions',
+  type: 'string',
+  description: 'Player positions',
+  default: 'all',
+  choices: ['all', 'forwards', 'defense'],
+};
+const edgeStrength: ArgSpec = {
+  name: 'strength',
+  type: 'string',
+  description: 'all, es (even strength), pp (power play) or pk (penalty kill)',
+  default: 'all',
+  choices: ['all', 'es', 'pp', 'pk'],
+};
+const edgeShotLocationCategory: ArgSpec = {
+  name: 'category',
+  type: 'string',
+  description: 'Shot area: all, high (danger), mid (range) or long (range)',
+  default: 'all',
+  choices: ['all', 'high', 'mid', 'long'],
+};
+function edgeSortBy(choices: readonly string[]): ArgSpec {
+  return req({
+    name: 'sortBy',
+    type: 'string',
+    description: 'Metric to rank by',
+    choices,
+  });
+}
+const edgeZoneSortBy: ArgSpec = req({
+  name: 'sortBy',
+  type: 'string',
+  description: 'Zone to rank by',
+  choices: ['offensive', 'neutral', 'defensive'],
+});
+const distanceSortBy = edgeSortBy([
+  'total',
+  'per-60',
+  'max-game',
+  'max-period',
+]);
+const skatingSpeedSortBy = edgeSortBy(['max', 'over-22', '20-22', '18-20']);
+const shotSpeedSortBy = edgeSortBy([
+  'max',
+  'over-100',
+  '90-99',
+  '80-89',
+  '70-79',
+]);
+const shotLocationSortBy = edgeSortBy(['sog', 'goals', 'shooting-pctg']);
 
 // ---- Stats query-context filters --------------------------------------------
 
@@ -916,6 +968,112 @@ export const MODULES: ModuleSpec[] = [
         'teamSkatingSpeedDetail',
         'team',
         'EDGE team skating speed',
+      ),
+      edgeCommand(
+        'team-comparison',
+        'teamComparison',
+        'team',
+        'EDGE team comparison stats',
+      ),
+      edgeCommand(
+        'skater-distance-top-10',
+        'skaterDistanceTop10',
+        'none',
+        'EDGE top 10 skaters by skating distance',
+        [edgePositions, edgeStrength, distanceSortBy],
+      ),
+      edgeCommand(
+        'skater-speed-top-10',
+        'skaterSpeedTop10',
+        'none',
+        'EDGE top 10 skaters by skating speed',
+        [edgePositions, skatingSpeedSortBy],
+      ),
+      edgeCommand(
+        'skater-zone-time-top-10',
+        'skaterZoneTimeTop10',
+        'none',
+        'EDGE top 10 skaters by zone time',
+        [edgePositions, edgeStrength, edgeZoneSortBy],
+      ),
+      edgeCommand(
+        'skater-shot-speed-top-10',
+        'skaterShotSpeedTop10',
+        'none',
+        'EDGE top 10 skaters by shot speed',
+        [edgePositions, shotSpeedSortBy],
+      ),
+      edgeCommand(
+        'skater-shot-location-top-10',
+        'skaterShotLocationTop10',
+        'none',
+        'EDGE top 10 skaters by shot location',
+        [edgePositions, shotLocationSortBy, edgeShotLocationCategory],
+      ),
+      edgeCommand(
+        'goalie-5v5-top-10',
+        'goalie5v5Top10',
+        'none',
+        'EDGE top 10 goalies at 5v5',
+        [edgeSortBy(['save-pctg', 'save-pctg-close', 'shots', 'shots-per-60'])],
+      ),
+      edgeCommand(
+        'goalie-shot-location-top-10',
+        'goalieShotLocationTop10',
+        'none',
+        'EDGE top 10 goalies by shot location',
+        [
+          edgeSortBy(['save-pctg', 'saves', 'goals-against', 'shots-against']),
+          edgeShotLocationCategory,
+        ],
+      ),
+      edgeCommand(
+        'goalie-save-percentage-top-10',
+        'goalieSavePercentageTop10',
+        'none',
+        'EDGE top 10 goalies by games above .900',
+        [edgeSortBy(['games', 'pctg'])],
+      ),
+      edgeCommand(
+        'team-skating-distance-top-10',
+        'teamSkatingDistanceTop10',
+        'none',
+        'EDGE top 10 teams by skating distance',
+        [edgePositions, edgeStrength, distanceSortBy],
+      ),
+      edgeCommand(
+        'team-skating-speed-top-10',
+        'teamSkatingSpeedTop10',
+        'none',
+        'EDGE top 10 teams by skating speed',
+        [edgePositions, skatingSpeedSortBy],
+      ),
+      edgeCommand(
+        'team-zone-time-top-10',
+        'teamZoneTimeTop10',
+        'none',
+        'EDGE top 10 teams by zone time',
+        [edgeStrength, edgeZoneSortBy],
+      ),
+      edgeCommand(
+        'team-shot-speed-top-10',
+        'teamShotSpeedTop10',
+        'none',
+        'EDGE top 10 teams by shot speed',
+        [edgePositions, shotSpeedSortBy],
+      ),
+      edgeCommand(
+        'team-shot-location-top-10',
+        'teamShotLocationTop10',
+        'none',
+        'EDGE top 10 teams by shot location',
+        [edgePositions, shotLocationSortBy, edgeShotLocationCategory],
+      ),
+      edgeCommand(
+        'by-the-numbers',
+        'byTheNumbers',
+        'none',
+        'EDGE league highlights (latest night, or season bests with --season)',
       ),
     ],
   },

@@ -1175,3 +1175,332 @@ export interface ShotSpeedOverlay {
   timeInPeriod: string;
   gameType: GameType;
 }
+
+// ========================
+// LEADERBOARDS (TOP 10)
+// ========================
+
+/** Player of an EDGE top-10 row. `goalieShotLocationTop10` rows use `EdgeLeaderPlayer`. */
+export interface EdgeTop10Player {
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  slug: string;
+  headshot: string;
+  position: string;
+  sweaterNumber: number;
+  team: EdgeGameTeam;
+}
+
+/** Team of the team skating speed and shot location top-10 rows. The others use `EdgeGameTeam` (no `id`). */
+export interface EdgeTop10Team {
+  id: number;
+  commonName: LocalizedString;
+  placeNameWithPreposition: LocalizedString;
+  abbrev: string;
+  teamLogo: TeamLogo;
+  slug: string;
+}
+
+export interface EdgeTeamDistanceMax {
+  imperial: number;
+  metric: number;
+  overlay: TeamDistanceOverlay;
+}
+
+export interface SkaterDistanceTop10Row {
+  player: EdgeTop10Player;
+  distanceTotal: EdgeMeasurement;
+  distancePer60: EdgeMeasurement;
+  distanceMaxPerGame: SkaterComparisonDistanceMaxGame;
+  distanceMaxPerPeriod: SkaterComparisonDistanceMaxGame;
+}
+
+export interface SkaterSpeedTop10Row {
+  player: EdgeTop10Player;
+  maxSpeed: SkaterComparisonMaxSpeed;
+  burstsOver22: number;
+  bursts20To22: number;
+  bursts18To20: number;
+}
+
+export interface SkaterZoneTimeTop10Row {
+  player: EdgeTop10Player;
+  /** Share of time on ice, e.g. 0.4957. */
+  offensiveZoneTime: number;
+  neutralZoneTime: number;
+  defensiveZoneTime: number;
+}
+
+export interface SkaterShotSpeedTop10Row {
+  player: EdgeTop10Player;
+  hardestShot: SkaterComparisonTopShot;
+  shotAttemptsOver100: number;
+  shotAttempts90To100: number;
+  shotAttempts80To90: number;
+  shotAttempts70To80: number;
+}
+
+export interface SkaterShotLocationTop10Row {
+  player: EdgeTop10Player;
+  all: number;
+  highDanger: number;
+  midRange: number;
+  longRange: number;
+}
+
+export interface Goalie5v5Top10Row {
+  player: EdgeTop10Player;
+  savePctg: number;
+  savePctgClose: number;
+  shots: number;
+  shotsPer60: number;
+}
+
+export interface GoalieShotLocationTop10Row {
+  player: EdgeLeaderPlayer;
+  all: number;
+  highDanger: number;
+  midRange: number;
+  longRange: number;
+}
+
+export interface GoalieSavePercentageTop10Row {
+  player: EdgeTop10Player;
+  gamesOver900: number;
+  pctgGamesOver900: number;
+}
+
+export interface TeamSkatingDistanceTop10Row {
+  team: EdgeGameTeam;
+  distanceTotal: EdgeMeasurement;
+  distancePer60: EdgeMeasurement;
+  distanceMaxPerGame: EdgeTeamDistanceMax;
+  distanceMaxPerPeriod: EdgeTeamDistanceMax;
+}
+
+export interface TeamSkatingSpeedTop10Row {
+  team: EdgeTop10Team;
+  /** `maxSpeed` on the skater leaderboard. */
+  maxSkatingSpeed: SkaterComparisonMaxSpeed;
+  burstsOver22: number;
+  bursts20To22: number;
+  bursts18To20: number;
+}
+
+export interface TeamZoneTimeTop10Row {
+  team: EdgeGameTeam;
+  /** Share of time on ice, e.g. 0.4957. */
+  offensiveZoneTime: number;
+  neutralZoneTime: number;
+  defensiveZoneTime: number;
+}
+
+export interface TeamShotSpeedTop10Row {
+  team: EdgeGameTeam;
+  hardestShot: SkaterComparisonTopShot;
+  shotAttemptsOver100: number;
+  shotAttempts90To100: number;
+  shotAttempts80To90: number;
+  shotAttempts70To80: number;
+}
+
+export interface TeamShotLocationTop10Row {
+  team: EdgeTop10Team;
+  all: number;
+  highDanger: number;
+  midRange: number;
+  longRange: number;
+}
+
+// ========================
+// TEAM COMPARISON
+// ========================
+
+export interface TeamComparisonTeam {
+  id: number;
+  commonName: LocalizedString;
+  placeNameWithPreposition: LocalizedString;
+  abbrev: string;
+  teamLogo: TeamLogo;
+  slug: string;
+  conference: string;
+  division: string;
+  wins: number;
+  losses: number;
+  otLosses: number;
+  gamesPlayed: number;
+  points: number;
+}
+
+export interface TeamComparisonDistanceGame {
+  gameCenterLink: string;
+  gameDate: string;
+  isHomeTeam: boolean;
+  distanceSkated: EdgeMeasurement;
+  homeTeam: EdgeGameTeam;
+  awayTeam: EdgeGameTeam;
+}
+
+export interface TeamComparisonDistance {
+  distanceTotal: EdgeMeasurement;
+  distancePer60: EdgeMeasurement;
+  distanceMaxGame: EdgeTeamDistanceMax;
+  distanceMaxPeriod: EdgeTeamDistanceMax;
+}
+
+export interface TeamComparisonShotDifferential {
+  shotAttemptDifferential: number;
+  sogDifferential: number;
+}
+
+export interface TeamComparison {
+  team: TeamComparisonTeam;
+  seasonsWithEdgeStats: EdgeSeasonAvailability[];
+  shotSpeedDetails: SkaterComparisonShotSpeed;
+  skatingSpeedDetails: SkaterComparisonSpeed;
+  skatingDistanceLast10: TeamComparisonDistanceGame[];
+  skatingDistanceDetails: TeamComparisonDistance;
+  shotLocationDetails: SkaterComparisonLocationArea[];
+  shotLocationTotals: SkaterComparisonLocationTotal[];
+  zoneTimeDetails: SkaterComparisonZoneTime;
+  shotDifferential: TeamComparisonShotDifferential;
+}
+
+// ========================
+// BY THE NUMBERS
+// ========================
+
+export interface ByTheNumbersPlayer {
+  birthDate: string;
+  id: number;
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  sweaterNumber: number;
+  position: string;
+  slug: string;
+  headshot: string;
+  shootsCatches: ShootsCatches;
+  team: EdgeTeamRef;
+}
+
+export interface ByTheNumbersTeam {
+  id: number;
+  commonName: LocalizedString;
+  placeNameWithPreposition: LocalizedString;
+  abbrev: string;
+  slug: string;
+  teamLogo: TeamLogo;
+  conference: string;
+  division: string;
+}
+
+export interface ByTheNumbersHardestShot {
+  player: ByTheNumbersPlayer;
+  overlay: ShotSpeedOverlay;
+  shotSpeed: EdgeMeasurement;
+}
+
+export interface ByTheNumbersMaxSkatingSpeed {
+  player: ByTheNumbersPlayer;
+  overlay: SkatingSpeedOverlay;
+  skatingSpeed: EdgeMeasurement;
+}
+
+export interface ByTheNumbersDistanceSkater {
+  player: ByTheNumbersPlayer;
+  distanceSkated: SkaterComparisonDistanceMaxGame;
+}
+
+export interface ByTheNumbersDistanceGame {
+  gameCenterLink: string;
+  gameDate: string;
+  isHomeTeam: boolean;
+  homeTeam: ByTheNumbersTeam;
+  awayTeam: ByTheNumbersTeam;
+  distanceSkated: EdgeMeasurement;
+}
+
+export interface ByTheNumbersTopSkaterName {
+  name: LocalizedString;
+}
+
+export interface ByTheNumbersTopSkater {
+  gameCenterLink: string;
+  gameDate: string;
+  playerOnHomeTeam: boolean;
+  distanceSkated: EdgeMeasurement;
+  toi: number;
+  homeTeam: ByTheNumbersTeam;
+  awayTeam: ByTheNumbersTeam;
+  player: ByTheNumbersTopSkaterName;
+}
+
+export interface ByTheNumbersDistanceTeam {
+  team: ByTheNumbersTeam;
+  game: ByTheNumbersDistanceGame;
+  topFiveSkaters: ByTheNumbersTopSkater[];
+}
+
+export interface ByTheNumbersDistanceLeague {
+  distanceSkated: EdgeMeasurement;
+  topFiveSkaters: ByTheNumbersTopSkater[];
+}
+
+export interface ByTheNumbersTeamOverlay {
+  team: ByTheNumbersTeam;
+  gameDate: string;
+  awayTeam: OverlayTeam;
+  homeTeam: OverlayTeam;
+  gameOutcome: GameOutcome;
+  periodDescriptor: OverlayPeriod;
+  gameType: GameType;
+}
+
+export interface ByTheNumbersSogArea {
+  area: string;
+  shots: number;
+}
+
+export interface ByTheNumbersSogTeam {
+  overlay: ByTheNumbersTeamOverlay;
+  team: ByTheNumbersTeam;
+  shots: number;
+  sogDetails: ByTheNumbersSogArea[];
+}
+
+export interface ByTheNumbersSavesArea {
+  area: string;
+  saves: number;
+}
+
+export interface ByTheNumbersHighDangerSaves {
+  overlay: SkatingDistanceOverlay;
+  player: ByTheNumbersPlayer;
+  saves: number;
+  shotLocationDetails: ByTheNumbersSavesArea[];
+}
+
+export interface ByTheNumbersDistanceMaxGame {
+  player: ByTheNumbersPlayer;
+  overlay: SkatingDistanceOverlay;
+  distanceSkated: EdgeMeasurement;
+}
+
+/**
+ * League-wide EDGE highlights. The `/now` form describes the latest game
+ * night (`games`, `gameDate` and the nightly leaders); an explicit season
+ * returns the season bests (`hardestShotSkater`, `maxSkatingSpeedSkater`,
+ * `distanceMaxGame`).
+ */
+export interface ByTheNumbers {
+  games?: number;
+  gameDate?: string;
+  hardestShotSkater: ByTheNumbersHardestShot;
+  maxSkatingSpeedSkater: ByTheNumbersMaxSkatingSpeed;
+  totalDistanceSkatedSkater?: ByTheNumbersDistanceSkater;
+  totalDistanceSkatedTeam?: ByTheNumbersDistanceTeam;
+  totalDistanceSkatedLeague?: ByTheNumbersDistanceLeague;
+  sogTeam?: ByTheNumbersSogTeam;
+  highDangerSavesGoalie?: ByTheNumbersHighDangerSaves;
+  distanceMaxGame?: ByTheNumbersDistanceMaxGame;
+}

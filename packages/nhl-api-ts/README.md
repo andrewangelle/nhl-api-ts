@@ -139,6 +139,32 @@ default; 3 = playoffs). Without `season` the current season (`/now`) is used.
   `teamZoneTimeDetails`, `teamShotLocationDetail`, `teamShotSpeedDetail`,
   `teamSkatingSpeedDetail`
 - Landing pages (no id): `skaterLanding`, `goalieLanding`, `teamLanding`
+- Team comparison (`{ teamId }`): `teamComparison`
+- League highlights: `byTheNumbers({ [season], [gameType] })`. Without `season`
+  it covers the latest game night; with one, the season bests
+- Leaderboards (top 10, no id). Each returns a bare array of 10 rows that carry
+  every metric of that leaderboard; `sortBy` (required) only picks the order.
+  `positions` (`'all'`, `'forwards'`, `'defense'`; see `EdgePositions`),
+  `strength` (`'all'`, `'es'`, `'pp'`, `'pk'`; see `EdgeStrengths`) and the
+  shot-location `category` (`'all'`, `'high'`, `'mid'`, `'long'`) default to
+  `'all'`:
+  - Skaters: `skaterDistanceTop10({ [positions], [strength], sortBy })`,
+    `skaterSpeedTop10({ [positions], sortBy })`,
+    `skaterZoneTimeTop10({ [positions], [strength], sortBy })`,
+    `skaterShotSpeedTop10({ [positions], sortBy })`,
+    `skaterShotLocationTop10({ [positions], sortBy, [category] })`
+  - Goalies: `goalie5v5Top10({ sortBy })`,
+    `goalieShotLocationTop10({ sortBy, [category] })`,
+    `goalieSavePercentageTop10({ sortBy })`
+  - Teams: `teamSkatingDistanceTop10({ [positions], [strength], sortBy })`,
+    `teamSkatingSpeedTop10({ [positions], sortBy })`,
+    `teamZoneTimeTop10({ [strength], sortBy })`,
+    `teamShotSpeedTop10({ [positions], sortBy })`,
+    `teamShotLocationTop10({ [positions], sortBy, [category] })`
+  - Zone-time `sortBy` is the zone (`EdgeZones`: `'offensive'`, `'neutral'`,
+    `'defensive'`); the other `sortBy` values are typed per method (e.g.
+    `EdgeSkatingDistanceSortBy`: `'total'`, `'per-60'`, `'max-game'`,
+    `'max-period'`)
 
 ### players
 

@@ -101,6 +101,24 @@ components:
       required: true
       description: 2 = regular season, 3 = playoffs.
       schema: { type: integer, enum: [2, 3], default: 2 }
+    EdgePositions:
+      name: positions
+      in: path
+      required: true
+      description: '`all`, `forwards` or `defense`. `F` / `D` also work, except on the shot-location top 10s (404).'
+      schema: { type: string, enum: [all, forwards, defense], default: all }
+    EdgeStrength:
+      name: strength
+      in: path
+      required: true
+      description: '`all`, `es` (even strength), `pp` (power play) or `pk` (penalty kill).'
+      schema: { type: string, enum: [all, es, pp, pk], default: all }
+    EdgeShotLocationCategory:
+      name: category
+      in: path
+      required: true
+      description: '`all`, `high` (high danger), `mid` (mid range) or `long` (long range).'
+      schema: { type: string, enum: [all, high, mid, long], default: all }
     CayenneExp:
       name: cayenneExp
       in: query
@@ -477,6 +495,310 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/BoxscoreGoalie'
+    ByTheNumbers:
+      type: object
+      required:
+        - hardestShotSkater
+        - maxSkatingSpeedSkater
+      properties:
+        games:
+          type: number
+        gameDate:
+          type: string
+        hardestShotSkater:
+          '$ref': '#/components/schemas/ByTheNumbersHardestShot'
+        maxSkatingSpeedSkater:
+          '$ref': '#/components/schemas/ByTheNumbersMaxSkatingSpeed'
+        totalDistanceSkatedSkater:
+          '$ref': '#/components/schemas/ByTheNumbersDistanceSkater'
+        totalDistanceSkatedTeam:
+          '$ref': '#/components/schemas/ByTheNumbersDistanceTeam'
+        totalDistanceSkatedLeague:
+          '$ref': '#/components/schemas/ByTheNumbersDistanceLeague'
+        sogTeam:
+          '$ref': '#/components/schemas/ByTheNumbersSogTeam'
+        highDangerSavesGoalie:
+          '$ref': '#/components/schemas/ByTheNumbersHighDangerSaves'
+        distanceMaxGame:
+          '$ref': '#/components/schemas/ByTheNumbersDistanceMaxGame'
+    ByTheNumbersDistanceGame:
+      type: object
+      required:
+        - gameCenterLink
+        - gameDate
+        - isHomeTeam
+        - homeTeam
+        - awayTeam
+        - distanceSkated
+      properties:
+        gameCenterLink:
+          type: string
+        gameDate:
+          type: string
+        isHomeTeam:
+          type: boolean
+        homeTeam:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        awayTeam:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        distanceSkated:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+    ByTheNumbersDistanceLeague:
+      type: object
+      required:
+        - distanceSkated
+        - topFiveSkaters
+      properties:
+        distanceSkated:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        topFiveSkaters:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ByTheNumbersTopSkater'
+    ByTheNumbersDistanceMaxGame:
+      type: object
+      required:
+        - player
+        - overlay
+        - distanceSkated
+      properties:
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersPlayer'
+        overlay:
+          '$ref': '#/components/schemas/SkatingDistanceOverlay'
+        distanceSkated:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+    ByTheNumbersDistanceSkater:
+      type: object
+      required:
+        - player
+        - distanceSkated
+      properties:
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersPlayer'
+        distanceSkated:
+          '$ref': '#/components/schemas/SkaterComparisonDistanceMaxGame'
+    ByTheNumbersDistanceTeam:
+      type: object
+      required:
+        - team
+        - game
+        - topFiveSkaters
+      properties:
+        team:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        game:
+          '$ref': '#/components/schemas/ByTheNumbersDistanceGame'
+        topFiveSkaters:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ByTheNumbersTopSkater'
+    ByTheNumbersHardestShot:
+      type: object
+      required:
+        - player
+        - overlay
+        - shotSpeed
+      properties:
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersPlayer'
+        overlay:
+          '$ref': '#/components/schemas/ShotSpeedOverlay'
+        shotSpeed:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+    ByTheNumbersHighDangerSaves:
+      type: object
+      required:
+        - overlay
+        - player
+        - saves
+        - shotLocationDetails
+      properties:
+        overlay:
+          '$ref': '#/components/schemas/SkatingDistanceOverlay'
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersPlayer'
+        saves:
+          type: number
+        shotLocationDetails:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ByTheNumbersSavesArea'
+    ByTheNumbersMaxSkatingSpeed:
+      type: object
+      required:
+        - player
+        - overlay
+        - skatingSpeed
+      properties:
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersPlayer'
+        overlay:
+          '$ref': '#/components/schemas/SkatingSpeedOverlay'
+        skatingSpeed:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+    ByTheNumbersPlayer:
+      type: object
+      required:
+        - birthDate
+        - id
+        - firstName
+        - lastName
+        - sweaterNumber
+        - position
+        - slug
+        - headshot
+        - shootsCatches
+        - team
+      properties:
+        birthDate:
+          type: string
+        id:
+          type: number
+        firstName:
+          '$ref': '#/components/schemas/LocalizedString'
+        lastName:
+          '$ref': '#/components/schemas/LocalizedString'
+        sweaterNumber:
+          type: number
+        position:
+          type: string
+        slug:
+          type: string
+        headshot:
+          type: string
+        shootsCatches:
+          type: string
+          description: 'Known values: L, R. Others may appear.'
+        team:
+          '$ref': '#/components/schemas/EdgeTeamRef'
+    ByTheNumbersSavesArea:
+      type: object
+      required:
+        - area
+        - saves
+      properties:
+        area:
+          type: string
+        saves:
+          type: number
+    ByTheNumbersSogArea:
+      type: object
+      required:
+        - area
+        - shots
+      properties:
+        area:
+          type: string
+        shots:
+          type: number
+    ByTheNumbersSogTeam:
+      type: object
+      required:
+        - overlay
+        - team
+        - shots
+        - sogDetails
+      properties:
+        overlay:
+          '$ref': '#/components/schemas/ByTheNumbersTeamOverlay'
+        team:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        shots:
+          type: number
+        sogDetails:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ByTheNumbersSogArea'
+    ByTheNumbersTeam:
+      type: object
+      required:
+        - id
+        - commonName
+        - placeNameWithPreposition
+        - abbrev
+        - slug
+        - teamLogo
+        - conference
+        - division
+      properties:
+        id:
+          type: number
+        commonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        placeNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        slug:
+          type: string
+        teamLogo:
+          '$ref': '#/components/schemas/TeamLogo'
+        conference:
+          type: string
+        division:
+          type: string
+    ByTheNumbersTeamOverlay:
+      type: object
+      required:
+        - team
+        - gameDate
+        - awayTeam
+        - homeTeam
+        - gameOutcome
+        - periodDescriptor
+        - gameType
+      properties:
+        team:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        gameDate:
+          type: string
+        awayTeam:
+          '$ref': '#/components/schemas/OverlayTeam'
+        homeTeam:
+          '$ref': '#/components/schemas/OverlayTeam'
+        gameOutcome:
+          '$ref': '#/components/schemas/GameOutcome'
+        periodDescriptor:
+          '$ref': '#/components/schemas/OverlayPeriod'
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+    ByTheNumbersTopSkater:
+      type: object
+      required:
+        - gameCenterLink
+        - gameDate
+        - playerOnHomeTeam
+        - distanceSkated
+        - toi
+        - homeTeam
+        - awayTeam
+        - player
+      properties:
+        gameCenterLink:
+          type: string
+        gameDate:
+          type: string
+        playerOnHomeTeam:
+          type: boolean
+        distanceSkated:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        toi:
+          type: number
+        homeTeam:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        awayTeam:
+          '$ref': '#/components/schemas/ByTheNumbersTeam'
+        player:
+          '$ref': '#/components/schemas/ByTheNumbersTopSkaterName'
+    ByTheNumbersTopSkaterName:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
     CalendarSchedule:
       type: object
       required:
@@ -1889,6 +2211,19 @@ components:
           items:
             type: integer
             description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+    EdgeTeamDistanceMax:
+      type: object
+      required:
+        - imperial
+        - metric
+        - overlay
+      properties:
+        imperial:
+          type: number
+        metric:
+          type: number
+        overlay:
+          '$ref': '#/components/schemas/TeamDistanceOverlay'
     EdgeTeamRef:
       type: object
       required:
@@ -1905,6 +2240,53 @@ components:
           type: string
         teamLogo:
           '$ref': '#/components/schemas/TeamLogo'
+    EdgeTop10Player:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - slug
+        - headshot
+        - position
+        - sweaterNumber
+        - team
+      properties:
+        firstName:
+          '$ref': '#/components/schemas/LocalizedString'
+        lastName:
+          '$ref': '#/components/schemas/LocalizedString'
+        slug:
+          type: string
+        headshot:
+          type: string
+        position:
+          type: string
+        sweaterNumber:
+          type: number
+        team:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+    EdgeTop10Team:
+      type: object
+      required:
+        - id
+        - commonName
+        - placeNameWithPreposition
+        - abbrev
+        - teamLogo
+        - slug
+      properties:
+        id:
+          type: number
+        commonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        placeNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        teamLogo:
+          '$ref': '#/components/schemas/TeamLogo'
+        slug:
+          type: string
     FaceoffDetails:
       type: object
       required:
@@ -2984,6 +3366,25 @@ components:
           type: number
         percentile:
           type: number
+    Goalie5v5Top10Row:
+      type: object
+      required:
+        - player
+        - savePctg
+        - savePctgClose
+        - shots
+        - shotsPer60
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        savePctg:
+          type: number
+        savePctgClose:
+          type: number
+        shots:
+          type: number
+        shotsPer60:
+          type: number
     GoalieAdvancedRow:
       type: object
       required:
@@ -3665,6 +4066,19 @@ components:
             '$ref': '#/components/schemas/GoalieSaveLast10Game'
         savePctgDetails:
           '$ref': '#/components/schemas/GoalieSaveDetails'
+    GoalieSavePercentageTop10Row:
+      type: object
+      required:
+        - player
+        - gamesOver900
+        - pctgGamesOver900
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        gamesOver900:
+          type: number
+        pctgGamesOver900:
+          type: number
     GoalieSavesByStrengthRow:
       type: object
       required:
@@ -3878,6 +4292,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/GoalieShotLocationTotal'
+    GoalieShotLocationTop10Row:
+      type: object
+      required:
+        - player
+        - all
+        - highDanger
+        - midRange
+        - longRange
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeLeaderPlayer'
+        all:
+          type: number
+        highDanger:
+          type: number
+        midRange:
+          type: number
+        longRange:
+          type: number
     GoalieShotLocationTotal:
       type: object
       required:
@@ -8274,6 +8707,25 @@ components:
           '$ref': '#/components/schemas/EdgeMeasurement'
         overlay:
           '$ref': '#/components/schemas/LandingDistanceOverlay'
+    SkaterDistanceTop10Row:
+      type: object
+      required:
+        - player
+        - distanceTotal
+        - distancePer60
+        - distanceMaxPerGame
+        - distanceMaxPerPeriod
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        distanceTotal:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distancePer60:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distanceMaxPerGame:
+          '$ref': '#/components/schemas/SkaterComparisonDistanceMaxGame'
+        distanceMaxPerPeriod:
+          '$ref': '#/components/schemas/SkaterComparisonDistanceMaxGame'
     SkaterFaceoffPercentagesRow:
       type: object
       required:
@@ -9394,6 +9846,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/SkaterShotLocationTotal'
+    SkaterShotLocationTop10Row:
+      type: object
+      required:
+        - player
+        - all
+        - highDanger
+        - midRange
+        - longRange
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        all:
+          type: number
+        highDanger:
+          type: number
+        midRange:
+          type: number
+        longRange:
+          type: number
     SkaterShotLocationTotal:
       type: object
       required:
@@ -9462,6 +9933,28 @@ components:
             '$ref': '#/components/schemas/SkaterHardestShot'
         shotSpeedDetails:
           '$ref': '#/components/schemas/SkaterShotSpeedBreakdown'
+    SkaterShotSpeedTop10Row:
+      type: object
+      required:
+        - player
+        - hardestShot
+        - shotAttemptsOver100
+        - shotAttempts90To100
+        - shotAttempts80To90
+        - shotAttempts70To80
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        hardestShot:
+          '$ref': '#/components/schemas/SkaterComparisonTopShot'
+        shotAttemptsOver100:
+          type: number
+        shotAttempts90To100:
+          type: number
+        shotAttempts80To90:
+          type: number
+        shotAttempts70To80:
+          type: number
     SkaterShotTypeRow:
       type: object
       required:
@@ -9653,6 +10146,25 @@ components:
           '$ref': '#/components/schemas/EdgePercentileStat'
         bursts18To20:
           '$ref': '#/components/schemas/EdgePercentileStat'
+    SkaterSpeedTop10Row:
+      type: object
+      required:
+        - player
+        - maxSpeed
+        - burstsOver22
+        - bursts20To22
+        - bursts18To20
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        maxSpeed:
+          '$ref': '#/components/schemas/SkaterComparisonMaxSpeed'
+        burstsOver22:
+          type: number
+        bursts20To22:
+          type: number
+        bursts18To20:
+          type: number
     SkaterStatsLeaders:
       type: object
       properties:
@@ -10026,6 +10538,23 @@ components:
         defensiveZonePercentile:
           type: number
         defensiveZoneLeagueAvg:
+          type: number
+    SkaterZoneTimeTop10Row:
+      type: object
+      required:
+        - player
+        - offensiveZoneTime
+        - neutralZoneTime
+        - defensiveZoneTime
+      properties:
+        player:
+          '$ref': '#/components/schemas/EdgeTop10Player'
+        offensiveZoneTime:
+          type: number
+          description: 'Share of time on ice, e.g. 0.4957.'
+        neutralZoneTime:
+          type: number
+        defensiveZoneTime:
           type: number
     SkatingDistanceOverlay:
       type: object
@@ -10695,6 +11224,139 @@ components:
         team:
           '$ref': '#/components/schemas/EdgeLeaderTeam'
         bursts:
+          type: number
+    TeamComparison:
+      type: object
+      required:
+        - team
+        - seasonsWithEdgeStats
+        - shotSpeedDetails
+        - skatingSpeedDetails
+        - skatingDistanceLast10
+        - skatingDistanceDetails
+        - shotLocationDetails
+        - shotLocationTotals
+        - zoneTimeDetails
+        - shotDifferential
+      properties:
+        team:
+          '$ref': '#/components/schemas/TeamComparisonTeam'
+        seasonsWithEdgeStats:
+          type: array
+          items:
+            '$ref': '#/components/schemas/EdgeSeasonAvailability'
+        shotSpeedDetails:
+          '$ref': '#/components/schemas/SkaterComparisonShotSpeed'
+        skatingSpeedDetails:
+          '$ref': '#/components/schemas/SkaterComparisonSpeed'
+        skatingDistanceLast10:
+          type: array
+          items:
+            '$ref': '#/components/schemas/TeamComparisonDistanceGame'
+        skatingDistanceDetails:
+          '$ref': '#/components/schemas/TeamComparisonDistance'
+        shotLocationDetails:
+          type: array
+          items:
+            '$ref': '#/components/schemas/SkaterComparisonLocationArea'
+        shotLocationTotals:
+          type: array
+          items:
+            '$ref': '#/components/schemas/SkaterComparisonLocationTotal'
+        zoneTimeDetails:
+          '$ref': '#/components/schemas/SkaterComparisonZoneTime'
+        shotDifferential:
+          '$ref': '#/components/schemas/TeamComparisonShotDifferential'
+    TeamComparisonDistance:
+      type: object
+      required:
+        - distanceTotal
+        - distancePer60
+        - distanceMaxGame
+        - distanceMaxPeriod
+      properties:
+        distanceTotal:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distancePer60:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distanceMaxGame:
+          '$ref': '#/components/schemas/EdgeTeamDistanceMax'
+        distanceMaxPeriod:
+          '$ref': '#/components/schemas/EdgeTeamDistanceMax'
+    TeamComparisonDistanceGame:
+      type: object
+      required:
+        - gameCenterLink
+        - gameDate
+        - isHomeTeam
+        - distanceSkated
+        - homeTeam
+        - awayTeam
+      properties:
+        gameCenterLink:
+          type: string
+        gameDate:
+          type: string
+        isHomeTeam:
+          type: boolean
+        distanceSkated:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        homeTeam:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+        awayTeam:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+    TeamComparisonShotDifferential:
+      type: object
+      required:
+        - shotAttemptDifferential
+        - sogDifferential
+      properties:
+        shotAttemptDifferential:
+          type: number
+        sogDifferential:
+          type: number
+    TeamComparisonTeam:
+      type: object
+      required:
+        - id
+        - commonName
+        - placeNameWithPreposition
+        - abbrev
+        - teamLogo
+        - slug
+        - conference
+        - division
+        - wins
+        - losses
+        - otLosses
+        - gamesPlayed
+        - points
+      properties:
+        id:
+          type: number
+        commonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        placeNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        teamLogo:
+          '$ref': '#/components/schemas/TeamLogo'
+        slug:
+          type: string
+        conference:
+          type: string
+        division:
+          type: string
+        wins:
+          type: number
+        losses:
+          type: number
+        otLosses:
+          type: number
+        gamesPlayed:
+          type: number
+        points:
           type: number
     TeamDetail:
       type: object
@@ -11435,6 +12097,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/TeamShotLocationTotal'
+    TeamShotLocationTop10Row:
+      type: object
+      required:
+        - team
+        - all
+        - highDanger
+        - midRange
+        - longRange
+      properties:
+        team:
+          '$ref': '#/components/schemas/EdgeTop10Team'
+        all:
+          type: number
+        highDanger:
+          type: number
+        midRange:
+          type: number
+        longRange:
+          type: number
     TeamShotLocationTotal:
       type: object
       required:
@@ -11511,6 +12192,28 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/TeamShotSpeedBreakdown'
+    TeamShotSpeedTop10Row:
+      type: object
+      required:
+        - team
+        - hardestShot
+        - shotAttemptsOver100
+        - shotAttempts90To100
+        - shotAttempts80To90
+        - shotAttempts70To80
+      properties:
+        team:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+        hardestShot:
+          '$ref': '#/components/schemas/SkaterComparisonTopShot'
+        shotAttemptsOver100:
+          type: number
+        shotAttempts90To100:
+          type: number
+        shotAttempts80To90:
+          type: number
+        shotAttempts70To80:
+          type: number
     TeamShotTeamRef:
       type: object
       required:
@@ -11538,6 +12241,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/TeamDistanceByStrength'
+    TeamSkatingDistanceTop10Row:
+      type: object
+      required:
+        - team
+        - distanceTotal
+        - distancePer60
+        - distanceMaxPerGame
+        - distanceMaxPerPeriod
+      properties:
+        team:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+        distanceTotal:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distancePer60:
+          '$ref': '#/components/schemas/EdgeMeasurement'
+        distanceMaxPerGame:
+          '$ref': '#/components/schemas/EdgeTeamDistanceMax'
+        distanceMaxPerPeriod:
+          '$ref': '#/components/schemas/EdgeTeamDistanceMax'
     TeamSkatingSpeedDetail:
       type: object
       required:
@@ -11552,6 +12274,25 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/TeamSpeedBreakdown'
+    TeamSkatingSpeedTop10Row:
+      type: object
+      required:
+        - team
+        - maxSkatingSpeed
+        - burstsOver22
+        - bursts20To22
+        - bursts18To20
+      properties:
+        team:
+          '$ref': '#/components/schemas/EdgeTop10Team'
+        maxSkatingSpeed:
+          '$ref': '#/components/schemas/SkaterComparisonMaxSpeed'
+        burstsOver22:
+          type: number
+        bursts20To22:
+          type: number
+        bursts18To20:
+          type: number
     TeamSpeedBreakdown:
       type: object
       required:
@@ -11776,6 +12517,23 @@ components:
             '$ref': '#/components/schemas/TeamZoneTimeByStrength'
         shotDifferential:
           '$ref': '#/components/schemas/TeamShotDifferential'
+    TeamZoneTimeTop10Row:
+      type: object
+      required:
+        - team
+        - offensiveZoneTime
+        - neutralZoneTime
+        - defensiveZoneTime
+      properties:
+        team:
+          '$ref': '#/components/schemas/EdgeGameTeam'
+        offensiveZoneTime:
+          type: number
+          description: 'Share of time on ice, e.g. 0.4957.'
+        neutralZoneTime:
+          type: number
+        defensiveZoneTime:
+          type: number
     TotalDistanceLeader:
       type: object
       required:
@@ -12424,6 +13182,7 @@ components:
               - '$ref': '#/components/schemas/TeamShotLocationDetail'
               - '$ref': '#/components/schemas/TeamShotSpeedDetail'
               - '$ref': '#/components/schemas/TeamSkatingSpeedDetail'
+              - '$ref': '#/components/schemas/TeamComparison'
     CatEdgeReport:
       description: CAT EDGE report.
       content:
@@ -12441,6 +13200,116 @@ components:
               - '$ref': '#/components/schemas/SkaterLanding'
               - '$ref': '#/components/schemas/GoalieLanding'
               - '$ref': '#/components/schemas/TeamLanding'
+    SkaterDistanceTop10:
+      description: Top 10 skaters by skating distance.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/SkaterDistanceTop10Row'
+    SkaterSpeedTop10:
+      description: Top 10 skaters by skating speed.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/SkaterSpeedTop10Row'
+    SkaterZoneTimeTop10:
+      description: Top 10 skaters by zone time.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/SkaterZoneTimeTop10Row'
+    SkaterShotSpeedTop10:
+      description: Top 10 skaters by shot speed.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/SkaterShotSpeedTop10Row'
+    SkaterShotLocationTop10:
+      description: Top 10 skaters by shot location.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/SkaterShotLocationTop10Row'
+    Goalie5v5Top10:
+      description: Top 10 goalies by 5v5 performance.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/Goalie5v5Top10Row'
+    GoalieShotLocationTop10:
+      description: Top 10 goalies by shot location.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/GoalieShotLocationTop10Row'
+    GoalieSavePercentageTop10:
+      description: Top 10 goalies by games above a .900 save percentage.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/GoalieSavePercentageTop10Row'
+    TeamSkatingDistanceTop10:
+      description: Top 10 teams by skating distance.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/TeamSkatingDistanceTop10Row'
+    TeamSkatingSpeedTop10:
+      description: Top 10 teams by skating speed.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/TeamSkatingSpeedTop10Row'
+    TeamZoneTimeTop10:
+      description: Top 10 teams by zone time.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/TeamZoneTimeTop10Row'
+    TeamShotSpeedTop10:
+      description: Top 10 teams by shot speed.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/TeamShotSpeedTop10Row'
+    TeamShotLocationTop10:
+      description: Top 10 teams by shot location.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/TeamShotLocationTop10Row'
+    ByTheNumbers:
+      description: League-wide EDGE highlights.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/ByTheNumbers'
     Franchises:
       description: Franchises.
       content:
@@ -13212,6 +14081,7 @@ paths:
         - edge.teamShotLocationDetail
         - edge.teamShotSpeedDetail
         - edge.teamSkatingSpeedDetail
+        - edge.teamComparison
       parameters:
         - name: report
           in: path
@@ -13237,6 +14107,7 @@ paths:
               - team-shot-location-detail
               - team-shot-speed-detail
               - team-skating-speed-detail
+              - team-comparison
         - $ref: '#/components/parameters/EdgeId'
         - $ref: '#/components/parameters/EdgeSeason'
         - $ref: '#/components/parameters/EdgeGameType'
@@ -13287,6 +14158,265 @@ paths:
         - $ref: '#/components/parameters/EdgeGameType'
       responses:
         '200': { $ref: '#/components/responses/EdgeLanding' }
+
+  # EDGE top-10 leaderboards. Each answers a bare array of 10 rows and has a
+  # `.../now` form (307 to the current season) next to `.../{season}/{gameType}`.
+  /edge/skater-distance-top-10/{positions}/{strength}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: skaterDistanceTop10
+      x-sdk-method: [edge.skaterDistanceTop10]
+      summary: 'Top 10 skaters by skating distance. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - $ref: '#/components/parameters/EdgeStrength'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [total, per-60, max-game, max-period] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/SkaterDistanceTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/skater-speed-top-10/{positions}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: skaterSpeedTop10
+      x-sdk-method: [edge.skaterSpeedTop10]
+      summary: 'Top 10 skaters by skating speed. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [max, over-22, 20-22, 18-20] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/SkaterSpeedTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/skater-zone-time-top-10/{positions}/{strength}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: skaterZoneTimeTop10
+      x-sdk-method: [edge.skaterZoneTimeTop10]
+      summary: 'Top 10 skaters by zone time. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - $ref: '#/components/parameters/EdgeStrength'
+        - name: sortBy
+          in: path
+          required: true
+          description: Zone to rank by.
+          schema: { type: string, enum: [offensive, neutral, defensive] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/SkaterZoneTimeTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/skater-shot-speed-top-10/{positions}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: skaterShotSpeedTop10
+      x-sdk-method: [edge.skaterShotSpeedTop10]
+      summary: 'Top 10 skaters by shot speed. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [max, over-100, 90-99, 80-89, 70-79] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/SkaterShotSpeedTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/skater-shot-location-top-10/{positions}/{sortBy}/{category}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: skaterShotLocationTop10
+      x-sdk-method: [edge.skaterShotLocationTop10]
+      summary: 'Top 10 skaters by shot location. `/now` form also available. `sortBy` comes before `category`.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [sog, goals, shooting-pctg] }
+        - $ref: '#/components/parameters/EdgeShotLocationCategory'
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/SkaterShotLocationTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/goalie-5v5-top-10/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: goalie5v5Top10
+      x-sdk-method: [edge.goalie5v5Top10]
+      summary: 'Top 10 goalies by 5v5 performance. `/now` form also available.'
+      parameters:
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [save-pctg, save-pctg-close, shots, shots-per-60] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/Goalie5v5Top10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/goalie-shot-location-top-10/{sortBy}/{category}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: goalieShotLocationTop10
+      x-sdk-method: [edge.goalieShotLocationTop10]
+      summary: 'Top 10 goalies by shot location. `/now` form also available. `sortBy` comes before `category`.'
+      parameters:
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [save-pctg, saves, goals-against, shots-against] }
+        - $ref: '#/components/parameters/EdgeShotLocationCategory'
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/GoalieShotLocationTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/goalie-edge-save-pctg-top-10/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: goalieSavePercentageTop10
+      x-sdk-method: [edge.goalieSavePercentageTop10]
+      summary: 'Top 10 goalies by games above a .900 save percentage. `/now` form also available.'
+      parameters:
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [games, pctg] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/GoalieSavePercentageTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/team-skating-distance-top-10/{positions}/{strength}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: teamSkatingDistanceTop10
+      x-sdk-method: [edge.teamSkatingDistanceTop10]
+      summary: 'Top 10 teams by skating distance. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - $ref: '#/components/parameters/EdgeStrength'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [total, per-60, max-game, max-period] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/TeamSkatingDistanceTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/team-skating-speed-top-10/{positions}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: teamSkatingSpeedTop10
+      x-sdk-method: [edge.teamSkatingSpeedTop10]
+      summary: 'Top 10 teams by skating speed. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [max, over-22, 20-22, 18-20] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/TeamSkatingSpeedTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/team-zone-time-top-10/{strength}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: teamZoneTimeTop10
+      x-sdk-method: [edge.teamZoneTimeTop10]
+      summary: 'Top 10 teams by zone time. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgeStrength'
+        - name: sortBy
+          in: path
+          required: true
+          description: Zone to rank by.
+          schema: { type: string, enum: [offensive, neutral, defensive] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/TeamZoneTimeTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/team-shot-speed-top-10/{positions}/{sortBy}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: teamShotSpeedTop10
+      x-sdk-method: [edge.teamShotSpeedTop10]
+      summary: 'Top 10 teams by shot speed. `/now` form also available.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [max, over-100, 90-99, 80-89, 70-79] }
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/TeamShotSpeedTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/team-shot-location-top-10/{positions}/{sortBy}/{category}/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: teamShotLocationTop10
+      x-sdk-method: [edge.teamShotLocationTop10]
+      summary: 'Top 10 teams by shot location. `/now` form also available. `sortBy` comes before `category`.'
+      parameters:
+        - $ref: '#/components/parameters/EdgePositions'
+        - name: sortBy
+          in: path
+          required: true
+          description: Metric to rank by. Every row has every metric; this only reorders.
+          schema: { type: string, enum: [sog, goals, shooting-pctg] }
+        - $ref: '#/components/parameters/EdgeShotLocationCategory'
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/TeamShotLocationTop10' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /edge/by-the-numbers/now:
+    get:
+      tags: [edge]
+      operationId: byTheNumbersNow
+      x-sdk-method: [edge.byTheNumbers]
+      summary: League-wide EDGE highlights of the latest game night. Answers 200 directly (no redirect).
+      responses:
+        '200': { $ref: '#/components/responses/ByTheNumbers' }
+  /edge/by-the-numbers/{season}/{gameType}:
+    get:
+      tags: [edge]
+      operationId: byTheNumbers
+      x-sdk-method: [edge.byTheNumbers]
+      summary: Season-best EDGE highlights. The bare path is a 404.
+      parameters:
+        - $ref: '#/components/parameters/EdgeSeason'
+        - $ref: '#/components/parameters/EdgeGameType'
+      responses:
+        '200': { $ref: '#/components/responses/ByTheNumbers' }
 
   # ---------------------------------------------------------------- stats API
   /en/franchise:

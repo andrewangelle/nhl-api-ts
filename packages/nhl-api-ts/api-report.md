@@ -277,6 +277,233 @@ export function buildQuery(filters: readonly Filter[], factQuery?: string): Quer
 // @public (undocumented)
 export function buildUrl(endpoint: Endpoint, resource: string, queryParams?: QueryParams): string;
 
+// @public
+export interface ByTheNumbers {
+    // (undocumented)
+    distanceMaxGame?: ByTheNumbersDistanceMaxGame;
+    // (undocumented)
+    gameDate?: string;
+    // (undocumented)
+    games?: number;
+    // (undocumented)
+    hardestShotSkater: ByTheNumbersHardestShot;
+    // (undocumented)
+    highDangerSavesGoalie?: ByTheNumbersHighDangerSaves;
+    // (undocumented)
+    maxSkatingSpeedSkater: ByTheNumbersMaxSkatingSpeed;
+    // (undocumented)
+    sogTeam?: ByTheNumbersSogTeam;
+    // (undocumented)
+    totalDistanceSkatedLeague?: ByTheNumbersDistanceLeague;
+    // (undocumented)
+    totalDistanceSkatedSkater?: ByTheNumbersDistanceSkater;
+    // (undocumented)
+    totalDistanceSkatedTeam?: ByTheNumbersDistanceTeam;
+}
+
+// @public
+function byTheNumbers(ctx: Context, params?: EdgeSeasonParams): Promise<ByTheNumbers>;
+
+// @public (undocumented)
+export interface ByTheNumbersDistanceGame {
+    // (undocumented)
+    awayTeam: ByTheNumbersTeam;
+    // (undocumented)
+    distanceSkated: EdgeMeasurement;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    homeTeam: ByTheNumbersTeam;
+    // (undocumented)
+    isHomeTeam: boolean;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersDistanceLeague {
+    // (undocumented)
+    distanceSkated: EdgeMeasurement;
+    // (undocumented)
+    topFiveSkaters: ByTheNumbersTopSkater[];
+}
+
+// @public (undocumented)
+export interface ByTheNumbersDistanceMaxGame {
+    // (undocumented)
+    distanceSkated: EdgeMeasurement;
+    // (undocumented)
+    overlay: SkatingDistanceOverlay;
+    // (undocumented)
+    player: ByTheNumbersPlayer;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersDistanceSkater {
+    // (undocumented)
+    distanceSkated: SkaterComparisonDistanceMaxGame;
+    // (undocumented)
+    player: ByTheNumbersPlayer;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersDistanceTeam {
+    // (undocumented)
+    game: ByTheNumbersDistanceGame;
+    // (undocumented)
+    team: ByTheNumbersTeam;
+    // (undocumented)
+    topFiveSkaters: ByTheNumbersTopSkater[];
+}
+
+// @public (undocumented)
+export interface ByTheNumbersHardestShot {
+    // (undocumented)
+    overlay: ShotSpeedOverlay;
+    // (undocumented)
+    player: ByTheNumbersPlayer;
+    // (undocumented)
+    shotSpeed: EdgeMeasurement;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersHighDangerSaves {
+    // (undocumented)
+    overlay: SkatingDistanceOverlay;
+    // (undocumented)
+    player: ByTheNumbersPlayer;
+    // (undocumented)
+    saves: number;
+    // (undocumented)
+    shotLocationDetails: ByTheNumbersSavesArea[];
+}
+
+// @public (undocumented)
+export interface ByTheNumbersMaxSkatingSpeed {
+    // (undocumented)
+    overlay: SkatingSpeedOverlay;
+    // (undocumented)
+    player: ByTheNumbersPlayer;
+    // (undocumented)
+    skatingSpeed: EdgeMeasurement;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersPlayer {
+    // (undocumented)
+    birthDate: string;
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    position: string;
+    // (undocumented)
+    shootsCatches: ShootsCatches;
+    // (undocumented)
+    slug: string;
+    // (undocumented)
+    sweaterNumber: number;
+    // (undocumented)
+    team: EdgeTeamRef;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersSavesArea {
+    // (undocumented)
+    area: string;
+    // (undocumented)
+    saves: number;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersSogArea {
+    // (undocumented)
+    area: string;
+    // (undocumented)
+    shots: number;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersSogTeam {
+    // (undocumented)
+    overlay: ByTheNumbersTeamOverlay;
+    // (undocumented)
+    shots: number;
+    // (undocumented)
+    sogDetails: ByTheNumbersSogArea[];
+    // (undocumented)
+    team: ByTheNumbersTeam;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    conference: string;
+    // (undocumented)
+    division: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+    // (undocumented)
+    slug: string;
+    // (undocumented)
+    teamLogo: TeamLogo;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersTeamOverlay {
+    // (undocumented)
+    awayTeam: OverlayTeam;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    gameOutcome: GameOutcome;
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    homeTeam: OverlayTeam;
+    // (undocumented)
+    periodDescriptor: OverlayPeriod;
+    // (undocumented)
+    team: ByTheNumbersTeam;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersTopSkater {
+    // (undocumented)
+    awayTeam: ByTheNumbersTeam;
+    // (undocumented)
+    distanceSkated: EdgeMeasurement;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    homeTeam: ByTheNumbersTeam;
+    // (undocumented)
+    player: ByTheNumbersTopSkaterName;
+    // (undocumented)
+    playerOnHomeTeam: boolean;
+    // (undocumented)
+    toi: number;
+}
+
+// @public (undocumented)
+export interface ByTheNumbersTopSkaterName {
+    // (undocumented)
+    name: LocalizedString;
+}
+
 // @public (undocumented)
 export interface CalendarSchedule {
     // (undocumented)
@@ -879,6 +1106,21 @@ export function createNHLClient(options?: ClientOptions): {
         readonly teamLanding: teamLanding;
         readonly teamShotSpeedDetail: teamShotSpeedDetail;
         readonly teamSkatingSpeedDetail: teamSkatingSpeedDetail;
+        readonly skaterDistanceTop10: skaterDistanceTop10;
+        readonly skaterSpeedTop10: skaterSpeedTop10;
+        readonly skaterZoneTimeTop10: skaterZoneTimeTop10;
+        readonly skaterShotSpeedTop10: skaterShotSpeedTop10;
+        readonly skaterShotLocationTop10: skaterShotLocationTop10;
+        readonly goalie5v5Top10: goalie5v5Top10;
+        readonly goalieShotLocationTop10: goalieShotLocationTop10;
+        readonly goalieSavePercentageTop10: goalieSavePercentageTop10;
+        readonly teamSkatingDistanceTop10: teamSkatingDistanceTop10;
+        readonly teamSkatingSpeedTop10: teamSkatingSpeedTop10;
+        readonly teamZoneTimeTop10: teamZoneTimeTop10;
+        readonly teamShotSpeedTop10: teamShotSpeedTop10;
+        readonly teamShotLocationTop10: teamShotLocationTop10;
+        readonly teamComparison: teamComparison;
+        readonly byTheNumbers: byTheNumbers;
     }>;
     readonly draft: Bound<{
         readonly rankings: rankings;
@@ -1340,9 +1582,44 @@ declare namespace edge {
         teamLanding,
         teamShotSpeedDetail,
         teamSkatingSpeedDetail,
+        skaterDistanceTop10,
+        skaterSpeedTop10,
+        skaterZoneTimeTop10,
+        skaterShotSpeedTop10,
+        skaterShotLocationTop10,
+        goalie5v5Top10,
+        goalieShotLocationTop10,
+        goalieSavePercentageTop10,
+        teamSkatingDistanceTop10,
+        teamSkatingSpeedTop10,
+        teamZoneTimeTop10,
+        teamShotSpeedTop10,
+        teamShotLocationTop10,
+        teamComparison,
+        byTheNumbers,
         EdgeSeasonParams,
         EdgePlayerParams,
         EdgeTeamParams,
+        EdgePositions,
+        EdgePosition,
+        EdgeStrengths,
+        EdgeStrength,
+        EdgeZones,
+        EdgeZone,
+        EdgeSkatingDistanceSortBy,
+        EdgeSkatingSpeedSortBy,
+        EdgeShotSpeedSortBy,
+        EdgeShotLocationSortBy,
+        EdgeShotLocationCategory,
+        EdgeGoalieShotLocationSortBy,
+        EdgeGoalie5v5SortBy,
+        EdgeGoalieSavePercentageSortBy,
+        EdgeTop10Params,
+        EdgePositionTop10Params,
+        EdgeStrengthTop10Params,
+        EdgeShotLocationTop10Params,
+        EdgeTeamZoneTimeTop10Params,
+        EdgeGoalieShotLocationTop10Params,
         edgeApi
     }
 }
@@ -1372,6 +1649,21 @@ const edgeApi: {
     readonly teamLanding: typeof teamLanding;
     readonly teamShotSpeedDetail: typeof teamShotSpeedDetail;
     readonly teamSkatingSpeedDetail: typeof teamSkatingSpeedDetail;
+    readonly skaterDistanceTop10: typeof skaterDistanceTop10;
+    readonly skaterSpeedTop10: typeof skaterSpeedTop10;
+    readonly skaterZoneTimeTop10: typeof skaterZoneTimeTop10;
+    readonly skaterShotSpeedTop10: typeof skaterShotSpeedTop10;
+    readonly skaterShotLocationTop10: typeof skaterShotLocationTop10;
+    readonly goalie5v5Top10: typeof goalie5v5Top10;
+    readonly goalieShotLocationTop10: typeof goalieShotLocationTop10;
+    readonly goalieSavePercentageTop10: typeof goalieSavePercentageTop10;
+    readonly teamSkatingDistanceTop10: typeof teamSkatingDistanceTop10;
+    readonly teamSkatingSpeedTop10: typeof teamSkatingSpeedTop10;
+    readonly teamZoneTimeTop10: typeof teamZoneTimeTop10;
+    readonly teamShotSpeedTop10: typeof teamShotSpeedTop10;
+    readonly teamShotLocationTop10: typeof teamShotLocationTop10;
+    readonly teamComparison: typeof teamComparison;
+    readonly byTheNumbers: typeof byTheNumbers;
 };
 
 // @public (undocumented)
@@ -1386,6 +1678,20 @@ export interface EdgeGameTeam {
     slug: string;
     // (undocumented)
     teamLogo: TeamLogo;
+}
+
+// @public (undocumented)
+export type EdgeGoalie5v5SortBy = OpenUnion<'save-pctg' | 'save-pctg-close' | 'shots' | 'shots-per-60'>;
+
+// @public (undocumented)
+export type EdgeGoalieSavePercentageSortBy = OpenUnion<'games' | 'pctg'>;
+
+// @public (undocumented)
+export type EdgeGoalieShotLocationSortBy = OpenUnion<'save-pctg' | 'saves' | 'goals-against' | 'shots-against'>;
+
+// @public (undocumented)
+export interface EdgeGoalieShotLocationTop10Params extends EdgeTop10Params<EdgeGoalieShotLocationSortBy> {
+    category?: EdgeShotLocationCategory;
 }
 
 // @public (undocumented)
@@ -1480,6 +1786,21 @@ export interface EdgePlayerParams extends EdgeSeasonParams {
 }
 
 // @public (undocumented)
+export type EdgePosition = OpenUnion<(typeof EdgePositions)[keyof typeof EdgePositions]>;
+
+// @public
+export const EdgePositions: {
+    readonly ALL: 'all';
+    readonly FORWARDS: 'forwards';
+    readonly DEFENSE: 'defense';
+};
+
+// @public (undocumented)
+export interface EdgePositionTop10Params<SortBy extends string> extends EdgeTop10Params<SortBy> {
+    positions?: EdgePosition;
+}
+
+// @public (undocumented)
 export interface EdgeRankedLeagueStat {
     // (undocumented)
     leagueAvg: number;
@@ -1523,6 +1844,52 @@ export interface EdgeSeasonParams {
     season?: Id;
 }
 
+// @public
+export type EdgeShotLocationCategory = OpenUnion<'all' | 'high' | 'mid' | 'long'>;
+
+// @public (undocumented)
+export type EdgeShotLocationSortBy = OpenUnion<'sog' | 'goals' | 'shooting-pctg'>;
+
+// @public (undocumented)
+export interface EdgeShotLocationTop10Params extends EdgePositionTop10Params<EdgeShotLocationSortBy> {
+    category?: EdgeShotLocationCategory;
+}
+
+// @public (undocumented)
+export type EdgeShotSpeedSortBy = OpenUnion<'max' | 'over-100' | '90-99' | '80-89' | '70-79'>;
+
+// @public (undocumented)
+export type EdgeSkatingDistanceSortBy = OpenUnion<'total' | 'per-60' | 'max-game' | 'max-period'>;
+
+// @public (undocumented)
+export type EdgeSkatingSpeedSortBy = OpenUnion<'max' | 'over-22' | '20-22' | '18-20'>;
+
+// @public (undocumented)
+export type EdgeStrength = OpenUnion<(typeof EdgeStrengths)[keyof typeof EdgeStrengths]>;
+
+// @public
+export const EdgeStrengths: {
+    readonly ALL: 'all';
+    readonly EVEN: 'es';
+    readonly POWER_PLAY: 'pp';
+    readonly PENALTY_KILL: 'pk';
+};
+
+// @public (undocumented)
+export interface EdgeStrengthTop10Params<SortBy extends string> extends EdgePositionTop10Params<SortBy> {
+    strength?: EdgeStrength;
+}
+
+// @public (undocumented)
+export interface EdgeTeamDistanceMax {
+    // (undocumented)
+    imperial: number;
+    // (undocumented)
+    metric: number;
+    // (undocumented)
+    overlay: TeamDistanceOverlay;
+}
+
 // @public (undocumented)
 export interface EdgeTeamParams extends EdgeSeasonParams {
     teamId: Id;
@@ -1539,6 +1906,60 @@ export interface EdgeTeamRef {
     // (undocumented)
     teamLogo: TeamLogo;
 }
+
+// @public (undocumented)
+export interface EdgeTeamZoneTimeTop10Params extends EdgeTop10Params<EdgeZone> {
+    strength?: EdgeStrength;
+}
+
+// @public (undocumented)
+export interface EdgeTop10Params<SortBy extends string> extends EdgeSeasonParams {
+    sortBy: SortBy;
+}
+
+// @public
+export interface EdgeTop10Player {
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    position: string;
+    // (undocumented)
+    slug: string;
+    // (undocumented)
+    sweaterNumber: number;
+    // (undocumented)
+    team: EdgeGameTeam;
+}
+
+// @public
+export interface EdgeTop10Team {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+    // (undocumented)
+    slug: string;
+    // (undocumented)
+    teamLogo: TeamLogo;
+}
+
+// @public (undocumented)
+export type EdgeZone = OpenUnion<(typeof EdgeZones)[keyof typeof EdgeZones]>;
+
+// @public
+export const EdgeZones: {
+    readonly OFFENSIVE: 'offensive';
+    readonly NEUTRAL: 'neutral';
+    readonly DEFENSIVE: 'defensive';
+};
 
 // @public (undocumented)
 export const Endpoint: {
@@ -2424,6 +2845,23 @@ export interface Goalie5v5Stat {
     value: number;
 }
 
+// @public
+function goalie5v5Top10(ctx: Context, input: EdgeTop10Params<EdgeGoalie5v5SortBy>): Promise<Goalie5v5Top10Row[]>;
+
+// @public (undocumented)
+export interface Goalie5v5Top10Row {
+    // (undocumented)
+    player: EdgeTop10Player;
+    // (undocumented)
+    savePctg: number;
+    // (undocumented)
+    savePctgClose: number;
+    // (undocumented)
+    shots: number;
+    // (undocumented)
+    shotsPer60: number;
+}
+
 // @public (undocumented)
 export interface GoalieAdvancedRow {
     // (undocumented)
@@ -2909,6 +3347,19 @@ export interface GoalieSavePercentageDetail {
 // @public
 function goalieSavePercentageDetail(ctx: Context, params: EdgePlayerParams): Promise<GoalieSavePercentageDetail>;
 
+// @public
+function goalieSavePercentageTop10(ctx: Context, input: EdgeTop10Params<EdgeGoalieSavePercentageSortBy>): Promise<GoalieSavePercentageTop10Row[]>;
+
+// @public (undocumented)
+export interface GoalieSavePercentageTop10Row {
+    // (undocumented)
+    gamesOver900: number;
+    // (undocumented)
+    pctgGamesOver900: number;
+    // (undocumented)
+    player: EdgeTop10Player;
+}
+
 // @public (undocumented)
 export interface GoalieSavesByStrengthRow {
     // (undocumented)
@@ -3041,6 +3492,23 @@ export interface GoalieShotLocationDetail {
 
 // @public
 function goalieShotLocationDetail(ctx: Context, params: EdgePlayerParams): Promise<GoalieShotLocationDetail>;
+
+// @public
+function goalieShotLocationTop10(ctx: Context, input: EdgeGoalieShotLocationTop10Params): Promise<GoalieShotLocationTop10Row[]>;
+
+// @public (undocumented)
+export interface GoalieShotLocationTop10Row {
+    // (undocumented)
+    all: number;
+    // (undocumented)
+    highDanger: number;
+    // (undocumented)
+    longRange: number;
+    // (undocumented)
+    midRange: number;
+    // (undocumented)
+    player: EdgeLeaderPlayer;
+}
 
 // @public (undocumented)
 export interface GoalieShotLocationTotal {
@@ -6464,6 +6932,23 @@ export interface SkaterDistanceMaxGame {
     percentile: number;
 }
 
+// @public
+function skaterDistanceTop10(ctx: Context, input: EdgeStrengthTop10Params<EdgeSkatingDistanceSortBy>): Promise<SkaterDistanceTop10Row[]>;
+
+// @public (undocumented)
+export interface SkaterDistanceTop10Row {
+    // (undocumented)
+    distanceMaxPerGame: SkaterComparisonDistanceMaxGame;
+    // (undocumented)
+    distanceMaxPerPeriod: SkaterComparisonDistanceMaxGame;
+    // (undocumented)
+    distancePer60: EdgeMeasurement;
+    // (undocumented)
+    distanceTotal: EdgeMeasurement;
+    // (undocumented)
+    player: EdgeTop10Player;
+}
+
 // @public (undocumented)
 export interface SkaterFaceoffPercentagesRow {
     // (undocumented)
@@ -7226,6 +7711,23 @@ export interface SkaterShotLocationDetail {
 // @public
 function skaterShotLocationDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterShotLocationDetail>;
 
+// @public
+function skaterShotLocationTop10(ctx: Context, input: EdgeShotLocationTop10Params): Promise<SkaterShotLocationTop10Row[]>;
+
+// @public (undocumented)
+export interface SkaterShotLocationTop10Row {
+    // (undocumented)
+    all: number;
+    // (undocumented)
+    highDanger: number;
+    // (undocumented)
+    longRange: number;
+    // (undocumented)
+    midRange: number;
+    // (undocumented)
+    player: EdgeTop10Player;
+}
+
 // @public (undocumented)
 export interface SkaterShotLocationTotal {
     // (undocumented)
@@ -7276,6 +7778,25 @@ export interface SkaterShotSpeedDetail {
 
 // @public
 function skaterShotSpeedDetail(ctx: Context, params: EdgePlayerParams): Promise<SkaterShotSpeedDetail>;
+
+// @public
+function skaterShotSpeedTop10(ctx: Context, input: EdgePositionTop10Params<EdgeShotSpeedSortBy>): Promise<SkaterShotSpeedTop10Row[]>;
+
+// @public (undocumented)
+export interface SkaterShotSpeedTop10Row {
+    // (undocumented)
+    hardestShot: SkaterComparisonTopShot;
+    // (undocumented)
+    player: EdgeTop10Player;
+    // (undocumented)
+    shotAttempts70To80: number;
+    // (undocumented)
+    shotAttempts80To90: number;
+    // (undocumented)
+    shotAttempts90To100: number;
+    // (undocumented)
+    shotAttemptsOver100: number;
+}
 
 // @public (undocumented)
 export interface SkaterShotTypeRow {
@@ -7393,6 +7914,23 @@ export interface SkaterSpeedBreakdown {
     burstsOver22: EdgePercentileStat;
     // (undocumented)
     maxSkatingSpeed: SkaterDetailMaxSpeed;
+}
+
+// @public
+function skaterSpeedTop10(ctx: Context, input: EdgePositionTop10Params<EdgeSkatingSpeedSortBy>): Promise<SkaterSpeedTop10Row[]>;
+
+// @public (undocumented)
+export interface SkaterSpeedTop10Row {
+    // (undocumented)
+    bursts18To20: number;
+    // (undocumented)
+    bursts20To22: number;
+    // (undocumented)
+    burstsOver22: number;
+    // (undocumented)
+    maxSpeed: SkaterComparisonMaxSpeed;
+    // (undocumented)
+    player: EdgeTop10Player;
 }
 
 // @public
@@ -7679,6 +8217,20 @@ export interface SkaterZoneTimeByStrength {
     offensiveZonePercentile: number;
     // (undocumented)
     strengthCode: string;
+}
+
+// @public
+function skaterZoneTimeTop10(ctx: Context, input: EdgeStrengthTop10Params<EdgeZone>): Promise<SkaterZoneTimeTop10Row[]>;
+
+// @public (undocumented)
+export interface SkaterZoneTimeTop10Row {
+    // (undocumented)
+    defensiveZoneTime: number;
+    // (undocumented)
+    neutralZoneTime: number;
+    offensiveZoneTime: number;
+    // (undocumented)
+    player: EdgeTop10Player;
 }
 
 // @public (undocumented)
@@ -8237,6 +8789,99 @@ export interface TeamBurstsLeader {
     bursts: number;
     // (undocumented)
     team: EdgeLeaderTeam;
+}
+
+// @public (undocumented)
+export interface TeamComparison {
+    // (undocumented)
+    seasonsWithEdgeStats: EdgeSeasonAvailability[];
+    // (undocumented)
+    shotDifferential: TeamComparisonShotDifferential;
+    // (undocumented)
+    shotLocationDetails: SkaterComparisonLocationArea[];
+    // (undocumented)
+    shotLocationTotals: SkaterComparisonLocationTotal[];
+    // (undocumented)
+    shotSpeedDetails: SkaterComparisonShotSpeed;
+    // (undocumented)
+    skatingDistanceDetails: TeamComparisonDistance;
+    // (undocumented)
+    skatingDistanceLast10: TeamComparisonDistanceGame[];
+    // (undocumented)
+    skatingSpeedDetails: SkaterComparisonSpeed;
+    // (undocumented)
+    team: TeamComparisonTeam;
+    // (undocumented)
+    zoneTimeDetails: SkaterComparisonZoneTime;
+}
+
+// @public
+function teamComparison(ctx: Context, params: EdgeTeamParams): Promise<TeamComparison>;
+
+// @public (undocumented)
+export interface TeamComparisonDistance {
+    // (undocumented)
+    distanceMaxGame: EdgeTeamDistanceMax;
+    // (undocumented)
+    distanceMaxPeriod: EdgeTeamDistanceMax;
+    // (undocumented)
+    distancePer60: EdgeMeasurement;
+    // (undocumented)
+    distanceTotal: EdgeMeasurement;
+}
+
+// @public (undocumented)
+export interface TeamComparisonDistanceGame {
+    // (undocumented)
+    awayTeam: EdgeGameTeam;
+    // (undocumented)
+    distanceSkated: EdgeMeasurement;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    homeTeam: EdgeGameTeam;
+    // (undocumented)
+    isHomeTeam: boolean;
+}
+
+// @public (undocumented)
+export interface TeamComparisonShotDifferential {
+    // (undocumented)
+    shotAttemptDifferential: number;
+    // (undocumented)
+    sogDifferential: number;
+}
+
+// @public (undocumented)
+export interface TeamComparisonTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    conference: string;
+    // (undocumented)
+    division: string;
+    // (undocumented)
+    gamesPlayed: number;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    losses: number;
+    // (undocumented)
+    otLosses: number;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+    // (undocumented)
+    points: number;
+    // (undocumented)
+    slug: string;
+    // (undocumented)
+    teamLogo: TeamLogo;
+    // (undocumented)
+    wins: number;
 }
 
 // @public (undocumented)
@@ -8816,6 +9461,23 @@ export interface TeamShotLocationDetail {
 // @public
 function teamShotLocationDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamShotLocationDetail>;
 
+// @public
+function teamShotLocationTop10(ctx: Context, input: EdgeShotLocationTop10Params): Promise<TeamShotLocationTop10Row[]>;
+
+// @public (undocumented)
+export interface TeamShotLocationTop10Row {
+    // (undocumented)
+    all: number;
+    // (undocumented)
+    highDanger: number;
+    // (undocumented)
+    longRange: number;
+    // (undocumented)
+    midRange: number;
+    // (undocumented)
+    team: EdgeTop10Team;
+}
+
 // @public (undocumented)
 export interface TeamShotLocationTotal {
     // (undocumented)
@@ -8871,6 +9533,25 @@ export interface TeamShotSpeedDetail {
 // @public
 function teamShotSpeedDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamShotSpeedDetail>;
 
+// @public
+function teamShotSpeedTop10(ctx: Context, input: EdgePositionTop10Params<EdgeShotSpeedSortBy>): Promise<TeamShotSpeedTop10Row[]>;
+
+// @public (undocumented)
+export interface TeamShotSpeedTop10Row {
+    // (undocumented)
+    hardestShot: SkaterComparisonTopShot;
+    // (undocumented)
+    shotAttempts70To80: number;
+    // (undocumented)
+    shotAttempts80To90: number;
+    // (undocumented)
+    shotAttempts90To100: number;
+    // (undocumented)
+    shotAttemptsOver100: number;
+    // (undocumented)
+    team: EdgeGameTeam;
+}
+
 // @public (undocumented)
 export interface TeamShotTeamRef {
     // (undocumented)
@@ -8892,6 +9573,23 @@ export interface TeamSkatingDistanceDetail {
 // @public
 function teamSkatingDistanceDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamSkatingDistanceDetail>;
 
+// @public
+function teamSkatingDistanceTop10(ctx: Context, input: EdgeStrengthTop10Params<EdgeSkatingDistanceSortBy>): Promise<TeamSkatingDistanceTop10Row[]>;
+
+// @public (undocumented)
+export interface TeamSkatingDistanceTop10Row {
+    // (undocumented)
+    distanceMaxPerGame: EdgeTeamDistanceMax;
+    // (undocumented)
+    distanceMaxPerPeriod: EdgeTeamDistanceMax;
+    // (undocumented)
+    distancePer60: EdgeMeasurement;
+    // (undocumented)
+    distanceTotal: EdgeMeasurement;
+    // (undocumented)
+    team: EdgeGameTeam;
+}
+
 // @public (undocumented)
 export interface TeamSkatingSpeedDetail {
     // (undocumented)
@@ -8902,6 +9600,22 @@ export interface TeamSkatingSpeedDetail {
 
 // @public
 function teamSkatingSpeedDetail(ctx: Context, params: EdgeTeamParams): Promise<TeamSkatingSpeedDetail>;
+
+// @public
+function teamSkatingSpeedTop10(ctx: Context, input: EdgePositionTop10Params<EdgeSkatingSpeedSortBy>): Promise<TeamSkatingSpeedTop10Row[]>;
+
+// @public (undocumented)
+export interface TeamSkatingSpeedTop10Row {
+    // (undocumented)
+    bursts18To20: number;
+    // (undocumented)
+    bursts20To22: number;
+    // (undocumented)
+    burstsOver22: number;
+    maxSkatingSpeed: SkaterComparisonMaxSpeed;
+    // (undocumented)
+    team: EdgeTop10Team;
+}
 
 // @public (undocumented)
 export interface TeamSpeedBreakdown {
@@ -9081,6 +9795,20 @@ export interface TeamZoneTimeDetails {
 
 // @public
 function teamZoneTimeDetails(ctx: Context, params: EdgeTeamParams): Promise<TeamZoneTimeDetails>;
+
+// @public
+function teamZoneTimeTop10(ctx: Context, input: EdgeTeamZoneTimeTop10Params): Promise<TeamZoneTimeTop10Row[]>;
+
+// @public (undocumented)
+export interface TeamZoneTimeTop10Row {
+    // (undocumented)
+    defensiveZoneTime: number;
+    // (undocumented)
+    neutralZoneTime: number;
+    offensiveZoneTime: number;
+    // (undocumented)
+    team: EdgeGameTeam;
+}
 
 // @public (undocumented)
 export function toQuery(filter: Filter): string;
