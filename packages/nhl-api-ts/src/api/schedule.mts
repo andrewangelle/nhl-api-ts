@@ -6,6 +6,7 @@ import type {
   OddsPartner,
   PlayoffBracket,
   PlayoffCarousel,
+  PlayoffSeriesMeta,
   PlayoffSeriesSchedule,
   ScheduleGame,
   TeamSeasonSchedule,
@@ -202,6 +203,23 @@ export async function playoffSeriesSchedule(
 }
 
 /**
+ * Returns the metadata nhl.com uses to render a playoff series page: the
+ * round title and the two seeded teams.
+ *
+ * @param params.year Year the playoffs took place, e.g. 2024
+ * @param params.series Series letter, e.g. "a" (first round) through "o" (final). Case-insensitive.
+ * @example https://api-web.nhle.com/v1/meta/playoff-series/2024/a
+ */
+export async function playoffSeriesMeta(
+  ctx: Context,
+  { year, series }: { year: Id; series: string },
+): Promise<PlayoffSeriesMeta> {
+  return (
+    await ctx.get(Endpoint.API_WEB_V1, `meta/playoff-series/${year}/${series}`)
+  ).json();
+}
+
+/**
  * Returns the full playoff bracket for a given year.
  *
  * @param params.year Year the playoffs took place, e.g. 2024
@@ -223,5 +241,6 @@ export const scheduleApi = {
   calendarSchedule,
   playoffCarousel,
   playoffSeriesSchedule,
+  playoffSeriesMeta,
   playoffBracket,
 } as const;

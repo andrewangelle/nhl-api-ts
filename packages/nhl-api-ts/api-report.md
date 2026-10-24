@@ -792,6 +792,7 @@ export function createNHLClient(options?: ClientOptions): {
         readonly calendarSchedule: calendarSchedule;
         readonly playoffCarousel: playoffCarousel;
         readonly playoffSeriesSchedule: playoffSeriesSchedule;
+        readonly playoffSeriesMeta: playoffSeriesMeta;
         readonly playoffBracket: playoffBracket;
     }>;
     readonly gameCenter: Bound<{
@@ -802,6 +803,10 @@ export function createNHLClient(options?: ClientOptions): {
         readonly shiftChartData: shiftChartData;
         readonly seasonSeriesMatchup: seasonSeriesMatchup;
         readonly gameStory: gameStory;
+        readonly scoreboard: scoreboard;
+        readonly wscPlayByPlay: wscPlayByPlay;
+        readonly playReplay: playReplay;
+        readonly gameMeta: gameMeta;
     }>;
     readonly stats: {
         readonly gametypesPerSeasonDirectoryByTeam: (args_0: {
@@ -833,6 +838,12 @@ export function createNHLClient(options?: ClientOptions): {
         readonly countries: countries;
         readonly seasonSpecificRulesAndInfo: seasonSpecificRulesAndInfo;
         readonly draftYearAndRounds: draftYearAndRounds;
+        readonly tvSchedule: tvSchedule;
+        readonly partnerGameOdds: partnerGameOdds;
+        readonly seasonIds: seasonIds;
+        readonly meta: meta;
+        readonly location: location_2;
+        readonly postalLookup: postalLookup;
     }>;
     readonly helpers: Bound<{
         readonly gameIdsBySeason: gameIdsBySeason;
@@ -1444,6 +1455,10 @@ declare namespace gameCenter {
         shiftChartData,
         seasonSeriesMatchup,
         gameStory,
+        scoreboard,
+        wscPlayByPlay,
+        playReplay,
+        gameMeta,
         gameCenterApi
     }
 }
@@ -1457,6 +1472,10 @@ const gameCenterApi: {
     readonly shiftChartData: typeof shiftChartData;
     readonly seasonSeriesMatchup: typeof seasonSeriesMatchup;
     readonly gameStory: typeof gameStory;
+    readonly scoreboard: typeof scoreboard;
+    readonly wscPlayByPlay: typeof wscPlayByPlay;
+    readonly playReplay: typeof playReplay;
+    readonly gameMeta: typeof gameMeta;
 };
 
 // @public (undocumented)
@@ -1822,6 +1841,31 @@ export interface GameLogEntry {
 }
 
 // @public (undocumented)
+export interface GameMeta {
+    // (undocumented)
+    gameState: GameState;
+    // (undocumented)
+    seasonStates: GameMetaSeasonState;
+    // (undocumented)
+    teams: MetaTeam[];
+}
+
+// @public
+function gameMeta(ctx: Context, input: {
+    gameId: Id;
+}): Promise<GameMeta>;
+
+// @public (undocumented)
+export interface GameMetaSeasonState {
+    // (undocumented)
+    date: string;
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    season: number;
+}
+
+// @public (undocumented)
 export interface GameOfficial {
     // (undocumented)
     fullName: LocalizedString;
@@ -1997,6 +2041,12 @@ export interface GameWeekDay {
     games: ScheduleGame[];
     // (undocumented)
     numberOfGames: number;
+}
+
+// @public (undocumented)
+export interface GeoLocation {
+    // (undocumented)
+    country: string;
 }
 
 // @public (undocumented)
@@ -3231,6 +3281,9 @@ export interface LocalizedString {
 }
 
 // @public
+function location_2(ctx: Context): Promise<GeoLocation>;
+
+// @public
 function matchUp(ctx: Context, input: {
     gameId: Id;
 }): Promise<GameLanding>;
@@ -3287,6 +3340,59 @@ export interface MaxSkatingSpeedLeader {
     skatingSpeed: EdgeMeasurement;
 }
 
+// @public (undocumented)
+export interface Meta {
+    // (undocumented)
+    players: MetaPlayer[];
+    seasonStates: unknown[];
+    // (undocumented)
+    teams: MetaTeam[];
+}
+
+// @public
+function meta(ctx: Context, input?: {
+    players?: Id[];
+    teams?: string[];
+}): Promise<Meta>;
+
+// @public (undocumented)
+export interface MetaPlayer {
+    // (undocumented)
+    actionShot: string;
+    // (undocumented)
+    currentTeams: MetaPlayerTeam[];
+    // (undocumented)
+    isGoalie: boolean;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    playerSlug: string;
+}
+
+// @public (undocumented)
+export interface MetaPlayerTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    force: boolean;
+    // (undocumented)
+    teamId: number;
+}
+
+// @public
+export interface MetaTeam {
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    teamId: number;
+    // (undocumented)
+    teamSlug: string;
+    // (undocumented)
+    tricode: string;
+}
+
 declare namespace misc {
     export {
         glossary,
@@ -3294,6 +3400,12 @@ declare namespace misc {
         countries,
         seasonSpecificRulesAndInfo,
         draftYearAndRounds,
+        tvSchedule,
+        partnerGameOdds,
+        seasonIds,
+        meta,
+        location_2 as location,
+        postalLookup,
         miscApi
     }
 }
@@ -3305,6 +3417,12 @@ const miscApi: {
     readonly countries: typeof countries;
     readonly seasonSpecificRulesAndInfo: typeof seasonSpecificRulesAndInfo;
     readonly draftYearAndRounds: typeof draftYearAndRounds;
+    readonly tvSchedule: typeof tvSchedule;
+    readonly partnerGameOdds: typeof partnerGameOdds;
+    readonly seasonIds: typeof seasonIds;
+    readonly meta: typeof meta;
+    readonly location: typeof location_2;
+    readonly postalLookup: typeof postalLookup;
 };
 
 // @public (undocumented)
@@ -3433,6 +3551,60 @@ export interface OverlayTeam {
     abbrev: string;
     // (undocumented)
     score: number;
+}
+
+// @public (undocumented)
+export interface PartnerGameOdd {
+    // (undocumented)
+    description: OpenUnion<'MONEY_LINE_2_WAY' | 'MONEY_LINE_3_WAY' | 'OVER_UNDER' | 'PUCK_LINE'>;
+    qualifier: string;
+    // (undocumented)
+    value: number;
+}
+
+// @public (undocumented)
+export interface PartnerGameOdds {
+    // (undocumented)
+    bettingPartner: OddsPartner;
+    // (undocumented)
+    currentOddsDate: string;
+    // (undocumented)
+    games: PartnerGameOddsGame[];
+    // (undocumented)
+    lastUpdatedUTC: string;
+}
+
+// @public
+function partnerGameOdds(ctx: Context, input: {
+    countryCode: string;
+}): Promise<PartnerGameOdds>;
+
+// @public (undocumented)
+export interface PartnerGameOddsGame {
+    // (undocumented)
+    awayTeam: PartnerGameOddsTeam;
+    // (undocumented)
+    gameId: number;
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    homeTeam: PartnerGameOddsTeam;
+    // (undocumented)
+    startTimeUTC: string;
+}
+
+// @public (undocumented)
+export interface PartnerGameOddsTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    logo: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    odds: PartnerGameOdd[];
 }
 
 // @public (undocumented)
@@ -4147,6 +4319,40 @@ export interface PlayoffSeriesGameTeam {
 }
 
 // @public (undocumented)
+export interface PlayoffSeriesMeta {
+    // (undocumented)
+    seriesTitle: string;
+    // (undocumented)
+    teams: PlayoffSeriesMetaTeams;
+}
+
+// @public
+function playoffSeriesMeta(ctx: Context, input: {
+    year: Id;
+    series: string;
+}): Promise<PlayoffSeriesMeta>;
+
+// @public (undocumented)
+export interface PlayoffSeriesMetaTeam {
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    teamSlug: string;
+    // (undocumented)
+    tricode: string;
+}
+
+// @public (undocumented)
+export interface PlayoffSeriesMetaTeams {
+    // (undocumented)
+    bottomSeed: PlayoffSeriesMetaTeam;
+    // (undocumented)
+    topSeed: PlayoffSeriesMetaTeam;
+}
+
+// @public (undocumented)
 export interface PlayoffSeriesSchedule {
     // (undocumented)
     bottomSeedTeam: PlayoffSeriesTeam;
@@ -4290,6 +4496,101 @@ export interface PlayoffTvBroadcast {
     sequenceNumber: number;
 }
 
+// @public (undocumented)
+export interface PlayReplay {
+    // (undocumented)
+    awayTeam: PlayReplayTeam;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    gameState: GameState;
+    // (undocumented)
+    gameType: GameType;
+    goal?: PlayReplayGoal;
+    // (undocumented)
+    homeTeam: PlayReplayTeam;
+    // (undocumented)
+    id: number;
+}
+
+// @public
+function playReplay(ctx: Context, input: {
+    gameId: Id;
+    eventNumber: Id;
+}): Promise<PlayReplay>;
+
+// @public (undocumented)
+export interface PlayReplayGoal {
+    // (undocumented)
+    assists: GoalAssist[];
+    // (undocumented)
+    awayScore: number;
+    // (undocumented)
+    eventId: number;
+    // (undocumented)
+    firstName: LocalizedString;
+    // (undocumented)
+    goalModifier: string;
+    // (undocumented)
+    goalsToDate: number;
+    // (undocumented)
+    headshot: string;
+    // (undocumented)
+    highlightClip: number;
+    // (undocumented)
+    highlightClipSharingUrl: string;
+    // (undocumented)
+    homeScore: number;
+    // (undocumented)
+    homeTeamDefendingSide: OpenUnion<'left' | 'right'>;
+    // (undocumented)
+    isHome: boolean;
+    // (undocumented)
+    lastName: LocalizedString;
+    // (undocumented)
+    leadingTeamAbbrev: LocalizedString;
+    // (undocumented)
+    logoUrl: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    periodDescriptor: PeriodDescriptor;
+    // (undocumented)
+    playerId: number;
+    // (undocumented)
+    pptReplayUrl: string;
+    // (undocumented)
+    shotType: ShotType;
+    // (undocumented)
+    situationCode: string;
+    // (undocumented)
+    strength: string;
+    // (undocumented)
+    sweaterNumber: number;
+    // (undocumented)
+    teamAbbrev: LocalizedString;
+    // (undocumented)
+    timeInPeriod: string;
+}
+
+// @public (undocumented)
+export interface PlayReplayTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    darkLogo: string;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    logo: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    placeName: LocalizedString;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+}
+
 // @public
 export interface PlayTypes {
     // (undocumented)
@@ -4338,6 +4639,27 @@ export const PositionTypes: {
 
 // @public (undocumented)
 export type PositionTypes = (typeof PositionTypes)[keyof typeof PositionTypes];
+
+// @public
+function postalLookup(ctx: Context, input: {
+    postalCode: string;
+}): Promise<PostalLookupTeam[]>;
+
+// @public (undocumented)
+export interface PostalLookupTeam {
+    // (undocumented)
+    city: string;
+    // (undocumented)
+    country: string;
+    county?: string;
+    networkType?: string;
+    // (undocumented)
+    postalCode: string;
+    // (undocumented)
+    stateProvince: string;
+    // (undocumented)
+    teamName: LocalizedString;
+}
 
 // @public (undocumented)
 export interface PreGameMatchup {
@@ -4719,6 +5041,7 @@ declare namespace schedule {
         calendarSchedule,
         playoffCarousel,
         playoffSeriesSchedule,
+        playoffSeriesMeta,
         playoffBracket,
         DailySchedule,
         scheduleApi
@@ -4735,6 +5058,7 @@ const scheduleApi: {
     readonly calendarSchedule: typeof calendarSchedule;
     readonly playoffCarousel: typeof playoffCarousel;
     readonly playoffSeriesSchedule: typeof playoffSeriesSchedule;
+    readonly playoffSeriesMeta: typeof playoffSeriesMeta;
     readonly playoffBracket: typeof playoffBracket;
 };
 
@@ -4822,6 +5146,106 @@ export interface ScheduleHomeTeam {
 }
 
 // @public (undocumented)
+export interface Scoreboard {
+    // (undocumented)
+    focusedDate: string;
+    // (undocumented)
+    focusedDateCount: number;
+    // (undocumented)
+    gamesByDate: ScoreboardDate[];
+}
+
+// @public
+function scoreboard(ctx: Context, input?: {
+    date?: string;
+}): Promise<Scoreboard>;
+
+// @public (undocumented)
+export interface ScoreboardDate {
+    // (undocumented)
+    date: string;
+    // (undocumented)
+    games: ScoreboardGame[];
+}
+
+// @public (undocumented)
+export interface ScoreboardGame {
+    // (undocumented)
+    awayTeam: ScoreboardTeam;
+    clock?: GameClock;
+    // (undocumented)
+    easternUTCOffset: string;
+    // (undocumented)
+    gameCenterLink: string;
+    // (undocumented)
+    gameDate: string;
+    // (undocumented)
+    gameScheduleState: GameScheduleState;
+    // (undocumented)
+    gameState: GameState;
+    // (undocumented)
+    gameType: GameType;
+    // (undocumented)
+    homeTeam: ScoreboardTeam;
+    // (undocumented)
+    id: number;
+    period?: number;
+    periodDescriptor?: PeriodDescriptor;
+    // (undocumented)
+    season: number;
+    seriesStatus?: ScoreboardSeriesStatus;
+    // (undocumented)
+    startTimeUTC: string;
+    threeMinRecap?: string;
+    threeMinRecapFr?: string;
+    ticketsLink?: string;
+    ticketsLinkFr?: string;
+    // (undocumented)
+    tvBroadcasts: DailyScoresTvBroadcast[];
+    // (undocumented)
+    venue: LocalizedString;
+    // (undocumented)
+    venueUTCOffset: string;
+}
+
+// @public (undocumented)
+export interface ScoreboardSeriesStatus {
+    // (undocumented)
+    bottomSeedTeamAbbrev: string;
+    // (undocumented)
+    bottomSeedWins: number;
+    // (undocumented)
+    game: number;
+    // (undocumented)
+    round: number;
+    // (undocumented)
+    seriesAbbrev: string;
+    // (undocumented)
+    topSeedTeamAbbrev: string;
+    // (undocumented)
+    topSeedWins: number;
+}
+
+// @public (undocumented)
+export interface ScoreboardTeam {
+    // (undocumented)
+    abbrev: string;
+    // (undocumented)
+    commonName: LocalizedString;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    logo: string;
+    // (undocumented)
+    name: LocalizedString;
+    // (undocumented)
+    placeNameWithPreposition: LocalizedString;
+    record?: string;
+    score?: number;
+    sog?: number;
+}
+
+// @public (undocumented)
 export interface ScoringGoal {
     // (undocumented)
     assists: GoalAssist[];
@@ -4887,6 +5311,9 @@ export interface Scratch {
 
 // @public
 export type SeasonId = number;
+
+// @public
+function seasonIds(ctx: Context): Promise<SeasonId[]>;
 
 // @public (undocumented)
 export interface SeasonRules {
@@ -7955,77 +8382,13 @@ export interface TeamScoreboard {
     // (undocumented)
     focusedDateCount: number;
     // (undocumented)
-    gamesByDate: TeamScoreboardDate[];
+    gamesByDate: ScoreboardDate[];
 }
 
 // @public
 function teamScoreboard(ctx: Context, input: {
     teamAbbr: string;
 }): Promise<TeamScoreboard>;
-
-// @public (undocumented)
-export interface TeamScoreboardDate {
-    // (undocumented)
-    date: string;
-    // (undocumented)
-    games: TeamScoreboardGame[];
-}
-
-// @public (undocumented)
-export interface TeamScoreboardGame {
-    // (undocumented)
-    awayTeam: TeamScoreboardTeam;
-    // (undocumented)
-    easternUTCOffset: string;
-    // (undocumented)
-    gameCenterLink: string;
-    // (undocumented)
-    gameDate: string;
-    // (undocumented)
-    gameScheduleState: GameScheduleState;
-    // (undocumented)
-    gameState: GameState;
-    // (undocumented)
-    gameType: GameType;
-    // (undocumented)
-    homeTeam: TeamScoreboardTeam;
-    // (undocumented)
-    id: number;
-    period?: number;
-    periodDescriptor?: PeriodDescriptor;
-    // (undocumented)
-    season: number;
-    // (undocumented)
-    startTimeUTC: string;
-    threeMinRecap?: string;
-    threeMinRecapFr?: string;
-    ticketsLink?: string;
-    ticketsLinkFr?: string;
-    // (undocumented)
-    tvBroadcasts: DailyScoresTvBroadcast[];
-    // (undocumented)
-    venue: LocalizedString;
-    // (undocumented)
-    venueUTCOffset: string;
-}
-
-// @public (undocumented)
-export interface TeamScoreboardTeam {
-    // (undocumented)
-    abbrev: string;
-    // (undocumented)
-    commonName: LocalizedString;
-    // (undocumented)
-    id: number;
-    // (undocumented)
-    logo: string;
-    // (undocumented)
-    name: LocalizedString;
-    // (undocumented)
-    placeNameWithPreposition: LocalizedString;
-    record?: string;
-    score?: number;
-}
 
 // @public (undocumented)
 export interface TeamSeasonSchedule {
@@ -8505,6 +8868,44 @@ export interface TvBroadcast {
     sequenceNumber: number;
 }
 
+// @public (undocumented)
+export interface TvSchedule {
+    // (undocumented)
+    broadcasts: TvScheduleBroadcast[];
+    // (undocumented)
+    date: string;
+    // (undocumented)
+    endDate: string;
+    // (undocumented)
+    startDate: string;
+}
+
+// @public
+function tvSchedule(ctx: Context, input?: {
+    date?: string;
+}): Promise<TvSchedule>;
+
+// @public (undocumented)
+export interface TvScheduleBroadcast {
+    // (undocumented)
+    broadcastImageUrl: string;
+    broadcastStatus: OpenUnion<'LIVE' | ''>;
+    // (undocumented)
+    broadcastType: OpenUnion<'HD'>;
+    // (undocumented)
+    description: string;
+    // (undocumented)
+    durationSeconds: number;
+    // (undocumented)
+    endTime: string;
+    // (undocumented)
+    houseNumber: string;
+    // (undocumented)
+    startTime: string;
+    // (undocumented)
+    title: string;
+}
+
 // @public
 export class UnauthorizedException extends NHLApiException {
     constructor(message: string, statusCode?: number);
@@ -8609,6 +9010,103 @@ export interface WinningGoalie {
 
 // @public
 function withFranchiseIds(teams: readonly Team[], franchises: readonly Pick<Franchise, 'id' | 'fullName'>[]): Team[];
+
+// @public
+export interface WscPlay {
+    // (undocumented)
+    assist1PlayerId?: number;
+    // (undocumented)
+    assist1PlayerTotal?: number;
+    // (undocumented)
+    assist2PlayerId?: number;
+    // (undocumented)
+    assist2PlayerTotal?: number;
+    // (undocumented)
+    awayScore?: number;
+    // (undocumented)
+    awaySOG?: number;
+    // (undocumented)
+    blockingPlayerId?: number;
+    // (undocumented)
+    committedByPlayerId?: number;
+    // (undocumented)
+    descKey?: OpenUnion<'elbowing' | 'holding-obstruction' | 'high-sticking' | 'interference' | 'holding-the-stick' | 'slashing' | 'cross-checking' | 'roughing' | 'holding' | 'hooking' | 'fighting' | 'tripping'>;
+    // (undocumented)
+    drawnByPlayerId?: number;
+    // (undocumented)
+    duration?: number;
+    // (undocumented)
+    eventId: number;
+    // (undocumented)
+    eventOwnerTeamId?: number;
+    // (undocumented)
+    goalCode?: number;
+    // (undocumented)
+    goalieInNetId?: number;
+    // (undocumented)
+    goalModifier?: string;
+    // (undocumented)
+    hitteePlayerId?: number;
+    // (undocumented)
+    hittingPlayerId?: number;
+    // (undocumented)
+    homeScore?: number;
+    // (undocumented)
+    homeSOG?: number;
+    // (undocumented)
+    homeTeamDefendingSide?: OpenUnion<'left' | 'right'>;
+    // (undocumented)
+    id: number;
+    // (undocumented)
+    losingPlayerId?: number;
+    // (undocumented)
+    penaltyTypeCode?: string;
+    // (undocumented)
+    period: number;
+    // (undocumented)
+    playerId?: number;
+    // (undocumented)
+    reason?: OpenUnion<'hit-right-post' | 'wide-right' | 'blocked' | 'high-and-wide-right' | 'wide-left' | 'above-crossbar' | 'short' | 'high-and-wide-left' | 'teammate-blocked' | 'hit-crossbar' | 'hit-left-post'>;
+    // (undocumented)
+    scoringPlayerId?: number;
+    // (undocumented)
+    scoringPlayerTotal?: number;
+    // (undocumented)
+    secondsRemaining: number;
+    // (undocumented)
+    shootingPlayerId?: number;
+    // (undocumented)
+    shotType?: ShotType;
+    // (undocumented)
+    situationCode?: string;
+    // (undocumented)
+    sortOrder: number;
+    // (undocumented)
+    strength?: string;
+    // (undocumented)
+    strengthCode?: number;
+    // (undocumented)
+    timeInPeriod: string;
+    // (undocumented)
+    typeCode: number;
+    // (undocumented)
+    typeDescKey: OpenUnion<'shot-on-goal' | 'penalty' | 'goal' | 'period-start' | 'faceoff' | 'giveaway' | 'missed-shot' | 'takeaway' | 'blocked-shot' | 'hit' | 'delayed-penalty' | 'period-end' | 'game-end'>;
+    // (undocumented)
+    utc?: string;
+    // (undocumented)
+    winningPlayerId?: number;
+    // (undocumented)
+    xCoord?: number;
+    // (undocumented)
+    yCoord?: number;
+    // (undocumented)
+    zoneCode?: ZoneCode;
+}
+
+// @public
+function wscPlayByPlay(ctx: Context, input: {
+    gameId: Id;
+}): Promise<WscPlay[]>;
 
 // @public (undocumented)
 export type ZoneCode = OpenUnion<'O' | 'N' | 'D'>;

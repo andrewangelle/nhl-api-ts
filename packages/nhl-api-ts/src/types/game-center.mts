@@ -1314,3 +1314,228 @@ export interface TeamSeasonStats {
   goalsForPerGamePlayedRank: number;
   goalsAgainstPerGamePlayedRank: number;
 }
+
+export interface GameMeta {
+  teams: MetaTeam[];
+  seasonStates: GameMetaSeasonState;
+  gameState: GameState;
+}
+
+export interface GameMetaSeasonState {
+  date: string;
+  gameType: GameType;
+  season: number;
+}
+
+/** A team as `meta` endpoints describe it. */
+export interface MetaTeam {
+  name: LocalizedString;
+  tricode: string;
+  teamId: number;
+  teamSlug: string;
+}
+
+export interface PlayReplay {
+  id: number;
+  gameDate: string;
+  awayTeam: PlayReplayTeam;
+  homeTeam: PlayReplayTeam;
+  gameState: GameState;
+  gameType: GameType;
+  /** Only present when the event is a goal */
+  goal?: PlayReplayGoal;
+}
+
+export interface PlayReplayGoal {
+  periodDescriptor: PeriodDescriptor;
+  situationCode: string;
+  strength: string;
+  playerId: number;
+  firstName: LocalizedString;
+  lastName: LocalizedString;
+  name: LocalizedString;
+  teamAbbrev: LocalizedString;
+  headshot: string;
+  highlightClip: number;
+  logoUrl: string;
+  highlightClipSharingUrl: string;
+  goalsToDate: number;
+  sweaterNumber: number;
+  awayScore: number;
+  homeScore: number;
+  leadingTeamAbbrev: LocalizedString;
+  timeInPeriod: string;
+  shotType: ShotType;
+  goalModifier: string;
+  assists: GoalAssist[];
+  pptReplayUrl: string;
+  homeTeamDefendingSide: OpenUnion<'left' | 'right'>;
+  isHome: boolean;
+  eventId: number;
+}
+
+export interface PlayReplayTeam {
+  id: number;
+  name: LocalizedString;
+  abbrev: string;
+  placeName: LocalizedString;
+  placeNameWithPreposition: LocalizedString;
+  logo: string;
+  darkLogo: string;
+}
+
+export interface Scoreboard {
+  focusedDate: string;
+  focusedDateCount: number;
+  gamesByDate: ScoreboardDate[];
+}
+
+export interface ScoreboardDate {
+  date: string;
+  games: ScoreboardGame[];
+}
+
+export interface ScoreboardGame {
+  id: number;
+  season: number;
+  gameType: GameType;
+  gameDate: string;
+  gameCenterLink: string;
+  venue: LocalizedString;
+  startTimeUTC: string;
+  easternUTCOffset: string;
+  venueUTCOffset: string;
+  tvBroadcasts: DailyScoresTvBroadcast[];
+  gameState: GameState;
+  gameScheduleState: GameScheduleState;
+  awayTeam: ScoreboardTeam;
+  homeTeam: ScoreboardTeam;
+  /** Absent before the game starts */
+  period?: number;
+  /** Absent before the game starts */
+  periodDescriptor?: PeriodDescriptor;
+  /** Only present while the game is live */
+  clock?: GameClock;
+  /** Absent before the game is played */
+  threeMinRecap?: string;
+  /** Absent before the game is played */
+  threeMinRecapFr?: string;
+  /** Only present before the game starts */
+  ticketsLink?: string;
+  /** Only present before the game starts */
+  ticketsLinkFr?: string;
+  /** Playoff games only */
+  seriesStatus?: ScoreboardSeriesStatus;
+}
+
+export interface ScoreboardSeriesStatus {
+  round: number;
+  seriesAbbrev: string;
+  game: number;
+  topSeedTeamAbbrev: string;
+  topSeedWins: number;
+  bottomSeedTeamAbbrev: string;
+  bottomSeedWins: number;
+}
+
+export interface ScoreboardTeam {
+  id: number;
+  name: LocalizedString;
+  commonName: LocalizedString;
+  placeNameWithPreposition: LocalizedString;
+  abbrev: string;
+  /** Absent before the game starts */
+  score?: number;
+  /** Only present while the game is live */
+  sog?: number;
+  logo: string;
+  /** Only present before the game starts */
+  record?: string;
+}
+
+/** A play from `wsc/play-by-play`. Flat, unlike {@link Play}: event details sit on the play itself. */
+export interface WscPlay {
+  id: number;
+  eventId: number;
+  period: number;
+  timeInPeriod: string;
+  secondsRemaining: number;
+  typeCode: number;
+  typeDescKey: OpenUnion<
+    | 'shot-on-goal'
+    | 'penalty'
+    | 'goal'
+    | 'period-start'
+    | 'faceoff'
+    | 'giveaway'
+    | 'missed-shot'
+    | 'takeaway'
+    | 'blocked-shot'
+    | 'hit'
+    | 'delayed-penalty'
+    | 'period-end'
+    | 'game-end'
+  >;
+  sortOrder: number;
+  shotType?: ShotType;
+  shootingPlayerId?: number;
+  goalieInNetId?: number;
+  eventOwnerTeamId?: number;
+  awaySOG?: number;
+  homeSOG?: number;
+  penaltyTypeCode?: string;
+  descKey?: OpenUnion<
+    | 'elbowing'
+    | 'holding-obstruction'
+    | 'high-sticking'
+    | 'interference'
+    | 'holding-the-stick'
+    | 'slashing'
+    | 'cross-checking'
+    | 'roughing'
+    | 'holding'
+    | 'hooking'
+    | 'fighting'
+    | 'tripping'
+  >;
+  duration?: number;
+  committedByPlayerId?: number;
+  drawnByPlayerId?: number;
+  goalModifier?: string;
+  strength?: string;
+  scoringPlayerId?: number;
+  assist1PlayerId?: number;
+  assist2PlayerId?: number;
+  awayScore?: number;
+  homeScore?: number;
+  strengthCode?: number;
+  goalCode?: number;
+  scoringPlayerTotal?: number;
+  assist1PlayerTotal?: number;
+  assist2PlayerTotal?: number;
+  situationCode?: string;
+  homeTeamDefendingSide?: OpenUnion<'left' | 'right'>;
+  utc?: string;
+  losingPlayerId?: number;
+  winningPlayerId?: number;
+  xCoord?: number;
+  yCoord?: number;
+  zoneCode?: ZoneCode;
+  playerId?: number;
+  reason?: OpenUnion<
+    | 'hit-right-post'
+    | 'wide-right'
+    | 'blocked'
+    | 'high-and-wide-right'
+    | 'wide-left'
+    | 'above-crossbar'
+    | 'short'
+    | 'high-and-wide-left'
+    | 'teammate-blocked'
+    | 'hit-crossbar'
+    | 'hit-left-post'
+  >;
+  blockingPlayerId?: number;
+  hittingPlayerId?: number;
+  hitteePlayerId?: number;
+}

@@ -30,6 +30,7 @@ npx nhl-api-ts <module> <command> --help
 | Live or final scores for a date            | `gameCenter.dailyScores({ date? })` returns `{ games: [{ gameState, awayTeam.score, ... }] }` |
 | A team's season schedule or game ids       | `schedule.teamSeasonSchedule({ teamAbbr, season? })` returns `.games` |
 | A team's recent and upcoming games         | `teams.teamScoreboard({ teamAbbr })` returns `.gamesByDate`          |
+| Every game this week, grouped by date      | `gameCenter.scoreboard({ date? })` returns `.gamesByDate`            |
 | One game                                   | `gameCenter.boxscore` / `playByPlay` / `matchUp({ gameId })`         |
 | Standings                                  | `standings.leagueStandings({ date?, season? })` returns `.standings` |
 | A player's career totals or bio            | `stats.playerCareerStats({ playerId })`                              |

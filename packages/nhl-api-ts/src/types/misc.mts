@@ -1,4 +1,11 @@
 // Response types derived from live NHL API probing. See CONTRIBUTING.md.
+import type {
+  GameType,
+  LocalizedString,
+  OddsPartner,
+  OpenUnion,
+} from '#src/types/common.mjs';
+import type { MetaTeam } from '#src/types/game-center.mjs';
 
 export interface Country {
   id: string;
@@ -20,6 +27,10 @@ export interface DraftYear {
   rounds: number;
 }
 
+export interface GeoLocation {
+  country: string;
+}
+
 export interface GlossaryEntry {
   id: number;
   abbreviation: string;
@@ -28,6 +39,72 @@ export interface GlossaryEntry {
   fullName: string;
   languageCode: string;
   lastUpdated: string;
+}
+
+export interface Meta {
+  players: MetaPlayer[];
+  teams: MetaTeam[];
+  /** Empty in every observed response */
+  seasonStates: unknown[];
+}
+
+export interface MetaPlayer {
+  playerId: number;
+  playerSlug: string;
+  actionShot: string;
+  name: LocalizedString;
+  currentTeams: MetaPlayerTeam[];
+  isGoalie: boolean;
+}
+
+export interface MetaPlayerTeam {
+  teamId: number;
+  abbrev: string;
+  force: boolean;
+}
+
+export interface PartnerGameOdd {
+  description: OpenUnion<
+    'MONEY_LINE_2_WAY' | 'MONEY_LINE_3_WAY' | 'OVER_UNDER' | 'PUCK_LINE'
+  >;
+  value: number;
+  /** The line, e.g. "-1.5" or "O5.5"; "Draw" for the 3-way draw price; "" otherwise */
+  qualifier: string;
+}
+
+export interface PartnerGameOdds {
+  currentOddsDate: string;
+  lastUpdatedUTC: string;
+  bettingPartner: OddsPartner;
+  games: PartnerGameOddsGame[];
+}
+
+export interface PartnerGameOddsGame {
+  gameId: number;
+  gameType: GameType;
+  startTimeUTC: string;
+  homeTeam: PartnerGameOddsTeam;
+  awayTeam: PartnerGameOddsTeam;
+}
+
+export interface PartnerGameOddsTeam {
+  id: number;
+  name: LocalizedString;
+  abbrev: string;
+  logo: string;
+  odds: PartnerGameOdd[];
+}
+
+export interface PostalLookupTeam {
+  stateProvince: string;
+  teamName: LocalizedString;
+  postalCode: string;
+  country: string;
+  city: string;
+  /** Absent for Canadian postal codes */
+  networkType?: string;
+  /** Absent for Canadian postal codes */
+  county?: string;
 }
 
 export interface ReportColumns {
@@ -73,4 +150,24 @@ export interface StatsConfig {
   teamReportData: Record<string, ReportConfig>;
   aggregatedColumns: string[];
   individualColumns: string[];
+}
+
+export interface TvSchedule {
+  date: string;
+  startDate: string;
+  endDate: string;
+  broadcasts: TvScheduleBroadcast[];
+}
+
+export interface TvScheduleBroadcast {
+  startTime: string;
+  endTime: string;
+  durationSeconds: number;
+  title: string;
+  description: string;
+  houseNumber: string;
+  broadcastType: OpenUnion<'HD'>;
+  /** "LIVE" for live games, "" otherwise */
+  broadcastStatus: OpenUnion<'LIVE' | ''>;
+  broadcastImageUrl: string;
 }

@@ -2,9 +2,15 @@
 import type {
   Country,
   DraftYear,
+  GeoLocation,
   GlossaryEntry,
+  Meta,
+  PartnerGameOdds,
+  PostalLookupTeam,
+  SeasonId,
   SeasonRules,
   StatsConfig,
+  TvSchedule,
 } from '#src/index.mjs';
 
 export const statsConfigFixture: StatsConfig = {
@@ -146,3 +152,91 @@ export const seasonRulesFixture: SeasonRules = {
   totalRegularSeasonGames: 210,
   wildcardInUse: 0,
 };
+
+export const tvScheduleFixture: TvSchedule = {
+  date: '2026-10-24',
+  startDate: '2026-10-10',
+  endDate: '2026-11-07',
+  broadcasts: [
+    {
+      startTime: '2026-10-24T00:00:00',
+      endTime: '2026-10-24T00:30:00',
+      durationSeconds: 1800,
+      title: 'On The Fly',
+      description: 'On The Fly',
+      houseNumber: 'HOTF27R102326SOR',
+      broadcastType: 'HD',
+      broadcastStatus: 'LIVE',
+      broadcastImageUrl: 'onthefly.png',
+    },
+  ],
+};
+
+export const partnerGameOddsFixture: PartnerGameOdds = {
+  currentOddsDate: '2026-10-24',
+  lastUpdatedUTC: '2026-10-24T17:00:38Z',
+  bettingPartner: {
+    partnerId: 9,
+    country: 'USA',
+    name: 'DraftKings',
+    imageUrl: 'https://assets.nhle.com/betting_partner/draftkings.svg',
+    siteUrl:
+      'https://dksb.sng.link/As9kz/3i4d?_dl=https%3A%2F%2Fsportsbook.draftkings.com%2Fgateway%3Fs%3D333653091&pcid=427326&psn=1320&pcn=NHL&pscn=OddsWidget&pcrn=NoOffer&pscid=SP&wpcid=427326&wpsrc=1320&wpcn=NHL&wpscn=OddsWidget&wpcrn=NoOffer&wpscid=SP&_forward_params=1',
+    bgColor: '#000000',
+    textColor: '#FFFFFF',
+    accentColor: '#FFFFFF',
+  },
+  games: [
+    {
+      gameId: 2026020168,
+      gameType: 2,
+      startTimeUTC: '2026-10-24T17:00:00Z',
+      homeTeam: {
+        id: 4,
+        name: { default: 'Flyers' },
+        abbrev: 'PHI',
+        logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
+        odds: [{ description: 'MONEY_LINE_2_WAY', value: -122, qualifier: '' }],
+      },
+      awayTeam: {
+        id: 24,
+        name: { default: 'Ducks' },
+        abbrev: 'ANA',
+        logo: 'https://assets.nhle.com/logos/nhl/svg/ANA_light.svg',
+        odds: [{ description: 'MONEY_LINE_2_WAY', value: 102, qualifier: '' }],
+      },
+    },
+  ],
+};
+
+export const metaFixture: Meta = {
+  players: [
+    {
+      playerId: 8476945,
+      playerSlug: 'connor-hellebuyck-8476945',
+      actionShot:
+        'https://assets.nhle.com/mugs/actionshots/1296x729/8476945.jpg',
+      name: { default: 'Connor Hellebuyck' },
+      currentTeams: [{ teamId: 1, abbrev: 'NJD', force: true }],
+      isGoalie: true,
+    },
+  ],
+  teams: [],
+  seasonStates: [],
+};
+
+export const geoLocationFixture: GeoLocation = { country: 'US' };
+
+export const postalLookupTeamFixture: PostalLookupTeam[] = [
+  {
+    stateProvince: 'CA',
+    networkType: '50 MHT',
+    county: 'Los Angeles',
+    teamName: { default: 'Anaheim Ducks', fr: "Ducks d'Anaheim" },
+    postalCode: '90210',
+    country: 'US',
+    city: 'Beverly Hills',
+  },
+];
+
+export const seasonIdFixture: SeasonId[] = [19171918];

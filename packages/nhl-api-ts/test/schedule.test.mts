@@ -155,6 +155,12 @@ describe('Schedule', () => {
       'schedule/playoff-series/20232024/a',
     ],
     [
+      'playoffSeriesMeta',
+      (client) =>
+        client.schedule.playoffSeriesMeta({ year: 2024, series: 'a' }),
+      'meta/playoff-series/2024/a',
+    ],
+    [
       'playoffBracket',
       (client) => client.schedule.playoffBracket({ year: '2024' }),
       'playoff-bracket/2024',

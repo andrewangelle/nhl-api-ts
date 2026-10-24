@@ -4,10 +4,14 @@ import type {
   Boxscore,
   DailyScores,
   GameLanding,
+  GameMeta,
   GameStory,
   PlayByPlay,
+  PlayReplay,
   RightRail,
+  Scoreboard,
   ShiftChart,
+  WscPlay,
 } from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
 
@@ -121,6 +125,65 @@ export async function gameStory(
   return getWeb(ctx, `wsc/game-story/${gameId}`);
 }
 
+/**
+ * Get the league scoreboard: every game in the week around a date, grouped by
+ * date. Returns the week around today when no date is supplied.
+ *
+ * @param params.date Date in YYYY-MM-DD format. Defaults to "now".
+ * @example https://api-web.nhle.com/v1/scoreboard/2023-10-15
+ */
+export async function scoreboard(
+  ctx: Context,
+  { date }: { date?: string } = {},
+): Promise<Scoreboard> {
+  return getWeb(ctx, `scoreboard/${date ?? 'now'}`);
+}
+
+/**
+ * Get the play-by-play feed nhl.com's game story widget uses. A bare array of
+ * plays, with a different play shape from `playByPlay`.
+ *
+ * @param params.gameId Game id, e.g. 2023020280
+ * @example https://api-web.nhle.com/v1/wsc/play-by-play/2023020280
+ */
+export async function wscPlayByPlay(
+  ctx: Context,
+  { gameId }: { gameId: Id },
+): Promise<WscPlay[]> {
+  return getWeb(ctx, `wsc/play-by-play/${gameId}`);
+}
+
+/**
+ * Get the replay card for one play-by-play event: the game header, plus a
+ * `goal` object (scorer, assists, highlight clip and the `pptReplayUrl`
+ * puck-and-player-tracking link) when the event is a goal. Any event id works.
+ *
+ * @experimental Feeds an nhl.com widget; the shape may change without notice.
+ * @param params.gameId Game id, e.g. 2023020280
+ * @param params.eventNumber The play's `eventId` from `playByPlay`, e.g. 193
+ * @example https://api-web.nhle.com/v1/ppt-replay/2023020280/193
+ */
+export async function playReplay(
+  ctx: Context,
+  { gameId, eventNumber }: { gameId: Id; eventNumber: Id },
+): Promise<PlayReplay> {
+  return getWeb(ctx, `ppt-replay/${gameId}/${eventNumber}`);
+}
+
+/**
+ * Get the metadata nhl.com uses to render a game page: the two teams, the
+ * season state and the game state.
+ *
+ * @param params.gameId Game id, e.g. 2023020280
+ * @example https://api-web.nhle.com/v1/meta/game/2023020280
+ */
+export async function gameMeta(
+  ctx: Context,
+  { gameId }: { gameId: Id },
+): Promise<GameMeta> {
+  return getWeb(ctx, `meta/game/${gameId}`);
+}
+
 export const gameCenterApi = {
   boxscore,
   playByPlay,
@@ -129,4 +192,8 @@ export const gameCenterApi = {
   shiftChartData,
   seasonSeriesMatchup,
   gameStory,
+  scoreboard,
+  wscPlayByPlay,
+  playReplay,
+  gameMeta,
 } as const;
