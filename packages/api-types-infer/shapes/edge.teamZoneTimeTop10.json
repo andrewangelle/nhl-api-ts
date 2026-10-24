@@ -1,0 +1,19 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].defensiveZoneTime": "float",
+  "[].neutralZoneTime": "float",
+  "[].offensiveZoneTime": "float",
+  "[].team": "object",
+  "[].team.abbrev": "string",
+  "[].team.commonName": "object",
+  "[].team.commonName.default": "string",
+  "[].team.commonName.fr": "string?",
+  "[].team.placeNameWithPreposition": "object",
+  "[].team.placeNameWithPreposition.default": "string",
+  "[].team.placeNameWithPreposition.fr": "string",
+  "[].team.slug": "string",
+  "[].team.teamLogo": "object",
+  "[].team.teamLogo.dark": "string",
+  "[].team.teamLogo.light": "string"
+}

@@ -348,6 +348,7 @@ const EDGE_REPORTS = [
   'TeamShotLocationDetail',
   'TeamShotSpeedDetail',
   'TeamSkatingSpeedDetail',
+  'TeamComparison',
 ];
 
 /** Named responses (`#/components/responses/<name>`) and the body schema each carries. */
@@ -506,6 +507,62 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
     description:
       'EDGE leaders; the shape depends on the `landing` path segment.',
     schema: oneOf(['SkaterLanding', 'GoalieLanding', 'TeamLanding']),
+  },
+  SkaterDistanceTop10: {
+    description: 'Top 10 skaters by skating distance.',
+    schema: arrayOf('SkaterDistanceTop10Row'),
+  },
+  SkaterSpeedTop10: {
+    description: 'Top 10 skaters by skating speed.',
+    schema: arrayOf('SkaterSpeedTop10Row'),
+  },
+  SkaterZoneTimeTop10: {
+    description: 'Top 10 skaters by zone time.',
+    schema: arrayOf('SkaterZoneTimeTop10Row'),
+  },
+  SkaterShotSpeedTop10: {
+    description: 'Top 10 skaters by shot speed.',
+    schema: arrayOf('SkaterShotSpeedTop10Row'),
+  },
+  SkaterShotLocationTop10: {
+    description: 'Top 10 skaters by shot location.',
+    schema: arrayOf('SkaterShotLocationTop10Row'),
+  },
+  Goalie5v5Top10: {
+    description: 'Top 10 goalies by 5v5 performance.',
+    schema: arrayOf('Goalie5v5Top10Row'),
+  },
+  GoalieShotLocationTop10: {
+    description: 'Top 10 goalies by shot location.',
+    schema: arrayOf('GoalieShotLocationTop10Row'),
+  },
+  GoalieSavePercentageTop10: {
+    description: 'Top 10 goalies by games above a .900 save percentage.',
+    schema: arrayOf('GoalieSavePercentageTop10Row'),
+  },
+  TeamSkatingDistanceTop10: {
+    description: 'Top 10 teams by skating distance.',
+    schema: arrayOf('TeamSkatingDistanceTop10Row'),
+  },
+  TeamSkatingSpeedTop10: {
+    description: 'Top 10 teams by skating speed.',
+    schema: arrayOf('TeamSkatingSpeedTop10Row'),
+  },
+  TeamZoneTimeTop10: {
+    description: 'Top 10 teams by zone time.',
+    schema: arrayOf('TeamZoneTimeTop10Row'),
+  },
+  TeamShotSpeedTop10: {
+    description: 'Top 10 teams by shot speed.',
+    schema: arrayOf('TeamShotSpeedTop10Row'),
+  },
+  TeamShotLocationTop10: {
+    description: 'Top 10 teams by shot location.',
+    schema: arrayOf('TeamShotLocationTop10Row'),
+  },
+  ByTheNumbers: {
+    description: 'League-wide EDGE highlights.',
+    schema: ref('ByTheNumbers'),
   },
   Franchises: { description: 'Franchises.', schema: page('Franchise') },
   ShiftChart: { description: 'Shift chart rows.', schema: ref('ShiftChart') },

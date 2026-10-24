@@ -71,9 +71,6 @@ function richness(sample: RawSample): number {
 function lowerFirst(text: string): string {
   return text[0].toLowerCase() + text.slice(1);
 }
-function upperFirst(text: string): string {
-  return text[0].toUpperCase() + text.slice(1);
-}
 
 function fileOf(endpoint: string): string {
   return (
@@ -122,8 +119,6 @@ for (const [key, group] of groupAll(loadSamples(RAW_DIR))) {
     type = `SkaterReportRows['${suffix}']`;
   } else if (group.endpoint.endsWith('goalieStatsSummary')) {
     type = `GoalieReportRows['${suffix}']`;
-  } else if (group.endpoint.startsWith('edge.')) {
-    type = upperFirst(group.endpoint.split('.')[1]);
   } else {
     type = spec.name;
   }

@@ -1,0 +1,21 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].all": "float|integer",
+  "[].highDanger": "float|integer",
+  "[].longRange": "float|integer",
+  "[].midRange": "float|integer",
+  "[].team": "object",
+  "[].team.abbrev": "string",
+  "[].team.commonName": "object",
+  "[].team.commonName.default": "string",
+  "[].team.commonName.fr": "string?",
+  "[].team.id": "integer",
+  "[].team.placeNameWithPreposition": "object",
+  "[].team.placeNameWithPreposition.default": "string",
+  "[].team.placeNameWithPreposition.fr": "string",
+  "[].team.slug": "string",
+  "[].team.teamLogo": "object",
+  "[].team.teamLogo.dark": "string",
+  "[].team.teamLogo.light": "string"
+}
