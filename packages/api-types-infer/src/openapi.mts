@@ -454,6 +454,18 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
     description: 'Teams whose broadcast market covers a postal code.',
     schema: arrayOf('PostalLookupTeam'),
   },
+  DraftRankings: {
+    description: 'Central Scouting rankings for one prospect category.',
+    schema: ref('DraftRankings'),
+  },
+  DraftTracker: {
+    description: 'Live draft tracker for the current draft.',
+    schema: ref('DraftTracker'),
+  },
+  DraftPicks: {
+    description: 'Picks of a draft, for one round or every round.',
+    schema: ref('DraftPicks'),
+  },
   PlayerSpotlight: {
     description: 'Players featured in the nhl.com spotlight.',
     schema: arrayOf('PlayerSpotlight'),

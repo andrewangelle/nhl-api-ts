@@ -413,6 +413,32 @@ export async function buildSamples(): Promise<Sample[]> {
     add('misc.meta', { variant: kind }, (client) => client.misc.meta(params));
   }
 
+  // ----- draft -----
+  add('draft.rankings', { season: 'now' }, (client) => client.draft.rankings());
+  for (const category of [1, 2, 3, 4] as const) {
+    add(
+      'draft.rankings',
+      { season: '2023', category: String(category) },
+      (client) => client.draft.rankings({ season: 2023, category }),
+    );
+  }
+  add('draft.rankings', { season: '2008', category: '2' }, (client) =>
+    client.draft.rankings({ season: 2008, category: 2 }),
+  );
+  add('draft.tracker', {}, (client) => client.draft.tracker());
+  add('draft.picks', { season: 'now' }, (client) => client.draft.picks());
+  for (const [season, round] of [
+    [2023, 'all'],
+    [2023, 7],
+    [1979, 'all'],
+  ] as const) {
+    add(
+      'draft.picks',
+      { season: String(season), round: String(round) },
+      (client) => client.draft.picks({ season, round }),
+    );
+  }
+
   // ----- stats -----
   for (const teamAbbr of ['BUF', 'TOR', 'UTA']) {
     add(

@@ -86,6 +86,7 @@ function fileOf(endpoint: string): string {
       stats: 'stats',
       misc: 'misc',
       edge: 'edge',
+      draft: 'draft',
     }[endpoint.split('.')[0]] ?? 'misc'
   );
 }
