@@ -33,7 +33,9 @@ export * as edge from '#src/api/edge.mjs';
 export { EdgePositions, EdgeStrengths, EdgeZones } from '#src/api/edge.mjs';
 export * as gameCenter from '#src/api/game-center.mjs';
 export * as helpers from '#src/api/helpers.mjs';
+export type { GamesParams } from '#src/api/misc.mjs';
 export * as misc from '#src/api/misc.mjs';
+export type { PlayerSearchParams } from '#src/api/players.mjs';
 export * as players from '#src/api/players.mjs';
 export * from '#src/api/query/index.mjs';
 export type { DailySchedule } from '#src/api/schedule.mjs';
@@ -44,6 +46,7 @@ export type {
   GoalieStatsSummaryParams,
   SkaterStatsSummaryParams,
   SkaterStatsWithQueryContextParams,
+  StatsApiLeadersParams,
   StatsLeadersParams,
   TeamSummaryParams,
 } from '#src/api/stats.mjs';

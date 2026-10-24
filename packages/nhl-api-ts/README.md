@@ -77,6 +77,8 @@ optional.
 - `rosterSeasons({ teamAbbr })` — every season the team has a roster for
 - `teamScoreboard({ teamAbbr })` — recent and upcoming games
 - `franchises()`
+- `statsTeams()` — every team in the stats API, past and present (raw rows with `franchiseId`, `triCode`)
+- `teamById({ teamId })` — one stats API team row; an unknown id throws `ResourceNotFoundException`
 
 ### standings
 
@@ -122,6 +124,9 @@ optional.
 - `skaterStatsSummary({ startSeason, endSeason, [franchiseId], [gameTypeId], [aggregate], [sortExpr], [start], [limit], [factCayenneExp], [defaultCayenneExp] })`
 - `skaterStatsWithQueryContext({ queryContext, reportType, [sortExpr], [aggregate], [start], [limit] })`
 - `goalieStatsSummary({ startSeason, [endSeason], [statsType], [gameTypeId], [franchiseId], [aggregate], [sortExpr], [start], [limit], [factCayenneExp], [defaultCayenneExp] })`
+- `skaterLeaders({ attribute, [season] })` — top 10 single-season records, all time or for one `season`; `attribute` is `points`, `goals`, `assists` or `gamesPlayed`
+- `goalieLeaders({ attribute, [season] })` — same, for `gaa`, `savePctg`, `shutouts`, `timeOnIce` or `gamesPlayed`. `gaa` / `savePctg` have no minimum games, so the top rows are goalies with a few minutes played (all-time `gaa` is `null`)
+- `skaterMilestones()`, `goalieMilestones()` — career milestones active players are approaching
 
 ### edge
 
@@ -171,6 +176,7 @@ default; 3 = playoffs). Without `season` the current season (`/now`) is used.
 - `prospectsByTeam({ teamAbbr })`
 - `playersByTeam({ teamAbbr, [season] })`
 - `playerSpotlight()`
+- `playerSearch({ [name], [teamId], [position], [cayenneExp], [sort], [dir], [start], [include], [exclude] })` — search every player on record, e.g. `{ name: 'matth', position: 'C' }`. `name` is a case-insensitive part of the full name; `position: 'F'` matches every forward; at least one filter is required. Returns `{ data, total }`; the API sends **at most 5 rows** per request, so page with `start`
 
 ### draft
 
@@ -191,6 +197,9 @@ Rounds per draft year live in `misc.draftYearAndRounds()`.
 
 - `glossary()`, `config()`, `countries()`, `seasonSpecificRulesAndInfo()`,
   `draftYearAndRounds()`
+- `componentSeasons()` — the season and game type the stats API serves by default
+- `games({ [season], [gameType], [teamId], [startDate], [endDate], [cayenneExp] })` — stats API games, e.g. `{ season: 20232024, teamId: 10 }`. At least one filter is required (unfiltered is every game ever, about 19 MB)
+- `ping()` — stats API health check; resolves `true`, and throws on any failure (it never returns `false`)
 - `seasonIds()` — every season id (`19171918` ... current)
 - `tvSchedule({ [date] })` — national TV broadcasts for the week around a date
 - `meta({ [players], [teams] })` — display metadata (names, slugs, headshots) for player ids and team abbreviations

@@ -2,9 +2,12 @@
 import type {
   GameType,
   LocalizedString,
+  OpenUnion,
   PositionCode,
   ShootsCatches,
 } from '#src/types/common.mjs';
+import type { StatsPlayer } from '#src/types/players.mjs';
+import type { StatsTeamLogo } from '#src/types/teams.mjs';
 
 export interface AwardSeason {
   /** Goalies only */
@@ -1242,4 +1245,130 @@ export interface GoalieReportRows {
   savesByStrength: GoalieSavesByStrengthRow;
   shootout: GoalieShootoutRow;
   startedVsRelieved: GoalieStartedVsRelievedRow;
+}
+
+/** Team of a stats API leaders row: the `en/team` row plus its logo history. */
+export interface StatsLeaderTeam {
+  id: number;
+  franchiseId: number;
+  fullName: string;
+  leagueId: number;
+  logos: StatsTeamLogo[];
+  rawTricode: string;
+  triCode: string;
+}
+
+export interface SkaterPointsLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  points: number;
+}
+
+export interface SkaterGoalsLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  goals: number;
+}
+
+export interface SkaterAssistsLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  assists: number;
+}
+
+export interface SkaterGamesPlayedLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  gamesPlayed: number;
+}
+
+export interface GoalieGaaLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  /** `null` in every all-time row (no minimum games), set when filtered to a season */
+  gaa: number | null;
+}
+
+export interface GoalieSavePctgLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  savePctg: number;
+}
+
+export interface GoalieShutoutsLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  shutouts: number;
+}
+
+export interface GoalieTimeOnIceLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  /** Seconds */
+  timeOnIce: number;
+}
+
+export interface GoalieGamesPlayedLeaderRow {
+  player: StatsPlayer;
+  team: StatsLeaderTeam;
+  gamesPlayed: number;
+}
+
+/** Row type of `stats.skaterLeaders` for each `attribute`. */
+export interface SkaterLeaderRows {
+  points: SkaterPointsLeaderRow;
+  goals: SkaterGoalsLeaderRow;
+  assists: SkaterAssistsLeaderRow;
+  gamesPlayed: SkaterGamesPlayedLeaderRow;
+}
+
+/** Row type of `stats.goalieLeaders` for each `attribute`. */
+export interface GoalieLeaderRows {
+  gaa: GoalieGaaLeaderRow;
+  savePctg: GoalieSavePctgLeaderRow;
+  shutouts: GoalieShutoutsLeaderRow;
+  timeOnIce: GoalieTimeOnIceLeaderRow;
+  gamesPlayed: GoalieGamesPlayedLeaderRow;
+}
+
+/** A career milestone an active skater is approaching. */
+export interface SkaterMilestone {
+  id: number;
+  assists: number;
+  currentTeamId: number;
+  firstName: string;
+  gameTypeId: GameType;
+  gamesPlayed: number;
+  goals: number;
+  lastName: string;
+  milestone: OpenUnion<'Assists' | 'Games Played' | 'Goals' | 'Points'>;
+  milestoneAmount: number;
+  playerFullName: string;
+  playerId: number;
+  points: number;
+  teamAbbrev: string;
+  teamCommonName: string;
+  teamFullName: string;
+  teamPlaceName: string;
+}
+
+/** A career milestone an active goalie is approaching. */
+export interface GoalieMilestone {
+  id: number;
+  currentTeamId: number;
+  firstName: string;
+  gameTypeId: GameType;
+  gamesPlayed: number;
+  lastName: string;
+  milestone: OpenUnion<'Games Played' | 'Minutes Played' | 'Shutouts' | 'Wins'>;
+  milestoneAmount: number;
+  playerFullName: string;
+  playerId: number;
+  so: number;
+  teamAbbrev: string;
+  teamCommonName: string;
+  teamFullName: string;
+  teamPlaceName: string;
+  toiMinutes: number;
+  wins: number;
 }

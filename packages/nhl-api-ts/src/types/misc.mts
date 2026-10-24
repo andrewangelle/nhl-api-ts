@@ -7,6 +7,13 @@ import type {
 } from '#src/types/common.mjs';
 import type { MetaTeam } from '#src/types/game-center.mjs';
 
+export interface ComponentSeason {
+  id: string;
+  component: string;
+  gameTypeId: GameType;
+  seasonId: number;
+}
+
 export interface Country {
   id: string;
   country3Code: string;
@@ -150,6 +157,23 @@ export interface StatsConfig {
   teamReportData: Record<string, ReportConfig>;
   aggregatedColumns: string[];
   individualColumns: string[];
+}
+
+/** One game of the stats API (`en/game`). */
+export interface StatsGame {
+  id: number;
+  easternStartTime: string;
+  gameDate: string;
+  gameNumber: number;
+  gameScheduleStateId: number;
+  gameStateId: number;
+  gameType: GameType;
+  homeScore: number;
+  homeTeamId: number;
+  period: number;
+  season: number;
+  visitingScore: number;
+  visitingTeamId: number;
 }
 
 export interface TvSchedule {

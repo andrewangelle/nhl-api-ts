@@ -3,9 +3,13 @@ import type {
   ClubStats,
   ClubStatsSeason,
   GameLogEntry,
+  GoalieLeaderRows,
+  GoalieMilestone,
   GoalieReportRows,
   GoalieStatsLeaders,
   PlayerLanding,
+  SkaterLeaderRows,
+  SkaterMilestone,
   SkaterReportRows,
   SkaterStatsLeaders,
   TeamSummaryRow,
@@ -1191,4 +1195,342 @@ export const teamSummaryRowFixture: TeamSummaryRow = {
   wins: 55,
   winsInRegulation: 43,
   winsInShootout: 4,
+};
+
+export const goalieLeaderRowsgaaFixture: GoalieLeaderRows['gaa'] = {
+  gaa: null,
+  player: {
+    id: 8445470,
+    currentTeamId: null,
+    firstName: 'Craig',
+    fullName: 'Craig Billington',
+    lastName: 'Billington',
+    positionCode: 'G',
+    sweaterNumber: 1,
+  },
+  team: {
+    id: 15,
+    franchiseId: 24,
+    fullName: 'Washington Capitals',
+    leagueId: 133,
+    logos: [
+      {
+        id: 55,
+        background: 'dark',
+        endSeason: 19971998,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/WSH_19951996-19971998_dark.svg',
+        startSeason: 19951996,
+        teamId: 15,
+        url: 'http://3.cdn.nhle.com/logos/nhl/svg/WSH_19951996-19971998_dark.svg',
+      },
+    ],
+    rawTricode: 'WSH',
+    triCode: 'WSH',
+  },
+};
+
+export const goalieLeaderRowsgamesPlayedFixture: GoalieLeaderRows['gamesPlayed'] =
+  {
+    gamesPlayed: 79,
+    player: {
+      id: 8446991,
+      currentTeamId: null,
+      firstName: 'Grant',
+      fullName: 'Grant Fuhr',
+      lastName: 'Fuhr',
+      positionCode: 'G',
+      sweaterNumber: 31,
+    },
+    team: {
+      id: 19,
+      franchiseId: 18,
+      fullName: 'St. Louis Blues',
+      leagueId: 133,
+      logos: [
+        {
+          id: 32,
+          background: 'dark',
+          endSeason: 19971998,
+          secureUrl:
+            'https://assets.nhle.com/logos/nhl/svg/STL_19891990-19971998_dark.svg',
+          startSeason: 19891990,
+          teamId: 19,
+          url: 'http://3.cdn.nhle.com/logos/nhl/svg/STL_19891990-19971998_dark.svg',
+        },
+      ],
+      rawTricode: 'STL',
+      triCode: 'STL',
+    },
+  };
+
+export const goalieLeaderRowssavePctgFixture: GoalieLeaderRows['savePctg'] = {
+  player: {
+    id: 8445249,
+    currentTeamId: null,
+    firstName: 'Murray',
+    fullName: 'Murray Bannerman',
+    lastName: 'Bannerman',
+    positionCode: 'G',
+    sweaterNumber: 30,
+  },
+  savePctg: 1,
+  team: {
+    id: 23,
+    franchiseId: 20,
+    fullName: 'Vancouver Canucks',
+    leagueId: 133,
+    logos: [
+      {
+        id: 10,
+        background: 'light',
+        endSeason: 20062007,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/VAN_19971998-20062007_light.svg',
+        startSeason: 19971998,
+        teamId: 23,
+        url: 'http://cdn.nhle.com/logos/nhl/svg/VAN_19971998-20062007_light.svg',
+      },
+    ],
+    rawTricode: 'VAN',
+    triCode: 'VAN',
+  },
+};
+
+export const goalieLeaderRowsshutoutsFixture: GoalieLeaderRows['shutouts'] = {
+  player: {
+    id: 8449987,
+    currentTeamId: null,
+    firstName: 'George',
+    fullName: 'George Hainsworth',
+    lastName: 'Hainsworth',
+    positionCode: 'G',
+    sweaterNumber: 1,
+  },
+  shutouts: 22,
+  team: {
+    id: 8,
+    franchiseId: 1,
+    fullName: 'Montréal Canadiens',
+    leagueId: 133,
+    logos: [
+      {
+        id: 1,
+        background: 'light',
+        endSeason: 19311932,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/MTL_19251926-19311932_light.svg',
+        startSeason: 19251926,
+        teamId: 8,
+        url: 'http://cdn.nhle.com/logos/nhl/svg/MTL_19251926-19311932_light.svg',
+      },
+    ],
+    rawTricode: 'MTL',
+    triCode: 'MTL',
+  },
+};
+
+export const goalieLeaderRowstimeOnIceFixture: GoalieLeaderRows['timeOnIce'] = {
+  player: {
+    id: 8480382,
+    currentTeamId: null,
+    firstName: 'Alexandar',
+    fullName: 'Alexandar Georgiev',
+    lastName: 'Georgiev',
+    positionCode: 'G',
+    sweaterNumber: 40,
+  },
+  team: {
+    id: 21,
+    franchiseId: 27,
+    fullName: 'Colorado Avalanche',
+    leagueId: 133,
+    logos: [
+      {
+        id: 148,
+        background: 'dark',
+        endSeason: 19981999,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/COL_19951996-19981999_dark.svg',
+        startSeason: 19951996,
+        teamId: 21,
+        url: 'http://1.cdn.nhle.com/logos/nhl/svg/COL_19951996-19981999_dark.svg',
+      },
+    ],
+    rawTricode: 'COL',
+    triCode: 'COL',
+  },
+  timeOnIce: 218277,
+};
+
+export const goalieMilestoneFixture: GoalieMilestone = {
+  id: 535,
+  currentTeamId: 18,
+  firstName: 'Juuse',
+  gameTypeId: 2,
+  gamesPlayed: 467,
+  lastName: 'Saros',
+  milestone: 'Shutouts',
+  milestoneAmount: 30,
+  playerFullName: 'Juuse Saros',
+  playerId: 8477424,
+  so: 27,
+  teamAbbrev: 'NSH',
+  teamCommonName: 'Predators',
+  teamFullName: 'Nashville Predators',
+  teamPlaceName: 'Nashville',
+  toiMinutes: 26836,
+  wins: 230,
+};
+
+export const skaterLeaderRowsassistsFixture: SkaterLeaderRows['assists'] = {
+  assists: 163,
+  player: {
+    id: 8447400,
+    currentTeamId: null,
+    firstName: 'Wayne',
+    fullName: 'Wayne Gretzky',
+    lastName: 'Gretzky',
+    positionCode: 'C',
+    sweaterNumber: 99,
+  },
+  team: {
+    id: 22,
+    franchiseId: 25,
+    fullName: 'Edmonton Oilers',
+    leagueId: 133,
+    logos: [
+      {
+        id: 8,
+        background: 'light',
+        endSeason: 20102011,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+        startSeason: 19971998,
+        teamId: 22,
+        url: 'http://1.cdn.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+      },
+    ],
+    rawTricode: 'EDM',
+    triCode: 'EDM',
+  },
+};
+
+export const skaterLeaderRowsgamesPlayedFixture: SkaterLeaderRows['gamesPlayed'] =
+  {
+    gamesPlayed: 83,
+    player: {
+      id: 8477497,
+      currentTeamId: 29,
+      firstName: 'Sean',
+      fullName: 'Sean Monahan',
+      lastName: 'Monahan',
+      positionCode: 'C',
+      sweaterNumber: 23,
+    },
+    team: {
+      id: 52,
+      franchiseId: 35,
+      fullName: 'Winnipeg Jets',
+      leagueId: 133,
+      logos: [
+        {
+          id: 295,
+          background: 'dark',
+          endSeason: 20262027,
+          secureUrl: 'https://assets.nhle.com/logos/nhl/svg/WPG_dark.svg',
+          startSeason: 20112012,
+          teamId: 52,
+          url: 'http://3.cdn.nhle.com/logos/nhl/svg/WPG_dark.svg',
+        },
+      ],
+      rawTricode: 'WPG',
+      triCode: 'WPG',
+    },
+  };
+
+export const skaterLeaderRowsgoalsFixture: SkaterLeaderRows['goals'] = {
+  goals: 92,
+  player: {
+    id: 8447400,
+    currentTeamId: null,
+    firstName: 'Wayne',
+    fullName: 'Wayne Gretzky',
+    lastName: 'Gretzky',
+    positionCode: 'C',
+    sweaterNumber: 99,
+  },
+  team: {
+    id: 22,
+    franchiseId: 25,
+    fullName: 'Edmonton Oilers',
+    leagueId: 133,
+    logos: [
+      {
+        id: 8,
+        background: 'light',
+        endSeason: 20102011,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+        startSeason: 19971998,
+        teamId: 22,
+        url: 'http://1.cdn.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+      },
+    ],
+    rawTricode: 'EDM',
+    triCode: 'EDM',
+  },
+};
+
+export const skaterLeaderRowspointsFixture: SkaterLeaderRows['points'] = {
+  player: {
+    id: 8447400,
+    currentTeamId: null,
+    firstName: 'Wayne',
+    fullName: 'Wayne Gretzky',
+    lastName: 'Gretzky',
+    positionCode: 'C',
+    sweaterNumber: 99,
+  },
+  points: 215,
+  team: {
+    id: 22,
+    franchiseId: 25,
+    fullName: 'Edmonton Oilers',
+    leagueId: 133,
+    logos: [
+      {
+        id: 8,
+        background: 'light',
+        endSeason: 20102011,
+        secureUrl:
+          'https://assets.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+        startSeason: 19971998,
+        teamId: 22,
+        url: 'http://1.cdn.nhle.com/logos/nhl/svg/EDM_19971998-20102011_light.svg',
+      },
+    ],
+    rawTricode: 'EDM',
+    triCode: 'EDM',
+  },
+};
+
+export const skaterMilestoneFixture: SkaterMilestone = {
+  id: 1227,
+  assists: 199,
+  currentTeamId: 16,
+  firstName: 'Ryan',
+  gameTypeId: 2,
+  gamesPlayed: 566,
+  goals: 76,
+  lastName: 'Ellis',
+  milestone: 'Assists',
+  milestoneAmount: 200,
+  playerFullName: 'Ryan Ellis',
+  playerId: 8475176,
+  points: 275,
+  teamAbbrev: 'CHI',
+  teamCommonName: 'Blackhawks',
+  teamFullName: 'Chicago Blackhawks',
+  teamPlaceName: 'Chicago',
 };

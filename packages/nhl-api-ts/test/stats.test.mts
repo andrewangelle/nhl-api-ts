@@ -363,3 +363,72 @@ describe('Stats response types', () => {
     });
   });
 });
+
+describe('Stats: stats API leaders and milestones', () => {
+  const cases: [
+    string,
+    (client: ReturnType<typeof newClient>) => Promise<unknown>,
+    string,
+  ][] = [
+    [
+      'skaterLeaders without a filter',
+      (client) => client.stats.skaterLeaders({ attribute: 'points' }),
+      'en/leaders/skaters/points',
+    ],
+    [
+      'skaterLeaders with season',
+      (client) =>
+        client.stats.skaterLeaders({
+          attribute: 'goals',
+          season: 20232024,
+        }),
+      'en/leaders/skaters/goals?cayenneExp=season%3D20232024',
+    ],
+    [
+      'goalieLeaders without a filter',
+      (client) => client.stats.goalieLeaders({ attribute: 'gaa' }),
+      'en/leaders/goalies/gaa',
+    ],
+    [
+      'goalieLeaders with season',
+      (client) =>
+        client.stats.goalieLeaders({
+          attribute: 'savePctg',
+          season: '20232024',
+        }),
+      'en/leaders/goalies/savePctg?cayenneExp=season%3D20232024',
+    ],
+    [
+      'skaterMilestones',
+      (client) => client.stats.skaterMilestones(),
+      'en/milestones/skaters',
+    ],
+    [
+      'goalieMilestones',
+      (client) => client.stats.goalieMilestones(),
+      'en/milestones/goalies',
+    ],
+  ];
+
+  for (const [name, call, resource] of cases) {
+    it(name, async () => {
+      const fetchSpy = mockFetch();
+      await call(newClient());
+      assert.deepEqual(calledUrls(fetchSpy), [`${STATS}${resource}`]);
+    });
+  }
+
+  it('skaterLeaders unwraps data', async () => {
+    const row = { points: 215 };
+    mockFetch(() => ({ body: { data: [row], total: 1 } }));
+    assert.deepEqual(
+      await newClient().stats.skaterLeaders({ attribute: 'points' }),
+      [row],
+    );
+  });
+
+  it('goalieMilestones returns [] without data', async () => {
+    mockFetch();
+    assert.deepEqual(await newClient().stats.goalieMilestones(), []);
+  });
+});

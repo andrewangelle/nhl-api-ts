@@ -1,6 +1,9 @@
+import { andClauses, cayenneString } from '#src/api/query/cayenne.mjs';
+import { normalizeDate } from '#src/api/schedule.mjs';
 import type { Context } from '#src/context.mjs';
 import { Endpoint } from '#src/http-client.mjs';
 import type {
+  ComponentSeason,
   Country,
   DraftYear,
   GeoLocation,
@@ -11,12 +14,19 @@ import type {
   SeasonId,
   SeasonRules,
   StatsConfig,
+  StatsGame,
   TvSchedule,
 } from '#src/types/index.mjs';
 import type { Id } from '#src/utils.mjs';
 
-async function getData<Row>(ctx: Context, resource: string): Promise<Row[]> {
-  const response = await (await ctx.get(Endpoint.API_CORE, resource)).json();
+async function getData<Row>(
+  ctx: Context,
+  resource: string,
+  queryParams?: Record<string, string>,
+): Promise<Row[]> {
+  const response = await (
+    await ctx.get(Endpoint.API_CORE, resource, queryParams)
+  ).json();
   return response.data ?? [];
 }
 
@@ -70,6 +80,94 @@ export async function seasonSpecificRulesAndInfo(
  */
 export async function draftYearAndRounds(ctx: Context): Promise<DraftYear[]> {
   return getData(ctx, 'stats/rest/en/draft');
+}
+
+/**
+ * Gets the season and game type the stats API currently serves by default.
+ *
+ * @example https://api.nhle.com/stats/rest/en/componentSeason
+ */
+export async function componentSeasons(
+  ctx: Context,
+): Promise<ComponentSeason[]> {
+  return getData(ctx, 'stats/rest/en/componentSeason');
+}
+
+export interface GamesParams {
+  /** Season in YYYYYYYY format, e.g. 20232024 (about 1,500 games). */
+  season?: Id;
+  /** 1=Preseason, 2=Regular season, 3=Playoffs. */
+  gameType?: number;
+  /** NHL team id, home or away, e.g. 10. */
+  teamId?: Id;
+  /** First game date, YYYY-MM-DD (inclusive). */
+  startDate?: string;
+  /** Last game date, YYYY-MM-DD (inclusive). */
+  endDate?: string;
+  /**
+   * Extra filter expression, joined to the others with `and`. Only the row
+   * fields (`season`, `gameType`, `gameDate`, `homeTeamId`, ...) can be
+   * filtered; report columns like `seasonId` are a 400.
+   */
+  cayenneExp?: string;
+}
+
+function gamesClauses({
+  season,
+  gameType,
+  teamId,
+  startDate,
+  endDate,
+  cayenneExp,
+}: GamesParams): string[] {
+  const clauses: string[] = [];
+  if (season !== undefined && season !== null) {
+    clauses.push(`season=${season}`);
+  }
+  if (gameType !== undefined) {
+    clauses.push(`gameType=${gameType}`);
+  }
+  if (teamId !== undefined && teamId !== null) {
+    clauses.push(`homeTeamId=${teamId} or visitingTeamId=${teamId}`);
+  }
+  if (startDate !== undefined) {
+    clauses.push(`gameDate>=${cayenneString(normalizeDate(startDate))}`);
+  }
+  if (endDate !== undefined) {
+    clauses.push(`gameDate<=${cayenneString(normalizeDate(endDate))}`);
+  }
+  if (cayenneExp !== undefined && cayenneExp.trim()) {
+    clauses.push(cayenneExp);
+  }
+  return clauses;
+}
+
+/**
+ * Gets games from the stats API. At least one filter is required:
+ * unfiltered, the API sends every game ever played (about 19 MB).
+ *
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024
+ * @param params.gameType 1=Preseason, 2=Regular season, 3=Playoffs
+ * @param params.teamId NHL team id, home or away, e.g. 10
+ * @param params.startDate First game date, YYYY-MM-DD
+ * @param params.endDate Last game date, YYYY-MM-DD
+ * @param params.cayenneExp Extra filter expression, e.g. "homeScore>=7"
+ * @throws RangeError When no filter is given, or a date is not YYYY-MM-DD
+ * @example await client.misc.games({ season: 20232024, teamId: 10, gameType: 3 })
+ */
+export async function games(
+  ctx: Context,
+  params: GamesParams,
+): Promise<StatsGame[]> {
+  const clauses = gamesClauses(params);
+  if (clauses.length === 0) {
+    throw new RangeError(
+      'Missing filter. Pass season, gameType, teamId, a date or cayenneExp.',
+    );
+  }
+  return getData(ctx, 'stats/rest/en/game', {
+    cayenneExp: andClauses(clauses),
+  });
 }
 
 /**
@@ -157,16 +255,32 @@ export async function postalLookup(
   return getWeb(ctx, `postal-lookup/${encodeURIComponent(postalCode)}`);
 }
 
+/**
+ * Checks that the stats API is up. Resolves `true` on success; it never
+ * resolves `false`, since any failure throws an `NHLApiException` subclass
+ * (or a network error).
+ *
+ * @throws ServerErrorException When the stats API answers 5xx
+ * @example https://api.nhle.com/stats/rest/ping
+ */
+export async function ping(ctx: Context): Promise<true> {
+  await ctx.get(Endpoint.API_CORE, 'stats/rest/ping');
+  return true;
+}
+
 export const miscApi = {
   glossary,
   config,
   countries,
   seasonSpecificRulesAndInfo,
   draftYearAndRounds,
+  componentSeasons,
+  games,
   tvSchedule,
   partnerGameOdds,
   seasonIds,
   meta,
   location,
   postalLookup,
+  ping,
 } as const;

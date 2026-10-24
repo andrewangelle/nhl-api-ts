@@ -16,11 +16,15 @@ import type {
   ClubStatsSeason,
   GameLogEntry,
   GoalieLeaderCategory,
+  GoalieLeaderRows,
+  GoalieMilestone,
   GoalieReportRows,
   GoalieStatsLeaders,
   OpenUnion,
   PlayerLanding,
   SkaterLeaderCategory,
+  SkaterLeaderRows,
+  SkaterMilestone,
   SkaterReportRows,
   SkaterStatsLeaders,
   StatsApiPage,
@@ -477,6 +481,97 @@ export async function goalieStatsSummary<
   return response.data ?? [];
 }
 
+export interface StatsApiLeadersParams<Attribute extends string> {
+  /** Stat to rank by. An unknown attribute is a 500, not a 404. */
+  attribute: Attribute;
+  /** Season in YYYYYYYY format, e.g. 20232024. Defaults to every season on record. */
+  season?: Id;
+}
+
+async function getStatsData<Row>(
+  ctx: Context,
+  resource: string,
+  queryParams?: Record<string, string>,
+): Promise<Row[]> {
+  const response = await (
+    await ctx.get(Endpoint.API_STATS, resource, queryParams)
+  ).json();
+  return response.data ?? [];
+}
+
+/**
+ * The leaders endpoints only filter on `season` (`seasonId`, `gameTypeId` and
+ * the other report columns are a 400), so the SDK builds the filter itself.
+ */
+function getStatsLeaders<Row>(
+  ctx: Context,
+  group: 'skaters' | 'goalies',
+  { attribute, season }: StatsApiLeadersParams<string>,
+): Promise<Row[]> {
+  return getStatsData(
+    ctx,
+    `en/leaders/${group}/${attribute}`,
+    season === undefined || season === null
+      ? undefined
+      : { cayenneExp: `season=${season}` },
+  );
+}
+
+/**
+ * Gets the top 10 single-season skater records for an attribute, e.g.
+ * Gretzky's 215 points, or the top 10 of one season.
+ *
+ * @param params.attribute points, goals, assists or gamesPlayed (case-sensitive)
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024. Defaults to every season.
+ * @example https://api.nhle.com/stats/rest/en/leaders/skaters/points?cayenneExp=season=20232024
+ */
+export async function skaterLeaders<Attribute extends keyof SkaterLeaderRows>(
+  ctx: Context,
+  params: StatsApiLeadersParams<Attribute>,
+): Promise<SkaterLeaderRows[Attribute][]> {
+  return getStatsLeaders(ctx, 'skaters', params);
+}
+
+/**
+ * Gets the top 10 single-season goalie records for an attribute, or the top
+ * 10 of one season. There is no minimum games played, so `gaa` / `savePctg`
+ * leaders are goalies with a few minutes.
+ *
+ * @param params.attribute gaa, savePctg, shutouts, timeOnIce or gamesPlayed (case-sensitive)
+ * @param params.season Season in YYYYYYYY format, e.g. 20232024. Defaults to every season.
+ * @example https://api.nhle.com/stats/rest/en/leaders/goalies/gaa?cayenneExp=season=20232024
+ */
+export async function goalieLeaders<Attribute extends keyof GoalieLeaderRows>(
+  ctx: Context,
+  params: StatsApiLeadersParams<Attribute>,
+): Promise<GoalieLeaderRows[Attribute][]> {
+  return getStatsLeaders(ctx, 'goalies', params);
+}
+
+/**
+ * Gets the career milestones active skaters are closing in on (e.g. 200
+ * assists, 50 playoff points).
+ *
+ * @example https://api.nhle.com/stats/rest/en/milestones/skaters
+ */
+export async function skaterMilestones(
+  ctx: Context,
+): Promise<SkaterMilestone[]> {
+  return getStatsData(ctx, 'en/milestones/skaters');
+}
+
+/**
+ * Gets the career milestones active goalies are closing in on (e.g. 30
+ * shutouts, 50 playoff games).
+ *
+ * @example https://api.nhle.com/stats/rest/en/milestones/goalies
+ */
+export async function goalieMilestones(
+  ctx: Context,
+): Promise<GoalieMilestone[]> {
+  return getStatsData(ctx, 'en/milestones/goalies');
+}
+
 export const statsApi = {
   gametypesPerSeasonDirectoryByTeam,
   playerCareerStats,
@@ -488,4 +583,8 @@ export const statsApi = {
   skaterStatsSummary,
   skaterStatsWithQueryContext,
   goalieStatsSummary,
+  skaterLeaders,
+  goalieLeaders,
+  skaterMilestones,
+  goalieMilestones,
 } as const;

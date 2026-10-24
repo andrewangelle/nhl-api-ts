@@ -131,6 +131,10 @@ const seasonGameType: ArgSpec = {
   description: '2=Regular season, 3=Playoffs (only used with --season)',
   default: '2',
 };
+const allTimeSeason: ArgSpec = {
+  ...season,
+  description: `${season.description}. Defaults to every season`,
+};
 function leaderCategories(choices: readonly string[]): ArgSpec {
   return {
     name: 'categories',
@@ -411,6 +415,24 @@ export const MODULES: ModuleSpec[] = [
         description: 'All past and current NHL franchises',
         args: [],
         run: (client) => client.teams.franchises(),
+      },
+      {
+        name: 'stats-teams',
+        description: 'Every team in the stats API, past and present',
+        args: [],
+        run: (client) => client.teams.statsTeams(),
+      },
+      {
+        name: 'team-by-id',
+        description: 'One stats API team by its team id',
+        args: [
+          req({
+            name: 'teamId',
+            type: 'string',
+            description: 'NHL team id, e.g. 10',
+          }),
+        ],
+        run: (client, values) => client.teams.teamById(values),
       },
     ],
   },
@@ -825,6 +847,54 @@ export const MODULES: ModuleSpec[] = [
         ],
         run: (client, values) => client.stats.goalieStatsSummary(values),
       },
+      {
+        name: 'skater-leaders',
+        description:
+          'Top 10 single-season skater records for a stat (stats API)',
+        args: [
+          req({
+            name: 'attribute',
+            type: 'string',
+            description: 'Stat to rank by',
+            choices: ['points', 'goals', 'assists', 'gamesPlayed'],
+          }),
+          allTimeSeason,
+        ],
+        run: (client, values) => client.stats.skaterLeaders(values),
+      },
+      {
+        name: 'goalie-leaders',
+        description:
+          'Top 10 single-season goalie records for a stat (stats API)',
+        args: [
+          req({
+            name: 'attribute',
+            type: 'string',
+            description: 'Stat to rank by',
+            choices: [
+              'gaa',
+              'savePctg',
+              'shutouts',
+              'timeOnIce',
+              'gamesPlayed',
+            ],
+          }),
+          allTimeSeason,
+        ],
+        run: (client, values) => client.stats.goalieLeaders(values),
+      },
+      {
+        name: 'skater-milestones',
+        description: 'Career milestones active skaters are approaching',
+        args: [],
+        run: (client) => client.stats.skaterMilestones(),
+      },
+      {
+        name: 'goalie-milestones',
+        description: 'Career milestones active goalies are approaching',
+        args: [],
+        run: (client) => client.stats.goalieMilestones(),
+      },
     ],
   },
   {
@@ -1079,7 +1149,7 @@ export const MODULES: ModuleSpec[] = [
   },
   {
     name: 'players',
-    description: 'Prospects and team rosters',
+    description: 'Prospects, team rosters and player search',
     commands: [
       {
         name: 'prospects-by-team',
@@ -1098,6 +1168,57 @@ export const MODULES: ModuleSpec[] = [
         description: 'Players featured in the nhl.com spotlight',
         args: [],
         run: (client) => client.players.playerSpotlight(),
+      },
+      {
+        name: 'player-search',
+        description:
+          'Search every player (needs a filter). At most 5 rows per page; page with --start',
+        args: [
+          {
+            name: 'name',
+            type: 'string',
+            description: 'Case-insensitive part of the full name, e.g. matth',
+          },
+          {
+            name: 'teamId',
+            type: 'string',
+            description: 'NHL team id of the current team, e.g. 10',
+          },
+          {
+            name: 'position',
+            type: 'string',
+            description: 'Position; F matches every forward',
+            choices: ['C', 'L', 'R', 'D', 'G', 'F'],
+          },
+          {
+            name: 'cayenneExp',
+            type: 'string',
+            description: 'Extra filter, e.g. sweaterNumber=34',
+          },
+          {
+            name: 'sort',
+            type: 'string',
+            description: 'Field to sort by, e.g. lastName',
+          },
+          {
+            name: 'dir',
+            type: 'string',
+            description: 'Sort direction',
+            choices: ['ASC', 'DESC'],
+          },
+          start,
+          {
+            name: 'include',
+            type: 'list',
+            description: 'Comma-separated fields to return, e.g. id,fullName',
+          },
+          {
+            name: 'exclude',
+            type: 'list',
+            description: 'Comma-separated fields to leave out',
+          },
+        ],
+        run: (client, values) => client.players.playerSearch(values),
       },
     ],
   },
@@ -1183,6 +1304,51 @@ export const MODULES: ModuleSpec[] = [
         description: 'Number of rounds for each draft year',
         args: [],
         run: (client) => client.misc.draftYearAndRounds(),
+      },
+      {
+        name: 'component-seasons',
+        description: 'Season and game type the stats API serves by default',
+        args: [],
+        run: (client) => client.misc.componentSeasons(),
+      },
+      {
+        name: 'ping',
+        description: 'Check that the stats API is up (prints true)',
+        args: [],
+        run: (client) => client.misc.ping(),
+      },
+      {
+        name: 'games',
+        description: 'Games from the stats API (needs at least one filter)',
+        args: [
+          season,
+          {
+            name: 'gameType',
+            type: 'int',
+            description: '1=Preseason, 2=Regular season, 3=Playoffs',
+          },
+          {
+            name: 'teamId',
+            type: 'string',
+            description: 'NHL team id, home or away, e.g. 10',
+          },
+          {
+            name: 'startDate',
+            type: 'string',
+            description: 'First game date, YYYY-MM-DD',
+          },
+          {
+            name: 'endDate',
+            type: 'string',
+            description: 'Last game date, YYYY-MM-DD',
+          },
+          {
+            name: 'cayenneExp',
+            type: 'string',
+            description: 'Extra filter, e.g. homeScore>=7',
+          },
+        ],
+        run: (client, values) => client.misc.games(values),
       },
       {
         name: 'tv-schedule',
