@@ -354,6 +354,22 @@ export async function buildSamples(): Promise<Sample[]> {
   }
 
   add('teams.franchises', {}, (client) => client.teams.franchises());
+  add('teams.statsTeams', {}, (client) => client.teams.statsTeams());
+  for (const teamId of [TOR_ID, 32]) {
+    add('teams.teamById', { team: String(teamId) }, (client) =>
+      client.teams.teamById({ teamId }),
+    );
+  }
+  for (const [kind, params] of [
+    ['lastName', { name: 'Matthews' }],
+    ['team', { teamId: BUF_ID, start: 5 }],
+    ['retired', { cayenneExp: `id=${RETIRED}` }],
+    ['sorted', { name: 'Smith', sort: 'id', dir: 'DESC' }],
+  ] satisfies [string, Parameters<NHLClient['players']['playerSearch']>[0]][]) {
+    add('players.playerSearch', { variant: kind }, (client) =>
+      client.players.playerSearch(params),
+    );
+  }
   add('players.playerSpotlight', {}, (client) =>
     client.players.playerSpotlight(),
   );
@@ -403,6 +419,10 @@ export async function buildSamples(): Promise<Sample[]> {
     add('misc.postalLookup', { postal: kind }, (client) =>
       client.misc.postalLookup({ postalCode }),
     );
+  }
+  add('misc.componentSeasons', {}, (client) => client.misc.componentSeasons());
+  for (const season of ['20252026', '19801981']) {
+    add('misc.games', { season }, (client) => client.misc.games({ season }));
   }
   for (const [kind, params] of [
     ['empty', {}],
@@ -501,6 +521,40 @@ export async function buildSamples(): Promise<Sample[]> {
       client.stats.clubStats({ teamAbbr: team, ...params }),
     );
   }
+
+  for (const attribute of [
+    'points',
+    'goals',
+    'assists',
+    'gamesPlayed',
+  ] as const) {
+    add('stats.skaterLeaders', { attribute, season: 'all' }, (client) =>
+      client.stats.skaterLeaders({ attribute }),
+    );
+    add('stats.skaterLeaders', { attribute, season: '20232024' }, (client) =>
+      client.stats.skaterLeaders({ attribute, season: 20232024 }),
+    );
+  }
+  for (const attribute of [
+    'gaa',
+    'savePctg',
+    'shutouts',
+    'timeOnIce',
+    'gamesPlayed',
+  ] as const) {
+    add('stats.goalieLeaders', { attribute, season: 'all' }, (client) =>
+      client.stats.goalieLeaders({ attribute }),
+    );
+    add('stats.goalieLeaders', { attribute, season: '20232024' }, (client) =>
+      client.stats.goalieLeaders({ attribute, season: 20232024 }),
+    );
+  }
+  add('stats.skaterMilestones', {}, (client) =>
+    client.stats.skaterMilestones(),
+  );
+  add('stats.goalieMilestones', {}, (client) =>
+    client.stats.goalieMilestones(),
+  );
 
   for (const isGame of [false, true]) {
     for (const isAggregate of [false, true]) {

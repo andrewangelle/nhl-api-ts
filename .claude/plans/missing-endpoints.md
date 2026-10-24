@@ -294,6 +294,20 @@ Consider whether `teamSummary` should take a `reportType` like
 but the SDK only calls `team/summary`. That's a larger change; leave it as a
 follow-up issue instead of part of this plan.
 
+**Status: done (2026-10-24).** `playerSearch` returns the full
+`StatsApiPage<StatsPlayer>` (callers need `total` to page); `limit` was dropped
+and no `QueryContext` overload was added (its filters target report columns,
+not `en/players`). `include`/`exclude` must repeat the key (a comma list is a
+400), so `QueryParams` values may now be arrays, which `buildUrl` repeats.
+Leaders take `{ attribute, season? }` rather than a raw `cayenneExp`: the endpoint 400s on every column the query builder emits (`seasonId`, `gameTypeId`, `franchiseId`) and only `season=` works, so the SDK builds `cayenneExp=season=<season>`. They are generic over `attribute` like `skaterStatsWithQueryContext`
+(`SkaterLeaderRows` / `GoalieLeaderRows` registries, bound with `bindFn`); rows
+reuse `StatsPlayer` and a `StatsLeaderTeam` (the `StatsTeam` fields plus
+`logos: StatsTeamLogo[]`), written out flat because the openapi generator
+can't parse `extends`. `gaa`/`savePctg` have no minimum games: all-time `gaa`
+is `null` in every row, and per-season leaders are goalies with a few minutes.
+`playerSearch` and `games` take typed filters (`name` / `teamId` / `position`; `season` / `gameType` / `teamId` / `startDate` / `endDate`) plus an optional raw `cayenneExp`, all joined with `and` (internal `src/api/query/cayenne.mts`). `buildQuery` can't be reused: these tables only filter on their own row fields and 400 on report columns like `seasonId`, `gameTypeId`, `franchiseId`. `name` is `fullName likeIgnoreCase '%…%'` with backslash-escaped quotes. Both throw `RangeError` without a filter. Only the new
+fixtures and `shapes/` were added; unrelated cache drift was reverted.
+
 ## Phase 6: optional
 
 - `ping()` in misc → `stats/rest/ping`, health check. The HTTP client throws an `NHLApiException` subclass on any
@@ -302,6 +316,12 @@ follow-up issue instead of part of this plan.
 - ~~`openApiSpec()` / `edge.byTheNumbers()` only if Phase 0 shows they work.~~
   Phase 0: `openApiSpec` still 404s (skipped); `byTheNumbers` works and moved
   into Phase 4.
+
+**Status: done (2026-10-24).** `misc.ping()` uses `getData`'s base URL
+(`Endpoint.API_CORE` + `stats/rest/ping`) and is typed `Promise<true>`. No
+response type, sample or fixture: the body (`{}`) is discarded. `openapi.yaml`
+has `/ping` with a named `Ping` response (`type: object`). CLI: `misc ping`
+prints `true`.
 
 ## Per-endpoint checklist (repeat for every method)
 

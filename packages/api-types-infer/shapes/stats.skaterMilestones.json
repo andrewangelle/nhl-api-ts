@@ -1,0 +1,21 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].assists": "integer",
+  "[].currentTeamId": "integer",
+  "[].firstName": "string",
+  "[].gamesPlayed": "integer",
+  "[].gameTypeId": "integer",
+  "[].goals": "integer",
+  "[].id": "integer",
+  "[].lastName": "string",
+  "[].milestone": "string",
+  "[].milestoneAmount": "integer",
+  "[].playerFullName": "string",
+  "[].playerId": "integer",
+  "[].points": "integer",
+  "[].teamAbbrev": "string",
+  "[].teamCommonName": "string",
+  "[].teamFullName": "string",
+  "[].teamPlaceName": "string"
+}

@@ -1,0 +1,17 @@
+{
+  "$": "array",
+  "[]": "object",
+  "[].easternStartTime": "string",
+  "[].gameDate": "string",
+  "[].gameNumber": "integer",
+  "[].gameScheduleStateId": "integer",
+  "[].gameStateId": "integer",
+  "[].gameType": "integer",
+  "[].homeScore": "integer",
+  "[].homeTeamId": "integer",
+  "[].id": "integer",
+  "[].period": "integer",
+  "[].season": "integer",
+  "[].visitingScore": "integer",
+  "[].visitingTeamId": "integer"
+}
