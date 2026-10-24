@@ -151,6 +151,15 @@ the `RangeError` for an out-of-range `category`.
 Leave `misc.draftYearAndRounds` (stats `en/draft`) where it is; cross-link it
 from the `draft` README section.
 
+**Status: done (2026-10-24).** Types: `DraftRankings` (rows are
+`DraftProspect`), `DraftTracker` / `DraftTrackerPick`, `DraftPicks` /
+`DraftPick`; positions use `DraftPositionCode` (`LW`/`RW`, not `L`/`R`).
+`DraftRound` (`1`–`7 | 'all'`) and the param interfaces are exported from the
+barrel next to `ProspectCategory`. `picks` also throws `RangeError` for a bad
+`round`. The CLI `picks --round` is a string with choices and is converted to a
+number before calling the SDK. `openapi.yaml` lists the `now` routes as their
+own paths.
+
 ## Phase 4: NHL Edge leaderboards and team comparison
 
 ### Shared helper
