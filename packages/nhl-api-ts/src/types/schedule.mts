@@ -258,6 +258,23 @@ export interface PlayoffSeriesGameTeam {
   score: number;
 }
 
+export interface PlayoffSeriesMeta {
+  seriesTitle: string;
+  teams: PlayoffSeriesMetaTeams;
+}
+
+export interface PlayoffSeriesMetaTeam {
+  name: LocalizedString;
+  commonName: LocalizedString;
+  tricode: string;
+  teamSlug: string;
+}
+
+export interface PlayoffSeriesMetaTeams {
+  topSeed: PlayoffSeriesMetaTeam;
+  bottomSeed: PlayoffSeriesMetaTeam;
+}
+
 export interface PlayoffSeriesStatus {
   topSeedWins: number;
   bottomSeedWins: number;

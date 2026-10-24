@@ -72,6 +72,32 @@ describe('GameCenter', () => {
       (client) => client.gameCenter.gameStory({ gameId: '2020020001' }),
       'https://api-web.nhle.com/v1/wsc/game-story/2020020001',
     ],
+    [
+      'scoreboard defaults to now',
+      (client) => client.gameCenter.scoreboard(),
+      'https://api-web.nhle.com/v1/scoreboard/now',
+    ],
+    [
+      'scoreboard with date',
+      (client) => client.gameCenter.scoreboard({ date: '2023-10-15' }),
+      'https://api-web.nhle.com/v1/scoreboard/2023-10-15',
+    ],
+    [
+      'wscPlayByPlay',
+      (client) => client.gameCenter.wscPlayByPlay({ gameId: '2020020001' }),
+      'https://api-web.nhle.com/v1/wsc/play-by-play/2020020001',
+    ],
+    [
+      'playReplay',
+      (client) =>
+        client.gameCenter.playReplay({ gameId: 2020020001, eventNumber: 193 }),
+      'https://api-web.nhle.com/v1/ppt-replay/2020020001/193',
+    ],
+    [
+      'gameMeta',
+      (client) => client.gameCenter.gameMeta({ gameId: '2020020001' }),
+      'https://api-web.nhle.com/v1/meta/game/2020020001',
+    ],
   ];
 
   for (const [name, call, url] of cases) {

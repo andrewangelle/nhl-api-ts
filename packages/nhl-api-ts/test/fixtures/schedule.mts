@@ -4,6 +4,7 @@ import type {
   ClubScheduleGame,
   PlayoffBracket,
   PlayoffCarousel,
+  PlayoffSeriesMeta,
   PlayoffSeriesSchedule,
   TeamSeasonSchedule,
   WeeklySchedule,
@@ -472,4 +473,22 @@ export const teamSeasonScheduleFixture: TeamSeasonSchedule = {
       gameCenterLink: '/gamecenter/mtl-vs-tor/2026/09/19/2026010006',
     },
   ],
+};
+
+export const playoffSeriesMetaFixture: PlayoffSeriesMeta = {
+  seriesTitle: '1st Round',
+  teams: {
+    topSeed: {
+      name: { default: 'Florida Panthers', fr: 'Panthers de la Floride' },
+      commonName: { default: 'Panthers' },
+      tricode: 'FLA',
+      teamSlug: 'florida-panthers-13',
+    },
+    bottomSeed: {
+      name: { default: 'Tampa Bay Lightning', fr: 'Lightning de Tampa Bay' },
+      commonName: { default: 'Lightning' },
+      tricode: 'TBL',
+      teamSlug: 'tampa-bay-lightning-14',
+    },
+  },
 };

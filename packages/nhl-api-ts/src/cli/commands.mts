@@ -443,6 +443,19 @@ export const MODULES: ModuleSpec[] = [
         run: (client, values) => client.schedule.playoffSeriesSchedule(values),
       },
       {
+        name: 'playoff-series-meta',
+        description: 'Round title and seeded teams of one playoff series',
+        args: [
+          req({ name: 'year', type: 'string', description: 'Year, e.g. 2024' }),
+          req({
+            name: 'series',
+            type: 'string',
+            description: 'Series letter: a-h first round ... o final',
+          }),
+        ],
+        run: (client, values) => client.schedule.playoffSeriesMeta(values),
+      },
+      {
         name: 'playoff-bracket',
         description: 'Full playoff bracket for a year',
         args: [
@@ -505,6 +518,37 @@ export const MODULES: ModuleSpec[] = [
         description: 'Narrative game story',
         args: [gameId],
         run: (client, values) => client.gameCenter.gameStory(values),
+      },
+      {
+        name: 'scoreboard',
+        description: 'Every game in the week around a date, grouped by date',
+        args: [date('Date in YYYY-MM-DD format. Defaults to now')],
+        run: (client, values) => client.gameCenter.scoreboard(values),
+      },
+      {
+        name: 'wsc-play-by-play',
+        description: 'Flat play-by-play feed used by the nhl.com game story',
+        args: [gameId],
+        run: (client, values) => client.gameCenter.wscPlayByPlay(values),
+      },
+      {
+        name: 'play-replay',
+        description: 'Replay card for one play-by-play event',
+        args: [
+          gameId,
+          req({
+            name: 'eventNumber',
+            type: 'string',
+            description: "The play's eventId from play-by-play, e.g. 193",
+          }),
+        ],
+        run: (client, values) => client.gameCenter.playReplay(values),
+      },
+      {
+        name: 'game-meta',
+        description: 'Teams, season state and game state for a game',
+        args: [gameId],
+        run: (client, values) => client.gameCenter.gameMeta(values),
       },
     ],
   },
@@ -927,6 +971,65 @@ export const MODULES: ModuleSpec[] = [
         description: 'Number of rounds for each draft year',
         args: [],
         run: (client) => client.misc.draftYearAndRounds(),
+      },
+      {
+        name: 'tv-schedule',
+        description: 'National TV broadcasts for the week around a date',
+        args: [date('Date in YYYY-MM-DD format. Defaults to now')],
+        run: (client, values) => client.misc.tvSchedule(values),
+      },
+      {
+        name: 'partner-game-odds',
+        description: "Betting odds for today's games from a country's partner",
+        args: [
+          req({
+            name: 'countryCode',
+            type: 'string',
+            description: 'Two-letter country code, e.g. US, CA',
+          }),
+        ],
+        run: (client, values) => client.misc.partnerGameOdds(values),
+      },
+      {
+        name: 'season-ids',
+        description: 'Every NHL season id, oldest first',
+        args: [],
+        run: (client) => client.misc.seasonIds(),
+      },
+      {
+        name: 'meta',
+        description: 'Display metadata for players and teams',
+        args: [
+          {
+            name: 'players',
+            type: 'int-list',
+            description: 'Comma-separated player ids, e.g. 8478402,8476945',
+          },
+          {
+            name: 'teams',
+            type: 'list',
+            description: 'Comma-separated team abbreviations, e.g. TOR,BUF',
+          },
+        ],
+        run: (client, values) => client.misc.meta(values),
+      },
+      {
+        name: 'location',
+        description: "The caller's country, from their IP address",
+        args: [],
+        run: (client) => client.misc.location(),
+      },
+      {
+        name: 'postal-lookup',
+        description: 'Teams whose broadcast market covers a postal code',
+        args: [
+          req({
+            name: 'postalCode',
+            type: 'string',
+            description: 'Postal or ZIP code, e.g. 90210',
+          }),
+        ],
+        run: (client, values) => client.misc.postalLookup(values),
       },
     ],
   },

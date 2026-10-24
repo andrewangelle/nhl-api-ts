@@ -2232,6 +2232,36 @@ components:
           type: number
         shorthandedPoints:
           type: number
+    GameMeta:
+      type: object
+      required:
+        - teams
+        - seasonStates
+        - gameState
+      properties:
+        teams:
+          type: array
+          items:
+            '$ref': '#/components/schemas/MetaTeam'
+        seasonStates:
+          '$ref': '#/components/schemas/GameMetaSeasonState'
+        gameState:
+          type: string
+          description: 'Known values: FUT, PRE, LIVE, CRIT, FINAL, OFF. Others may appear.'
+    GameMetaSeasonState:
+      type: object
+      required:
+        - date
+        - gameType
+        - season
+      properties:
+        date:
+          type: string
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        season:
+          type: number
     GameOfficial:
       type: object
       required:
@@ -2465,6 +2495,13 @@ components:
           type: array
           items:
             '$ref': '#/components/schemas/ScheduleGame'
+    GeoLocation:
+      type: object
+      required:
+        - country
+      properties:
+        country:
+          type: string
     GiveawayDetails:
       type: object
       required:
@@ -4223,6 +4260,78 @@ components:
           '$ref': '#/components/schemas/SkatingSpeedOverlay'
         skatingSpeed:
           '$ref': '#/components/schemas/EdgeMeasurement'
+    Meta:
+      type: object
+      required:
+        - players
+        - teams
+        - seasonStates
+      properties:
+        players:
+          type: array
+          items:
+            '$ref': '#/components/schemas/MetaPlayer'
+        teams:
+          type: array
+          items:
+            '$ref': '#/components/schemas/MetaTeam'
+        seasonStates:
+          type: array
+          items: {}
+          description: Empty in every observed response
+    MetaPlayer:
+      type: object
+      required:
+        - playerId
+        - playerSlug
+        - actionShot
+        - name
+        - currentTeams
+        - isGoalie
+      properties:
+        playerId:
+          type: number
+        playerSlug:
+          type: string
+        actionShot:
+          type: string
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        currentTeams:
+          type: array
+          items:
+            '$ref': '#/components/schemas/MetaPlayerTeam'
+        isGoalie:
+          type: boolean
+    MetaPlayerTeam:
+      type: object
+      required:
+        - teamId
+        - abbrev
+        - force
+      properties:
+        teamId:
+          type: number
+        abbrev:
+          type: string
+        force:
+          type: boolean
+    MetaTeam:
+      type: object
+      required:
+        - name
+        - tricode
+        - teamId
+        - teamSlug
+      properties:
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        tricode:
+          type: string
+        teamId:
+          type: number
+        teamSlug:
+          type: string
     MissedShotDetails:
       type: object
       required:
@@ -4362,6 +4471,80 @@ components:
           type: string
         score:
           type: number
+    PartnerGameOdd:
+      type: object
+      required:
+        - description
+        - value
+        - qualifier
+      properties:
+        description:
+          type: string
+          description: 'Known values: MONEY_LINE_2_WAY, MONEY_LINE_3_WAY, OVER_UNDER, PUCK_LINE. Others may appear.'
+        value:
+          type: number
+        qualifier:
+          type: string
+          description: 'The line, e.g. "-1.5" or "O5.5"; "Draw" for the 3-way draw price; "" otherwise'
+    PartnerGameOdds:
+      type: object
+      required:
+        - currentOddsDate
+        - lastUpdatedUTC
+        - bettingPartner
+        - games
+      properties:
+        currentOddsDate:
+          type: string
+        lastUpdatedUTC:
+          type: string
+        bettingPartner:
+          '$ref': '#/components/schemas/OddsPartner'
+        games:
+          type: array
+          items:
+            '$ref': '#/components/schemas/PartnerGameOddsGame'
+    PartnerGameOddsGame:
+      type: object
+      required:
+        - gameId
+        - gameType
+        - startTimeUTC
+        - homeTeam
+        - awayTeam
+      properties:
+        gameId:
+          type: number
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        startTimeUTC:
+          type: string
+        homeTeam:
+          '$ref': '#/components/schemas/PartnerGameOddsTeam'
+        awayTeam:
+          '$ref': '#/components/schemas/PartnerGameOddsTeam'
+    PartnerGameOddsTeam:
+      type: object
+      required:
+        - id
+        - name
+        - abbrev
+        - logo
+        - odds
+      properties:
+        id:
+          type: number
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        logo:
+          type: string
+        odds:
+          type: array
+          items:
+            '$ref': '#/components/schemas/PartnerGameOdd'
     PastGameResult:
       type: object
       required:
@@ -5317,6 +5500,42 @@ components:
           type: string
         score:
           type: number
+    PlayoffSeriesMeta:
+      type: object
+      required:
+        - seriesTitle
+        - teams
+      properties:
+        seriesTitle:
+          type: string
+        teams:
+          '$ref': '#/components/schemas/PlayoffSeriesMetaTeams'
+    PlayoffSeriesMetaTeam:
+      type: object
+      required:
+        - name
+        - commonName
+        - tricode
+        - teamSlug
+      properties:
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        commonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        tricode:
+          type: string
+        teamSlug:
+          type: string
+    PlayoffSeriesMetaTeams:
+      type: object
+      required:
+        - topSeed
+        - bottomSeed
+      properties:
+        topSeed:
+          '$ref': '#/components/schemas/PlayoffSeriesMetaTeam'
+        bottomSeed:
+          '$ref': '#/components/schemas/PlayoffSeriesMetaTeam'
     PlayoffSeriesSchedule:
       type: object
       required:
@@ -5516,6 +5735,165 @@ components:
           type: string
         logoUrls:
           '$ref': '#/components/schemas/TeamLogo'
+    PlayReplay:
+      type: object
+      required:
+        - id
+        - gameDate
+        - awayTeam
+        - homeTeam
+        - gameState
+        - gameType
+      properties:
+        id:
+          type: number
+        gameDate:
+          type: string
+        awayTeam:
+          '$ref': '#/components/schemas/PlayReplayTeam'
+        homeTeam:
+          '$ref': '#/components/schemas/PlayReplayTeam'
+        gameState:
+          type: string
+          description: 'Known values: FUT, PRE, LIVE, CRIT, FINAL, OFF. Others may appear.'
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        goal:
+          '$ref': '#/components/schemas/PlayReplayGoal'
+    PlayReplayGoal:
+      type: object
+      required:
+        - periodDescriptor
+        - situationCode
+        - strength
+        - playerId
+        - firstName
+        - lastName
+        - name
+        - teamAbbrev
+        - headshot
+        - highlightClip
+        - logoUrl
+        - highlightClipSharingUrl
+        - goalsToDate
+        - sweaterNumber
+        - awayScore
+        - homeScore
+        - leadingTeamAbbrev
+        - timeInPeriod
+        - shotType
+        - goalModifier
+        - assists
+        - pptReplayUrl
+        - homeTeamDefendingSide
+        - isHome
+        - eventId
+      properties:
+        periodDescriptor:
+          '$ref': '#/components/schemas/PeriodDescriptor'
+        situationCode:
+          type: string
+        strength:
+          type: string
+        playerId:
+          type: number
+        firstName:
+          '$ref': '#/components/schemas/LocalizedString'
+        lastName:
+          '$ref': '#/components/schemas/LocalizedString'
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        teamAbbrev:
+          '$ref': '#/components/schemas/LocalizedString'
+        headshot:
+          type: string
+        highlightClip:
+          type: number
+        logoUrl:
+          type: string
+        highlightClipSharingUrl:
+          type: string
+        goalsToDate:
+          type: number
+        sweaterNumber:
+          type: number
+        awayScore:
+          type: number
+        homeScore:
+          type: number
+        leadingTeamAbbrev:
+          '$ref': '#/components/schemas/LocalizedString'
+        timeInPeriod:
+          type: string
+        shotType:
+          type: string
+          description: 'Known values: wrist, snap, slap, backhand, tip-in, deflected, wrap-around, bat. Others may appear.'
+        goalModifier:
+          type: string
+        assists:
+          type: array
+          items:
+            '$ref': '#/components/schemas/GoalAssist'
+        pptReplayUrl:
+          type: string
+        homeTeamDefendingSide:
+          type: string
+          description: 'Known values: left, right. Others may appear.'
+        isHome:
+          type: boolean
+        eventId:
+          type: number
+    PlayReplayTeam:
+      type: object
+      required:
+        - id
+        - name
+        - abbrev
+        - placeName
+        - placeNameWithPreposition
+        - logo
+        - darkLogo
+      properties:
+        id:
+          type: number
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        placeName:
+          '$ref': '#/components/schemas/LocalizedString'
+        placeNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        logo:
+          type: string
+        darkLogo:
+          type: string
+    PostalLookupTeam:
+      type: object
+      required:
+        - stateProvince
+        - teamName
+        - postalCode
+        - country
+        - city
+      properties:
+        stateProvince:
+          type: string
+        teamName:
+          '$ref': '#/components/schemas/LocalizedString'
+        postalCode:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        networkType:
+          type: string
+          description: Absent for Canadian postal codes
+        county:
+          type: string
+          description: Absent for Canadian postal codes
     PreGameMatchup:
       type: object
       required:
@@ -6143,6 +6521,161 @@ components:
           type: string
         promoDesc:
           type: string
+    Scoreboard:
+      type: object
+      required:
+        - focusedDate
+        - focusedDateCount
+        - gamesByDate
+      properties:
+        focusedDate:
+          type: string
+        focusedDateCount:
+          type: number
+        gamesByDate:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ScoreboardDate'
+    ScoreboardDate:
+      type: object
+      required:
+        - date
+        - games
+      properties:
+        date:
+          type: string
+        games:
+          type: array
+          items:
+            '$ref': '#/components/schemas/ScoreboardGame'
+    ScoreboardGame:
+      type: object
+      required:
+        - id
+        - season
+        - gameType
+        - gameDate
+        - gameCenterLink
+        - venue
+        - startTimeUTC
+        - easternUTCOffset
+        - venueUTCOffset
+        - tvBroadcasts
+        - gameState
+        - gameScheduleState
+        - awayTeam
+        - homeTeam
+      properties:
+        id:
+          type: number
+        season:
+          type: number
+        gameType:
+          type: integer
+          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
+        gameDate:
+          type: string
+        gameCenterLink:
+          type: string
+        venue:
+          '$ref': '#/components/schemas/LocalizedString'
+        startTimeUTC:
+          type: string
+        easternUTCOffset:
+          type: string
+        venueUTCOffset:
+          type: string
+        tvBroadcasts:
+          type: array
+          items:
+            '$ref': '#/components/schemas/DailyScoresTvBroadcast'
+        gameState:
+          type: string
+          description: 'Known values: FUT, PRE, LIVE, CRIT, FINAL, OFF. Others may appear.'
+        gameScheduleState:
+          type: string
+          description: 'Known values: OK, PPD, SUSP, CNCL, TBD. Others may appear.'
+        awayTeam:
+          '$ref': '#/components/schemas/ScoreboardTeam'
+        homeTeam:
+          '$ref': '#/components/schemas/ScoreboardTeam'
+        period:
+          type: number
+          description: Absent before the game starts
+        periodDescriptor:
+          '$ref': '#/components/schemas/PeriodDescriptor'
+        clock:
+          '$ref': '#/components/schemas/GameClock'
+        threeMinRecap:
+          type: string
+          description: Absent before the game is played
+        threeMinRecapFr:
+          type: string
+          description: Absent before the game is played
+        ticketsLink:
+          type: string
+          description: Only present before the game starts
+        ticketsLinkFr:
+          type: string
+          description: Only present before the game starts
+        seriesStatus:
+          '$ref': '#/components/schemas/ScoreboardSeriesStatus'
+    ScoreboardSeriesStatus:
+      type: object
+      required:
+        - round
+        - seriesAbbrev
+        - game
+        - topSeedTeamAbbrev
+        - topSeedWins
+        - bottomSeedTeamAbbrev
+        - bottomSeedWins
+      properties:
+        round:
+          type: number
+        seriesAbbrev:
+          type: string
+        game:
+          type: number
+        topSeedTeamAbbrev:
+          type: string
+        topSeedWins:
+          type: number
+        bottomSeedTeamAbbrev:
+          type: string
+        bottomSeedWins:
+          type: number
+    ScoreboardTeam:
+      type: object
+      required:
+        - id
+        - name
+        - commonName
+        - placeNameWithPreposition
+        - abbrev
+        - logo
+      properties:
+        id:
+          type: number
+        name:
+          '$ref': '#/components/schemas/LocalizedString'
+        commonName:
+          '$ref': '#/components/schemas/LocalizedString'
+        placeNameWithPreposition:
+          '$ref': '#/components/schemas/LocalizedString'
+        abbrev:
+          type: string
+        score:
+          type: number
+          description: Absent before the game starts
+        sog:
+          type: number
+          description: Only present while the game is live
+        logo:
+          type: string
+        record:
+          type: string
+          description: Only present before the game starts
     ScoringGoal:
       type: object
       required:
@@ -10363,115 +10896,7 @@ components:
         gamesByDate:
           type: array
           items:
-            '$ref': '#/components/schemas/TeamScoreboardDate'
-    TeamScoreboardDate:
-      type: object
-      required:
-        - date
-        - games
-      properties:
-        date:
-          type: string
-        games:
-          type: array
-          items:
-            '$ref': '#/components/schemas/TeamScoreboardGame'
-    TeamScoreboardGame:
-      type: object
-      required:
-        - id
-        - season
-        - gameType
-        - gameDate
-        - gameCenterLink
-        - venue
-        - startTimeUTC
-        - easternUTCOffset
-        - venueUTCOffset
-        - tvBroadcasts
-        - gameState
-        - gameScheduleState
-        - awayTeam
-        - homeTeam
-      properties:
-        id:
-          type: number
-        season:
-          type: number
-        gameType:
-          type: integer
-          description: '1 = preseason, 2 = regular season, 3 = playoffs. Others exist.'
-        gameDate:
-          type: string
-        gameCenterLink:
-          type: string
-        venue:
-          '$ref': '#/components/schemas/LocalizedString'
-        startTimeUTC:
-          type: string
-        easternUTCOffset:
-          type: string
-        venueUTCOffset:
-          type: string
-        tvBroadcasts:
-          type: array
-          items:
-            '$ref': '#/components/schemas/DailyScoresTvBroadcast'
-        gameState:
-          type: string
-          description: 'Known values: FUT, PRE, LIVE, CRIT, FINAL, OFF. Others may appear.'
-        gameScheduleState:
-          type: string
-          description: 'Known values: OK, PPD, SUSP, CNCL, TBD. Others may appear.'
-        awayTeam:
-          '$ref': '#/components/schemas/TeamScoreboardTeam'
-        homeTeam:
-          '$ref': '#/components/schemas/TeamScoreboardTeam'
-        period:
-          type: number
-          description: Absent before the game starts
-        periodDescriptor:
-          '$ref': '#/components/schemas/PeriodDescriptor'
-        threeMinRecap:
-          type: string
-          description: Absent before the game is played
-        threeMinRecapFr:
-          type: string
-          description: Absent before the game is played
-        ticketsLink:
-          type: string
-          description: Only present before the game starts
-        ticketsLinkFr:
-          type: string
-          description: Only present before the game starts
-    TeamScoreboardTeam:
-      type: object
-      required:
-        - id
-        - name
-        - commonName
-        - placeNameWithPreposition
-        - abbrev
-        - logo
-      properties:
-        id:
-          type: number
-        name:
-          '$ref': '#/components/schemas/LocalizedString'
-        commonName:
-          '$ref': '#/components/schemas/LocalizedString'
-        placeNameWithPreposition:
-          '$ref': '#/components/schemas/LocalizedString'
-        abbrev:
-          type: string
-        score:
-          type: number
-          description: Absent before the game starts
-        logo:
-          type: string
-        record:
-          type: string
-          description: Only present before the game starts
+            '$ref': '#/components/schemas/ScoreboardDate'
     TeamSeasonSchedule:
       type: object
       required:
@@ -11103,6 +11528,57 @@ components:
           type: string
         sequenceNumber:
           type: number
+    TvSchedule:
+      type: object
+      required:
+        - date
+        - startDate
+        - endDate
+        - broadcasts
+      properties:
+        date:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        broadcasts:
+          type: array
+          items:
+            '$ref': '#/components/schemas/TvScheduleBroadcast'
+    TvScheduleBroadcast:
+      type: object
+      required:
+        - startTime
+        - endTime
+        - durationSeconds
+        - title
+        - description
+        - houseNumber
+        - broadcastType
+        - broadcastStatus
+        - broadcastImageUrl
+      properties:
+        startTime:
+          type: string
+        endTime:
+          type: string
+        durationSeconds:
+          type: number
+        title:
+          type: string
+        description:
+          type: string
+        houseNumber:
+          type: string
+        broadcastType:
+          type: string
+          description: 'Known values: HD. Others may appear.'
+        broadcastStatus:
+          type: string
+          description: '"LIVE" for live games, "" otherwise Known values: LIVE, . Others may appear.'
+        broadcastImageUrl:
+          type: string
     WeeklySchedule:
       type: object
       required:
@@ -11245,6 +11721,112 @@ components:
           '$ref': '#/components/schemas/LocalizedString'
         lastName:
           '$ref': '#/components/schemas/LocalizedString'
+    WscPlay:
+      type: object
+      required:
+        - id
+        - eventId
+        - period
+        - timeInPeriod
+        - secondsRemaining
+        - typeCode
+        - typeDescKey
+        - sortOrder
+      properties:
+        id:
+          type: number
+        eventId:
+          type: number
+        period:
+          type: number
+        timeInPeriod:
+          type: string
+        secondsRemaining:
+          type: number
+        typeCode:
+          type: number
+        typeDescKey:
+          type: string
+          description: 'Known values: shot-on-goal, penalty, goal, period-start, faceoff, giveaway, missed-shot, takeaway, blocked-shot, hit, delayed-penalty, period-end, game-end. Others may appear.'
+        sortOrder:
+          type: number
+        shotType:
+          type: string
+          description: 'Known values: wrist, snap, slap, backhand, tip-in, deflected, wrap-around, bat. Others may appear.'
+        shootingPlayerId:
+          type: number
+        goalieInNetId:
+          type: number
+        eventOwnerTeamId:
+          type: number
+        awaySOG:
+          type: number
+        homeSOG:
+          type: number
+        penaltyTypeCode:
+          type: string
+        descKey:
+          type: string
+          description: 'Known values: elbowing, holding-obstruction, high-sticking, interference, holding-the-stick, slashing, cross-checking, roughing, holding, hooking, fighting, tripping. Others may appear.'
+        duration:
+          type: number
+        committedByPlayerId:
+          type: number
+        drawnByPlayerId:
+          type: number
+        goalModifier:
+          type: string
+        strength:
+          type: string
+        scoringPlayerId:
+          type: number
+        assist1PlayerId:
+          type: number
+        assist2PlayerId:
+          type: number
+        awayScore:
+          type: number
+        homeScore:
+          type: number
+        strengthCode:
+          type: number
+        goalCode:
+          type: number
+        scoringPlayerTotal:
+          type: number
+        assist1PlayerTotal:
+          type: number
+        assist2PlayerTotal:
+          type: number
+        situationCode:
+          type: string
+        homeTeamDefendingSide:
+          type: string
+          description: 'Known values: left, right. Others may appear.'
+        utc:
+          type: string
+        losingPlayerId:
+          type: number
+        winningPlayerId:
+          type: number
+        xCoord:
+          type: number
+        yCoord:
+          type: number
+        zoneCode:
+          type: string
+          description: 'Known values: O, N, D. Others may appear.'
+        playerId:
+          type: number
+        reason:
+          type: string
+          description: 'Known values: hit-right-post, wide-right, blocked, high-and-wide-right, wide-left, above-crossbar, short, high-and-wide-left, teammate-blocked, hit-crossbar, hit-left-post. Others may appear.'
+        blockingPlayerId:
+          type: number
+        hittingPlayerId:
+          type: number
+        hitteePlayerId:
+          type: number
     Play:
       oneOf:
         - '$ref': '#/components/schemas/BlockedShotPlay'
@@ -11398,6 +11980,78 @@ components:
         'application/json':
           schema:
             '$ref': '#/components/schemas/Prospects'
+    Scoreboard:
+      description: 'Every game in the week around a date, grouped by date.'
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/Scoreboard'
+    WscPlayByPlay:
+      description: Every event of a game as flat plays.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/WscPlay'
+    PlayReplay:
+      description: Replay card for one play-by-play event.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/PlayReplay'
+    GameMeta:
+      description: 'Teams, season state and game state for a game.'
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/GameMeta'
+    PlayoffSeriesMeta:
+      description: Round title and seeded teams of a playoff series.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/PlayoffSeriesMeta'
+    TvSchedule:
+      description: National TV broadcasts for a week.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/TvSchedule'
+    PartnerGameOdds:
+      description: 'Betting odds for today''s games.'
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/PartnerGameOdds'
+    SeasonIds:
+      description: 'Every season id in YYYYYYYY format, oldest first.'
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              type: integer
+    Meta:
+      description: Display metadata for players and teams.
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/Meta'
+    GeoLocation:
+      description: 'The caller''s country.'
+      content:
+        'application/json':
+          schema:
+            '$ref': '#/components/schemas/GeoLocation'
+    PostalLookup:
+      description: Teams whose broadcast market covers a postal code.
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              '$ref': '#/components/schemas/PostalLookupTeam'
     PlayerSpotlight:
       description: Players featured in the nhl.com spotlight.
       content:
@@ -11831,6 +12485,25 @@ paths:
           schema: { type: string, pattern: '^[a-o]$' }
       responses:
         '200': { $ref: '#/components/responses/PlayoffSeriesSchedule' }
+  /meta/playoff-series/{year}/{series}:
+    get:
+      tags: [schedule]
+      operationId: playoffSeriesMeta
+      summary: Round title and the two seeded teams of one playoff series.
+      x-sdk-method: [schedule.playoffSeriesMeta]
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema: { type: integer, example: 2024 }
+        - name: series
+          in: path
+          required: true
+          description: 'Series letter, `a` (first round) through `o` (final). Case-insensitive.'
+          schema: { type: string, pattern: '^[a-oA-O]$' }
+      responses:
+        '200': { $ref: '#/components/responses/PlayoffSeriesMeta' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /playoff-bracket/{year}:
     get:
       tags: [schedule]
@@ -11908,6 +12581,128 @@ paths:
         '200': { $ref: '#/components/responses/DailyScores' }
         '307': { $ref: '#/components/responses/Redirect' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /scoreboard/{date}:
+    get:
+      tags: [gameCenter]
+      operationId: scoreboard
+      x-sdk-method: [gameCenter.scoreboard]
+      summary: 'Every game in the week around a date, grouped by date. `now` answers 200 directly (no redirect).'
+      parameters:
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/Scoreboard' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /wsc/play-by-play/{gameId}:
+    get:
+      tags: [gameCenter]
+      operationId: wscPlayByPlay
+      x-sdk-method: [gameCenter.wscPlayByPlay]
+      summary: 'Every event as a bare array of flat plays (no `periodDescriptor` or `details`).'
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/WscPlayByPlay' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /ppt-replay/{gameId}/{eventNumber}:
+    get:
+      tags: [gameCenter]
+      operationId: playReplay
+      x-sdk-method: [gameCenter.playReplay]
+      summary: 'Replay card for one event. `goal` is present only when the event is a goal.'
+      description: '`ppt-replay/goal/{gameId}/{eventNumber}` redirects here.'
+      parameters:
+        - $ref: '#/components/parameters/GameId'
+        - name: eventNumber
+          in: path
+          required: true
+          description: 'The play''s `eventId` from play-by-play.'
+          schema: { type: integer, example: 193 }
+      responses:
+        '200': { $ref: '#/components/responses/PlayReplay' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /meta/game/{gameId}:
+    get:
+      tags: [gameCenter]
+      operationId: gameMeta
+      x-sdk-method: [gameCenter.gameMeta]
+      summary: Teams, season state and game state for a game page.
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      responses:
+        '200': { $ref: '#/components/responses/GameMeta' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- misc (web)
+  /network/tv-schedule/{date}:
+    get:
+      tags: [misc]
+      operationId: tvSchedule
+      x-sdk-method: [misc.tvSchedule]
+      summary: National TV broadcasts for the week around a date.
+      parameters:
+        - $ref: '#/components/parameters/DateOrNow'
+      responses:
+        '200': { $ref: '#/components/responses/TvSchedule' }
+        '307': { $ref: '#/components/responses/Redirect' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /partner-game/{countryCode}/now:
+    get:
+      tags: [misc]
+      operationId: partnerGameOdds
+      x-sdk-method: [misc.partnerGameOdds]
+      summary: "Betting odds for today's games from the country's odds partner. Answers 200 directly (no redirect)."
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          description: Two-letter country code. Any value answers 200.
+          schema: { type: string, example: US }
+      responses:
+        '200': { $ref: '#/components/responses/PartnerGameOdds' }
+  /season:
+    get:
+      tags: [misc]
+      operationId: seasonIds
+      x-sdk-method: [misc.seasonIds]
+      summary: Every season id, oldest first.
+      responses:
+        '200': { $ref: '#/components/responses/SeasonIds' }
+  /meta:
+    get:
+      tags: [misc]
+      operationId: meta
+      x-sdk-method: [misc.meta]
+      summary: Display metadata for players and teams. Omitted lists come back empty.
+      parameters:
+        - name: players
+          in: query
+          description: Comma-separated player ids.
+          schema: { type: string, example: '8478402,8476945' }
+        - name: teams
+          in: query
+          description: Comma-separated team abbreviations.
+          schema: { type: string, example: 'TOR,BUF' }
+      responses:
+        '200': { $ref: '#/components/responses/Meta' }
+  /location:
+    get:
+      tags: [misc]
+      operationId: location
+      x-sdk-method: [misc.location]
+      summary: "The caller's country, from their IP address."
+      responses:
+        '200': { $ref: '#/components/responses/GeoLocation' }
+  /postal-lookup/{postalCode}:
+    get:
+      tags: [misc]
+      operationId: postalLookup
+      x-sdk-method: [misc.postalLookup]
+      summary: Teams whose broadcast market covers a postal code. Empty array outside every market.
+      parameters:
+        - name: postalCode
+          in: path
+          required: true
+          schema: { type: string, example: '90210' }
+      responses:
+        '200': { $ref: '#/components/responses/PostalLookup' }
 
   # ---------------------------------------------------------------- players / stats (web)
   /prospects/{teamAbbr}:

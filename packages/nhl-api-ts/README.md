@@ -93,6 +93,7 @@ optional.
 - `calendarSchedule({ [date] })`
 - `playoffCarousel({ season })`
 - `playoffSeriesSchedule({ season, series })`
+- `playoffSeriesMeta({ year, series })` — round title and the two seeded teams
 - `playoffBracket({ year })`
 
 ### gameCenter
@@ -104,6 +105,10 @@ optional.
 - `shiftChartData({ gameId, [excludes] })`
 - `seasonSeriesMatchup({ gameId })`
 - `gameStory({ gameId })`
+- `scoreboard({ [date] })` — every game in the week around a date, grouped by date
+- `wscPlayByPlay({ gameId })` — flat play array (a different shape from `playByPlay`)
+- `playReplay({ gameId, eventNumber })` — replay card for one event; `goal` only for goals (experimental)
+- `gameMeta({ gameId })` — teams, season state and game state
 
 ### stats
 
@@ -145,6 +150,12 @@ default; 3 = playoffs). Without `season` the current season (`/now`) is used.
 
 - `glossary()`, `config()`, `countries()`, `seasonSpecificRulesAndInfo()`,
   `draftYearAndRounds()`
+- `seasonIds()` — every season id (`19171918` ... current)
+- `tvSchedule({ [date] })` — national TV broadcasts for the week around a date
+- `meta({ [players], [teams] })` — display metadata (names, slugs, headshots) for player ids and team abbreviations
+- `partnerGameOdds({ countryCode })` — today's betting odds (experimental)
+- `location()` — the caller's country from their IP (experimental)
+- `postalLookup({ postalCode })` — teams whose broadcast market covers a postal code (experimental)
 
 ### helpers
 
