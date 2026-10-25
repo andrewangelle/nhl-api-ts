@@ -126,6 +126,7 @@ function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
   }
 
   const sections = [`Usage: ${usage}`, cmd.description];
+
   if (required.length) {
     sections.push(
       `Arguments (positional, or as flags):\n${table(
@@ -141,7 +142,9 @@ function commandHelp(mod: ModuleSpec, cmd: CommandSpec): string {
       `Options:\n${table(optional.map((arg) => [argLabel(arg), describe(arg)]))}`,
     );
   }
+
   sections.push(GLOBAL_HELP);
+
   return sections.join('\n\n');
 }
 
@@ -168,9 +171,11 @@ function findTargets(argv: string[]): string[] {
 
 function convert(arg: ArgSpec, raw: string | boolean): unknown {
   const flag = `--${kebab(arg.name)}`;
+
   if (arg.type === 'boolean') {
     return raw;
   }
+
   const value = String(raw);
 
   if (arg.choices && !arg.choices.includes(value)) {
@@ -185,6 +190,7 @@ function convert(arg: ArgSpec, raw: string | boolean): unknown {
       }
       return Number(value);
     }
+
     case 'number': {
       const parsed = Number(value);
       if (value.trim() === '' || Number.isNaN(parsed)) {
@@ -192,11 +198,13 @@ function convert(arg: ArgSpec, raw: string | boolean): unknown {
       }
       return parsed;
     }
+
     case 'list':
       return value
         .split(',')
         .map((part) => part.trim())
         .filter(Boolean);
+
     case 'int-list':
       return value
         .split(',')
@@ -208,12 +216,14 @@ function convert(arg: ArgSpec, raw: string | boolean): unknown {
           }
           return Number(part);
         });
+
     case 'json':
       try {
         return JSON.parse(value);
       } catch {
         throw new UsageError(`${flag} must be valid JSON`);
       }
+
     default:
       return value;
   }
@@ -233,6 +243,7 @@ interface Parsed {
 
 function parseCommand(argv: string[], cmd: CommandSpec | undefined): Parsed {
   const commandOptions: Record<string, { type: 'string' | 'boolean' }> = {};
+
   for (const arg of cmd?.args ?? []) {
     commandOptions[kebab(arg.name)] = {
       type: arg.type === 'boolean' ? 'boolean' : 'string',
@@ -253,10 +264,13 @@ function parseCommand(argv: string[], cmd: CommandSpec | undefined): Parsed {
   }
 
   const raw = parsed.values as Record<string, string | boolean | undefined>;
+
   const globals: Parsed['globals'] = {};
+
   for (const key of Object.keys(GLOBAL_OPTIONS)) {
     (globals as Record<string, unknown>)[key] = raw[key];
   }
+
   if (globals.help || !cmd) {
     return { globals, values: {} };
   }
@@ -264,20 +278,25 @@ function parseCommand(argv: string[], cmd: CommandSpec | undefined): Parsed {
   // Drop the module and command names; the rest fill required args in order.
   const extra = parsed.positionals.slice(2);
   const values: Record<string, unknown> = {};
+
   for (const arg of cmd.args) {
     const flagValue = raw[kebab(arg.name)];
+
     if (flagValue !== undefined) {
       values[arg.name] = convert(arg, flagValue);
     } else if (arg.required && extra.length > 0) {
       values[arg.name] = convert(arg, extra.shift() as string);
     }
   }
+
   if (extra.length > 0) {
     throw new UsageError(`unexpected argument '${extra[0]}'`);
   }
+
   const missing = cmd.args.filter(
     (arg) => arg.required && values[arg.name] === undefined,
   );
+
   if (missing.length > 0) {
     throw new UsageError(
       `missing required argument${missing.length > 1 ? 's' : ''}: ${missing
@@ -290,21 +309,27 @@ function parseCommand(argv: string[], cmd: CommandSpec | undefined): Parsed {
 
 function clientOptions(globals: Parsed['globals']): ClientOptions {
   const options: ClientOptions = {};
+
   if (globals.debug) {
     options.debug = true;
   }
+
   if (globals['follow-redirects'] === false) {
     options.followRedirects = false;
   }
+
   if (globals.timeout !== undefined) {
     const timeout = Number(globals.timeout);
+
     if (!(timeout > 0)) {
       throw new UsageError(
         `--timeout must be a positive number of seconds (got '${globals.timeout}')`,
       );
     }
+
     options.timeout = timeout;
   }
+
   return options;
 }
 
@@ -323,6 +348,7 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
   }
 
   let parsed: Parsed;
+
   try {
     parsed = parseCommand(argv, cmd);
   } catch (err) {
@@ -330,12 +356,14 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
       cmd && mod ? commandHelp(mod, cmd) : mod ? moduleHelp(mod) : rootHelp();
     return usageError((err as Error).message, help);
   }
+
   const { globals, values } = parsed;
 
   if (globals.version) {
     io.stdout(version());
     return 0;
   }
+
   if (!moduleName) {
     if (globals.help) {
       io.stdout(rootHelp());
@@ -343,22 +371,27 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
     }
     return usageError('missing <module>', rootHelp());
   }
+
   if (!mod) {
     return usageError(`unknown module '${moduleName}'`, rootHelp());
   }
+
   if (!commandName) {
     if (globals.help) {
       io.stdout(moduleHelp(mod));
       return 0;
     }
+
     return usageError('missing <command>', moduleHelp(mod));
   }
+
   if (!cmd) {
     return usageError(
       `unknown command '${commandName}' for module '${mod.name}'`,
       moduleHelp(mod),
     );
   }
+
   if (globals.help) {
     io.stdout(commandHelp(mod, cmd));
     return 0;
@@ -367,11 +400,13 @@ export async function runCli(argv: string[], io: CliIO): Promise<number> {
   try {
     const client = createClient(clientOptions(globals));
     const result = await cmd.run(client, values);
+
     io.stdout(
       globals.compact
         ? JSON.stringify(result)
         : JSON.stringify(result, null, 2),
     );
+
     return 0;
   } catch (err) {
     if (err instanceof UsageError || err instanceof RangeError) {
