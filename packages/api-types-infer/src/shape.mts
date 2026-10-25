@@ -91,40 +91,55 @@ export function merge(
     node.sampleId = sampleId;
     node.sampleCount = 0;
   }
+
   node.sampleCount += 1;
   node.count += 1;
   node.seenIn.add(tag);
+
   const kind = kindOf(value);
   node.kinds[kind] = (node.kinds[kind] ?? 0) + 1;
 
-  if (kind === 'string' || kind === 'integer' || kind === 'float') {
-    const primitive = value as string | number;
+  // Block A
+  switch (kind) {
+    case 'string':
+    case 'integer':
+    case 'float': {
+      const primitive = value as string | number;
 
-    if (node.values.has(primitive)) {
-      node.values.set(primitive, (node.values.get(primitive) ?? 0) + 1);
-    } else if (node.values.size < VALUE_CAP) {
-      node.values.set(primitive, 1);
-    } else {
-      node.overflow = true;
-    }
-  } else if (kind === 'object') {
-    for (const [key, child] of Object.entries(
-      value as Record<string, unknown>,
-    )) {
-      let childNode = node.props.get(key);
-      if (!childNode) {
-        childNode = newNode();
-        node.props.set(key, childNode);
+      if (node.values.has(primitive)) {
+        node.values.set(primitive, (node.values.get(primitive) ?? 0) + 1);
+      } else if (node.values.size < VALUE_CAP) {
+        node.values.set(primitive, 1);
+      } else {
+        node.overflow = true;
       }
-      merge(childNode, child, tag, sampleId);
+      break;
     }
-  } else if (kind === 'array') {
-    node.items ??= newNode();
-    for (const item of value as unknown[]) {
-      merge(node.items, item, tag, sampleId);
-      if (kindOf(item) === 'object' && node.elements.length < ELEMENT_CAP) {
-        node.elements.push({ value: item as Record<string, unknown>, tag });
+
+    case 'object': {
+      for (const [key, child] of Object.entries(
+        value as Record<string, unknown>,
+      )) {
+        let childNode = node.props.get(key);
+        if (!childNode) {
+          childNode = newNode();
+          node.props.set(key, childNode);
+        }
+        merge(childNode, child, tag, sampleId);
       }
+
+      break;
+    }
+
+    case 'array': {
+      node.items ??= newNode();
+      for (const item of value as unknown[]) {
+        merge(node.items, item, tag, sampleId);
+        if (kindOf(item) === 'object' && node.elements.length < ELEMENT_CAP) {
+          node.elements.push({ value: item as Record<string, unknown>, tag });
+        }
+      }
+      break;
     }
   }
 }
