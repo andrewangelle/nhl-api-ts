@@ -111,9 +111,20 @@ pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 
 ### Before a release
 
-Run `pnpm api-types:check`. If it reports drift, update `src/types/` to match,
-then run `pnpm api-types:infer` (to refresh `shapes/`), `pnpm api-types:fixtures`
-and `pnpm openapi:schemas`.
+Run `pnpm api-types:check`. If it reports drift, run
+`pnpm api-types:fetch --refresh` (`infer` reads `.api-types/raw/`, not the
+check cache), update `src/types/` to match, then run `pnpm api-types:infer`
+(to refresh `shapes/`), `pnpm api-types:fixtures` and `pnpm openapi:schemas`.
+
+## Recipes
+
+- [Add a response type for a new endpoint](docs/recipes/add-a-response-type.md)
+- [Cover a new variant](docs/recipes/cover-a-new-variant.md): more samples, IDs discovered at run time
+- [Check for API drift](docs/recipes/check-for-drift.md): reading `check` output, noise vs. real drift
+- [Read reports and drafts](docs/recipes/read-reports-and-drafts.md): report columns, draft output, snapshots
+- [Endpoint specs](docs/recipes/endpoint-specs.md): `unwrap`, `groupBy`, `ALIASES`, `emit`
+- [Regenerate fixtures and OpenAPI](docs/recipes/regenerate-fixtures-and-openapi.md)
+- [Work with the cache](docs/recipes/work-with-the-cache.md): `--only`, `--refresh`, failed and stale samples
 
 ## Files
 
