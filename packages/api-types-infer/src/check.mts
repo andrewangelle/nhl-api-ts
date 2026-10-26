@@ -1,13 +1,14 @@
 /**
- * Drift check: refetches the sample matrix into `.api-types/check/raw`, re-infers
- * every shape and diffs it against the committed snapshots in
- * `shapes/`. Prints new fields, removed fields and
- * required <-> optional flips, and exits 1 when anything changed.
+ * Drift check: refetches the sample matrix into `.api-types/check/raw`, then
+ * runs conform on it against the SDK types and exits 1 on its errors. Also
+ * diffs the re-inferred shapes against the committed snapshots in `shapes/`
+ * (new fields, removed fields, required <-> optional flips) as information.
  * Manual only; run it before each release.
  *
  *   pnpm api-types:check
  */
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { runConform } from '#src/conform.mjs';
 import { runFetch } from '#src/fetch.mjs';
 import { groupAll } from '#src/infer.mjs';
 import { buildShape, loadSamples } from '#src/load.mjs';
@@ -95,10 +96,15 @@ if (import.meta.main) {
   }
 
   if (report.length === 0) {
-    console.error('api-types:check: no drift');
+    console.error('api-types:check: no shape drift');
   } else {
     console.log(report.join('\n'));
-    console.error(`api-types:check: ${report.length} difference(s)`);
-    process.exitCode = 1;
+    console.error(
+      `api-types:check: ${report.length} shape difference(s) (information only)`,
+    );
   }
+
+  // Drafts go to .api-types/check/draft/, beside the refetched samples.
+  const errors = runConform({ raw: CHECK_RAW });
+  process.exitCode = errors > 0 ? 1 : 0;
 }

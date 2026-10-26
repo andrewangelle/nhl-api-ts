@@ -14,7 +14,7 @@ import {
 } from '#src/shape.mjs';
 
 /** String fields suggested as `OpenUnion<...>` when few values were seen. */
-const ENUM_KEYS = new Set([
+export const ENUM_KEYS = new Set([
   'gameState',
   'gameScheduleState',
   'zoneCode',
@@ -32,10 +32,10 @@ const ENUM_KEYS = new Set([
   'eventOwnerTeamId',
 ]);
 
-const NUMERIC_CODE_KEYS = new Set(['gameType', 'gameTypeId']);
+export const NUMERIC_CODE_KEYS = new Set(['gameType', 'gameTypeId']);
 
 /** Keys tried, in order, as the discriminant of an array of objects. */
-const DISCRIMINANT_KEYS = [
+export const DISCRIMINANT_KEYS = [
   'typeDescKey',
   'positionCode',
   'gameType',
@@ -89,7 +89,7 @@ function singular(word: string): string {
   return word.endsWith('s') ? word.slice(0, -1) : word;
 }
 
-function quoteKey(key: string): string {
+export function quoteKey(key: string): string {
   return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) ? key : `'${key}'`;
 }
 
@@ -103,7 +103,7 @@ function looksDynamic(node: ShapeNode): boolean {
   return numeric || dated;
 }
 
-function isLocalized(node: ShapeNode): boolean {
+export function isLocalized(node: ShapeNode): boolean {
   return (
     node.props.has('default') &&
     [...node.props.keys()].every(
@@ -142,12 +142,62 @@ function pathSet(node: ShapeNode, depth: number, prefix = ''): Set<string> {
   return out;
 }
 
+/**
+ * The type text for a primitive kind at a key: `OpenUnion<...>` for known
+ * enum-like string keys with few values, `GameType` for numeric game-type codes.
+ */
+export function primitiveType(
+  kind: 'string' | 'integer' | 'float' | 'boolean',
+  node: ShapeNode,
+  key: string,
+): string {
+  switch (kind) {
+    case 'string': {
+      if (ENUM_KEYS.has(key) && !node.overflow && node.values.size > 0) {
+        const known = [...node.values.keys()]
+          .map((value) => `'${value}'`)
+          .join(' | ');
+
+        return `OpenUnion<${known}>`;
+      }
+
+      return 'string';
+    }
+    case 'integer':
+    case 'float':
+      return NUMERIC_CODE_KEYS.has(key) ? 'GameType' : 'number';
+    case 'boolean':
+      return 'boolean';
+  }
+}
+
 function shapeOf(elements: Element[], sampleBase: number): ShapeNode {
   const node = newNode();
   elements.forEach(({ value, tag }, index) => {
     merge(node, value, tag, sampleBase + index);
     finishSample(node, sampleBase + index, tag);
   });
+  return node;
+}
+
+/**
+ * The shape of one variant's elements, keeping their raw sample IDs, so two
+ * elements from one response count as one sample (unlike drafts, which treat
+ * each element as its own sample).
+ */
+export function variantShape(elements: Element[]): ShapeNode {
+  const node = newNode();
+  let current: Element | undefined;
+  for (const element of elements) {
+    if (current && current.sampleId !== element.sampleId) {
+      finishSample(node, current.sampleId, current.tag);
+    }
+    merge(node, element.value, element.tag, element.sampleId);
+    current = element;
+  }
+  if (current) {
+    finishSample(node, current.sampleId, current.tag);
+  }
   return node;
 }
 
@@ -229,14 +279,10 @@ export class Emitter {
   ): string {
     switch (kind) {
       case 'string':
-        return this.stringType(node, suggestion);
       case 'integer':
       case 'float':
-        return NUMERIC_CODE_KEYS.has(suggestion.split('.').at(-1) ?? '')
-          ? 'GameType'
-          : 'number';
       case 'boolean':
-        return 'boolean';
+        return primitiveType(kind, node, suggestion.split('.').at(-1) ?? '');
       case 'array': {
         if (!node.items) {
           return 'unknown[]';
@@ -251,20 +297,6 @@ export class Emitter {
       default:
         return 'unknown';
     }
-  }
-
-  private stringType(node: ShapeNode, suggestion: string): string {
-    const key = suggestion.split('.').at(-1) ?? '';
-
-    if (ENUM_KEYS.has(key) && !node.overflow && node.values.size > 0) {
-      const known = [...node.values.keys()]
-        .map((value) => `'${value}'`)
-        .join(' | ');
-
-      return `OpenUnion<${known}>`;
-    }
-
-    return 'string';
   }
 
   private arrayItemType(
@@ -455,6 +487,14 @@ export function mergeNodes(target: ShapeNode, source: ShapeNode): void {
 
   for (const tag of source.missingIn) {
     target.missingIn.add(tag);
+  }
+
+  for (const id of source.objectSamples) {
+    target.objectSamples.add(id);
+  }
+
+  for (const id of source.absentIn) {
+    target.absentIn.add(id);
   }
 
   for (const [key, child] of source.props) {

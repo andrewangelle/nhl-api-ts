@@ -1,8 +1,9 @@
 # Check for API drift
 
 The NHL changes payloads without notice. `api-types:check` refetches the whole
-sample matrix and compares it with the committed snapshots in `shapes/`. Run it
-before each release. It is never run in CI.
+sample matrix, compares it with the committed snapshots in `shapes/`, and then
+checks it against the SDK types with conform. Run it before each release. It
+is never run in CI.
 
 ```bash
 pnpm api-types:check
@@ -14,9 +15,22 @@ gap, so expect it to take a few minutes.
 
 ## Read the output
 
-No drift prints `api-types:check: no drift` and exits 0. Otherwise each
-difference is a line on stdout and the command exits 1. For example
-(illustrative):
+The output has two parts.
+
+1. **The shape diff**, for information. It shows what changed in the
+   payloads since `shapes/` was committed, whether or not the types already
+   allow it. No change prints `api-types:check: no shape drift`.
+2. **The conform findings**: what the SDK types don't allow. These decide
+   the exit code: 1 if there's any error, 0 otherwise. See
+   [Check the types against the samples](check-types-against-samples.md)
+   for the findings and tiers. Conform writes its drafts to
+   `.api-types/check/draft/`, beside the refetched samples.
+
+So a run can show shape differences and still exit 0: localized-key churn,
+`integer` vs `float`, an optional field that comes and goes or a new
+`OpenUnion` value need no type change.
+
+Each shape difference is a line on stdout. For example (illustrative):
 
 ```
 + gameCenter.boxscore .playerByGameStats.awayTeam.forwards[].giveaways  integer
@@ -57,20 +71,26 @@ If a difference looks like noise, rerun later before changing a type.
 
 ## Apply the drift
 
-`infer` reads `.api-types/raw/`, not `.api-types/check/raw/`, so refresh the
-main cache before you regenerate anything:
+Conform's `--fix` reads `.api-types/raw/`, not `.api-types/check/raw/`, so
+refresh the main cache first:
 
 ```bash
 pnpm api-types:fetch --refresh     # or --refresh --only <module>.<method>
-pnpm api-types:infer
+pnpm api-types:conform --fix       # review the diffs
+pnpm api-types:conform --fix --write
 ```
 
 Then:
 
-1. Update `packages/nhl-api-ts/src/types/` using the new
-   `.api-types/report/<endpoint>.md`.
-2. `pnpm api-types:fixtures`, `pnpm openapi:schemas`, `pnpm lint:fix`.
-3. `pnpm typecheck:test && pnpm typecheck:types && pnpm test`.
-4. `pnpm api-types:check` again. It should report no drift.
-5. Commit the types, `shapes/`, fixtures and `openapi.yaml`, and add a
+1. Run the regeneration commands `--write` prints (`openapi:schemas`,
+   `api-types:fixtures`, `typecheck:test`, `typecheck:types`, `api:report`,
+   `docs:llms`).
+2. Apply the propose diffs you agree with and work through the report lines,
+   using the drafts in `.api-types/draft/` and the reports in
+   `.api-types/report/` (`pnpm api-types:infer`).
+3. `pnpm api-types:conform` until it exits 0, then `pnpm api-types:infer` to
+   refresh `shapes/`.
+4. `pnpm lint:fix`, `pnpm test`.
+5. `pnpm api-types:check` again. It should exit 0.
+6. Commit the types, `shapes/`, fixtures and `openapi.yaml`, and add a
    changeset for the type change.

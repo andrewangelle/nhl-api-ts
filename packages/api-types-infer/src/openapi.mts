@@ -6,26 +6,25 @@
  *   pnpm openapi:schemas
  *
  * Only the blocks between the `BEGIN GENERATED` / `END GENERATED` markers in
- * openapi.yaml are rewritten.
+ * openapi.yaml are rewritten. The types are read with the same loader as
+ * conform (`declarations.mts`): each field's type node, in source order, with
+ * names resolved through the type checker.
  */
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import {
+  type InterfaceDeclaration,
+  Node,
+  SyntaxKind,
+  type TypeAliasDeclaration,
+  type TypeNode,
+} from 'ts-morph';
+import { Declarations } from '#src/declarations.mjs';
 import { SDK_DIR } from '#src/paths.mjs';
 
 const TYPES_DIR = `${SDK_DIR}src/types`;
 const OPENAPI_PATH = `${SDK_DIR}openapi.yaml`;
 
 type Schema = Record<string, unknown>;
-
-interface Field {
-  name: string;
-  optional: boolean;
-  type: string;
-  description?: string;
-}
-
-interface Declaration {
-  fields: Field[];
-}
 
 /** Types that are SDK-built or registries, not API payloads. */
 const SKIPPED = new Set([
@@ -38,127 +37,75 @@ const SKIPPED = new Set([
   'PlayerSummaryStatistics',
 ]);
 
-function squash(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
+/** Files that re-export or build SDK-only shapes. */
+const SKIPPED_FILES = new Set(['index.mts', 'helpers.mts']);
+
+interface TypeSource {
+  interfaces: Map<string, InterfaceDeclaration>;
+  aliases: Map<string, TypeAliasDeclaration>;
 }
 
-/** Splits `body` at top-level occurrences of `separator` (outside <>, (), {}). */
-function splitTop(body: string, separator: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let current = '';
+function loadDeclarations(): TypeSource {
+  const { project } = Declarations.fromSdk(SDK_DIR);
+  const interfaces = new Map<string, InterfaceDeclaration>();
+  const aliases = new Map<string, TypeAliasDeclaration>();
 
-  for (const char of body) {
-    if ('<({['.includes(char)) {
-      depth += 1;
-    } else if ('>)}]'.includes(char)) {
-      depth -= 1;
-    }
-
-    if (char === separator && depth === 0) {
-      parts.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-
-  parts.push(current);
-
-  return parts;
-}
-
-function parseFields(body: string): Field[] {
-  const fields: Field[] = [];
-  let pendingDescription: string | undefined;
-  let statement = '';
-  let depth = 0;
-
-  for (const line of body.split('\n')) {
-    const trimmed = line.trim();
-
-    if (statement === '' && trimmed.startsWith('/**')) {
-      pendingDescription = trimmed.replace(/^\/\*\*\s*|\s*\*\/$/g, '');
-      continue;
-    }
-
-    if (statement === '' && trimmed === '') {
-      continue;
-    }
-
-    statement += ` ${trimmed}`;
-    for (const char of trimmed) {
-      if ('<({['.includes(char)) {
-        depth += 1;
-      } else if ('>)}]'.includes(char)) {
-        depth -= 1;
-      }
-    }
-
-    if (depth === 0 && trimmed.endsWith(';')) {
-      const match = /^\s*('?[\w-]+'?)(\?)?:\s*([\s\S]+);$/.exec(statement);
-      if (match) {
-        fields.push({
-          name: match[1].replace(/'/g, ''),
-          optional: match[2] === '?',
-          type: squash(match[3]),
-          description: pendingDescription,
-        });
-      }
-      statement = '';
-      pendingDescription = undefined;
-    }
-  }
-
-  return fields;
-}
-
-function loadDeclarations(): {
-  interfaces: Map<string, Declaration>;
-  aliases: Map<string, string>;
-} {
-  const interfaces = new Map<string, Declaration>();
-  const aliases = new Map<string, string>();
-
-  for (const file of readdirSync(TYPES_DIR).sort()) {
-    if (file === 'index.mts' || file === 'helpers.mts') {
-      continue;
-    }
-
-    const text = readFileSync(`${TYPES_DIR}/${file}`, 'utf8');
-
-    for (const match of text.matchAll(
-      /export interface (\w+)(<[^>]*>)? \{\n([\s\S]*?)\n\}/g,
+  for (const file of project
+    .getSourceFiles(`${TYPES_DIR}/*.mts`)
+    .sort((left, right) =>
+      left.getBaseName().localeCompare(right.getBaseName()),
     )) {
-      if (!SKIPPED.has(match[1])) {
-        interfaces.set(match[1], { fields: parseFields(match[3]) });
+    if (SKIPPED_FILES.has(file.getBaseName())) {
+      continue;
+    }
+    for (const declaration of file.getInterfaces()) {
+      if (declaration.isExported() && !SKIPPED.has(declaration.getName())) {
+        interfaces.set(declaration.getName(), declaration);
       }
     }
-
-    for (const match of text.matchAll(/export type (\w+) =([\s\S]*?);\n/g)) {
-      aliases.set(match[1], squash(match[2]));
+    for (const alias of file.getTypeAliases()) {
+      if (alias.isExported()) {
+        aliases.set(alias.getName(), alias);
+      }
     }
   }
 
   return { interfaces, aliases };
 }
 
-const OPEN_UNION = /^OpenUnion<([\s\S]*)>$/;
+/** The declaration a type reference points at, following imports. */
+function referencedDeclaration(node: TypeNode): Node | undefined {
+  if (!Node.isTypeReference(node)) {
+    return undefined;
+  }
+  const symbol = node.getTypeName().getSymbol();
+  const target = symbol?.isAlias() ? symbol.getAliasedSymbol() : symbol;
+  return target?.getDeclarations()[0];
+}
 
-function typeToSchema(
-  type: string,
-  aliases: Map<string, string>,
-  interfaces: Map<string, Declaration>,
-): Schema {
-  const text = squash(type);
-  const members = splitTop(text, '|').map(squash).filter(Boolean);
+function isNull(node: TypeNode): boolean {
+  return (
+    Node.isLiteralTypeNode(node) &&
+    node.getLiteral().getKind() === SyntaxKind.NullKeyword
+  );
+}
 
-  if (members.length > 1) {
-    const nullable = members.includes('null');
-    const rest = members.filter((member) => member !== 'null');
-    const schemas = rest.map((member) =>
-      typeToSchema(member, aliases, interfaces),
-    );
+/** A literal's text without its quotes, as written. */
+function literalText(node: TypeNode): string {
+  return node.getText().replace(/^'|'$/g, '');
+}
+
+function typeToSchema(node: TypeNode, source: TypeSource): Schema {
+  if (Node.isParenthesizedTypeNode(node)) {
+    return typeToSchema(node.getTypeNode(), source);
+  }
+
+  if (Node.isUnionTypeNode(node)) {
+    const members = node.getTypeNodes();
+    const nullable = members.some(isNull);
+    const schemas = members
+      .filter((member) => !isNull(member))
+      .map((member) => typeToSchema(member, source));
 
     if (schemas.length === 1) {
       return nullable ? { oneOf: [schemas[0], { type: 'null' }] } : schemas[0];
@@ -167,49 +114,55 @@ function typeToSchema(
     return { oneOf: nullable ? [...schemas, { type: 'null' }] : schemas };
   }
 
-  if (text.endsWith('[]')) {
-    const inner = text.slice(0, -2).replace(/^\(([\s\S]*)\)$/, '$1');
-    return { type: 'array', items: typeToSchema(inner, aliases, interfaces) };
-  }
-
-  const openUnion = OPEN_UNION.exec(text);
-
-  if (openUnion) {
-    const known = splitTop(openUnion[1], '|')
-      .map(squash)
-      .filter(Boolean)
-      .map((literal) => literal.replace(/^'|'$/g, ''));
-
+  if (Node.isArrayTypeNode(node)) {
     return {
-      type: 'string',
-      description: `Known values: ${known.join(', ')}. Others may appear.`,
+      type: 'array',
+      items: typeToSchema(node.getElementTypeNode(), source),
     };
   }
 
-  const record = /^Record<string, ([\s\S]+)>$/.exec(text);
-
-  if (record) {
-    return record[1] === 'never'
-      ? { type: 'object', maxProperties: 0 }
-      : {
-          type: 'object',
-          additionalProperties: typeToSchema(record[1], aliases, interfaces),
-        };
+  if (Node.isLiteralTypeNode(node) && Node.isStringLiteral(node.getLiteral())) {
+    return { const: literalText(node) };
   }
 
-  if (/^'.*'$/.test(text)) {
-    return { const: text.slice(1, -1) };
-  }
-
-  switch (text) {
-    case 'string':
+  switch (node.getKind()) {
+    case SyntaxKind.StringKeyword:
       return { type: 'string' };
-    case 'number':
+    case SyntaxKind.NumberKeyword:
       return { type: 'number' };
-    case 'boolean':
+    case SyntaxKind.BooleanKeyword:
       return { type: 'boolean' };
-    case 'unknown':
+    case SyntaxKind.UnknownKeyword:
       return {};
+    default:
+      break;
+  }
+
+  if (!Node.isTypeReference(node)) {
+    throw new Error(`openapi: cannot map type '${node.getText()}'`);
+  }
+
+  const name = node.getTypeName().getText();
+  const typeArguments = node.getTypeArguments();
+
+  switch (name) {
+    case 'OpenUnion': {
+      const known = typeArguments[0];
+      const literals = Node.isUnionTypeNode(known)
+        ? known.getTypeNodes()
+        : [known];
+      return {
+        type: 'string',
+        description: `Known values: ${literals.map(literalText).join(', ')}. Others may appear.`,
+      };
+    }
+    case 'Record':
+      return typeArguments[1].getKind() === SyntaxKind.NeverKeyword
+        ? { type: 'object', maxProperties: 0 }
+        : {
+            type: 'object',
+            additionalProperties: typeToSchema(typeArguments[1], source),
+          };
     case 'Play':
       // a union over the PlayTypes registry, emitted in generatedBlocks
       return { $ref: '#/components/schemas/Play' };
@@ -225,40 +178,59 @@ function typeToSchema(
       break;
   }
 
-  const alias = aliases.get(text);
+  const declaration = referencedDeclaration(node);
 
-  if (alias !== undefined) {
-    return typeToSchema(alias, aliases, interfaces);
+  if (Node.isTypeAliasDeclaration(declaration)) {
+    const alias = source.aliases.get(declaration.getName());
+    if (alias === declaration) {
+      return typeToSchema(alias.getTypeNodeOrThrow(), source);
+    }
   }
 
-  if (interfaces.has(text)) {
-    return { $ref: `#/components/schemas/${text}` };
+  if (
+    Node.isInterfaceDeclaration(declaration) &&
+    source.interfaces.get(declaration.getName()) === declaration
+  ) {
+    return { $ref: `#/components/schemas/${declaration.getName()}` };
   }
 
-  throw new Error(`openapi: cannot map type '${text}'`);
+  throw new Error(`openapi: cannot map type '${node.getText()}'`);
+}
+
+/** A field's one-line JSDoc, without the comment markers. */
+function descriptionOf(node: Node): string | undefined {
+  if (!Node.isJSDocable(node)) {
+    return undefined;
+  }
+  const doc = node.getJsDocs().at(-1);
+  return doc
+    ?.getText()
+    .replace(/^\/\*\*\s*|\s*\*\/$/g, '')
+    .replace(/\s*\n\s*\*\s?/g, ' ');
 }
 
 function interfaceSchema(
-  declaration: Declaration,
-  aliases: Map<string, string>,
-  interfaces: Map<string, Declaration>,
+  declaration: InterfaceDeclaration,
+  source: TypeSource,
 ): Schema {
   const properties: Record<string, Schema> = {};
   const required: string[] = [];
 
-  for (const field of declaration.fields) {
-    const schema = typeToSchema(field.type, aliases, interfaces);
+  for (const property of declaration.getProperties()) {
+    const name = property.getName().replace(/'/g, '');
+    const schema = typeToSchema(property.getTypeNodeOrThrow(), source);
+    const description = descriptionOf(property);
 
-    if (field.description && !('$ref' in schema)) {
+    if (description && !('$ref' in schema)) {
       schema.description = schema.description
-        ? `${field.description} ${schema.description}`
-        : field.description;
+        ? `${description} ${schema.description}`
+        : description;
     }
 
-    properties[field.name] = schema;
+    properties[name] = schema;
 
-    if (!field.optional) {
-      required.push(field.name);
+    if (!property.hasQuestionToken()) {
+      required.push(name);
     }
   }
 
@@ -712,21 +684,23 @@ function toYaml(value: unknown, indent: number): string[] {
 }
 
 export function generatedBlocks(): { schemas: string; responses: string } {
-  const { interfaces, aliases } = loadDeclarations();
+  const source = loadDeclarations();
   const schemas: Record<string, Schema> = {};
 
-  for (const [name, declaration] of [...interfaces].sort(([a], [b]) =>
-    a.localeCompare(b),
+  for (const [name, declaration] of [...source.interfaces].sort(
+    ([left], [right]) => left.localeCompare(right),
   )) {
-    schemas[name] = interfaceSchema(declaration, aliases, interfaces);
+    schemas[name] = interfaceSchema(declaration, source);
   }
 
   // `Play` is a union over the PlayTypes registry.
-  const playTypes = interfaces.get('PlayTypes');
+  const playTypes = source.interfaces.get('PlayTypes');
   if (playTypes) {
     delete schemas.PlayTypes;
     schemas.Play = {
-      oneOf: playTypes.fields.map((field) => ref(field.type)),
+      oneOf: playTypes
+        .getProperties()
+        .map((property) => ref(property.getTypeNodeOrThrow().getText())),
       discriminator: { propertyName: 'typeDescKey' },
     };
   }

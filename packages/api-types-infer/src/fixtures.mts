@@ -11,7 +11,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { groupAll } from '#src/infer.mjs';
 import { loadSamples, type RawSample } from '#src/load.mjs';
 import { RAW_DIR, SDK_DIR } from '#src/paths.mjs';
-import { specFor } from '#src/specs.mjs';
+import { declaredTypeFor, specFor } from '#src/specs.mjs';
 
 const FIXTURE_DIR = `${SDK_DIR}test/fixtures/`;
 const VARIANT_KEYS = ['typeDescKey'];
@@ -111,21 +111,7 @@ for (const [key, group] of groupAll(loadSamples(RAW_DIR))) {
     body = Array.isArray(inner) ? inner[0] : inner;
   }
 
-  const suffix =
-    key === group.endpoint ? '' : key.slice(group.endpoint.length + 1);
-
-  let type: string;
-  if (group.endpoint.endsWith('skaterStatsWithQueryContext')) {
-    type = `SkaterReportRows['${suffix}']`;
-  } else if (group.endpoint.endsWith('goalieStatsSummary')) {
-    type = `GoalieReportRows['${suffix}']`;
-  } else if (group.endpoint.endsWith('skaterLeaders')) {
-    type = `SkaterLeaderRows['${suffix}']`;
-  } else if (group.endpoint.endsWith('goalieLeaders')) {
-    type = `GoalieLeaderRows['${suffix}']`;
-  } else {
-    type = spec.name;
-  }
+  let type = declaredTypeFor(key, group.endpoint);
 
   const file = fileOf(group.endpoint);
   const baseName = `${lowerFirst(type.replace(/\W+/g, ''))}Fixture`;

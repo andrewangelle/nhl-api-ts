@@ -121,3 +121,24 @@ export function specFor(endpoint: string): EndpointSpec {
   const method = endpoint.split('.')[1] ?? endpoint;
   return { name: cap(method) };
 }
+
+/** Registries that key a grouped endpoint's row types by its `groupBy` value. */
+const GROUP_REGISTRIES: Record<string, string> = {
+  'stats.skaterStatsWithQueryContext': 'SkaterReportRows',
+  'stats.goalieStatsSummary': 'GoalieReportRows',
+  'stats.skaterLeaders': 'SkaterLeaderRows',
+  'stats.goalieLeaders': 'GoalieLeaderRows',
+};
+
+/**
+ * The SDK type a sample group's payload (or each item, for array payloads)
+ * is declared as: the spec name, or the registry entry for a grouped
+ * endpoint (`SkaterReportRows['summary']`).
+ */
+export function declaredTypeFor(group: string, endpoint: string): string {
+  const registry = GROUP_REGISTRIES[endpoint];
+  if (registry && group !== endpoint) {
+    return `${registry}['${group.slice(endpoint.length + 1)}']`;
+  }
+  return specFor(endpoint).name;
+}
