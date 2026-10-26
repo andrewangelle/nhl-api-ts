@@ -81,16 +81,20 @@ are in `packages/api-types-infer`; `src/types/`, `test/fixtures/` and
 ```bash
 pnpm api-types:fetch       # run the sample matrix, cache raw responses in .api-types/
 pnpm api-types:infer       # write .api-types/report, .api-types/draft and shapes/
+pnpm api-types:conform     # check src/types against the cached samples; --fix [--write]
 pnpm api-types:fixtures    # regenerate the SDK's typed fixtures in test/fixtures/
-pnpm api-types:check       # refetch and diff against shapes/
+pnpm api-types:check       # refetch, diff against shapes/ and conform
 pnpm openapi:schemas       # regenerate the response schemas in openapi.yaml from src/types/
 ```
 
 **Maintainers: run `pnpm api-types:check` before each release.** It prints new
-fields, removed fields and required/optional flips. Update
-`packages/nhl-api-ts/src/types/`, `packages/api-types-infer/shapes/`
-(`pnpm api-types:infer`) and the fixtures (`pnpm api-types:fixtures`) to
-match, then run `pnpm openapi:schemas` and `pnpm typecheck:test`. A test in
+fields, removed fields and required/optional flips, and exits 1 when the SDK
+types don't allow what the API sent. Refresh the cache
+(`pnpm api-types:fetch --refresh`), let `pnpm api-types:conform --fix --write`
+apply the mechanical fixes to `packages/nhl-api-ts/src/types/`, handle the
+rest by hand, then update `packages/api-types-infer/shapes/`
+(`pnpm api-types:infer`) and the fixtures (`pnpm api-types:fixtures`), and run
+`pnpm openapi:schemas` and `pnpm typecheck:test`. A test in
 `api-types-infer` fails when the schemas in `openapi.yaml` are stale.
 
 ### Adding an endpoint

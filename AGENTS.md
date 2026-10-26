@@ -41,8 +41,9 @@ pnpm api:report              # regenerate api-report.md (builds first)
 pnpm docs:llms               # regenerate llms-full.txt from llms.txt
 pnpm api-types:fetch         # api-types-infer: cache live responses (network; never in CI)
 pnpm api-types:infer         # api-types-infer: write reports, drafts and shapes/
+pnpm api-types:conform       # api-types-infer: check src/types against cached samples; --fix [--write]
 pnpm api-types:fixtures      # api-types-infer: regenerate the SDK's test/fixtures
-pnpm api-types:check         # api-types-infer: refetch and diff against shapes/ (network)
+pnpm api-types:check         # api-types-infer: refetch, diff against shapes/ and conform (network)
 pnpm openapi:schemas         # api-types-infer: regenerate openapi.yaml response schemas
 node --conditions=source packages/nhl-api-ts/src/cli.mts --help   # run the CLI from source
 ```
@@ -61,9 +62,9 @@ CI also runs `pnpm build`, `pnpm api:report` and `pnpm docs:llms` and fails if
 package.json           private workspace root: lint, changesets, forwarding scripts
 tsconfig.base.json     compiler options shared by both packages
 packages/api-types-infer/
-  src/                 fetch, infer, check, fixtures, openapi (#src/*.mjs imports)
+  src/                 fetch, infer, conform, check, fixtures, openapi (#src/*.mjs imports)
   shapes/              committed shape snapshots, the drift baseline
-  test/                openapi.yaml staleness test
+  test/                conform/codemod tests, openapi.yaml staleness test
   .api-types/          cached raw responses, reports, drafts (gitignored)
 packages/nhl-api-ts/
   src/
@@ -110,13 +111,16 @@ Paths in the rest of this file (`src/`, `test/`, `docs/`, ...) are relative to
   parsed JSON typed with a named interface from `src/types/` (or `Team` /
   `DailySchedule`). IDs and seasons are typed `Id` (`string | number`).
 - Response types in `src/types/` come from real responses (`pnpm api-types:fetch`,
-  `api-types:infer`, `api-types:check`). Rules: every object type is an `interface`
+  `api-types:infer`, `api-types:conform`, `api-types:check`). Rules: every object type is an `interface`
   (never a `type` alias, consumers augment them); unions are built from
   registries (`PlayTypes`, `SkaterReportRows`, `GoalieReportRows`); enum-like
   strings use `OpenUnion<...>`; no index signatures; a field is optional only if
   some response lacks it, nullable only if some response sends `null`. Export
   new types from `src/types/index.mts` by file. Add a trimmed fixture
-  (`pnpm api-types:fixtures`) and run `pnpm typecheck:types`.
+  (`pnpm api-types:fixtures`) and run `pnpm typecheck:test` (`typecheck:types`
+  excludes the fixtures). `pnpm api-types:conform` checks the types against
+  the cached samples under these rules and fixes the mechanical mismatches
+  (`--fix`, then `--fix --write`).
 - Endpoints that unwrap an envelope return `response.data ?? []` (stats API)
   or a named field (`standings`, `games`, `gameLog`, `seasons`).
 - Optional date/season params default to the literal path segment `now`, which

@@ -2,7 +2,10 @@
 
 `pnpm api-types:infer` writes three files per sample group. The report is the
 evidence, the draft is a suggestion and the snapshot is the baseline for drift
-checks.
+checks. `pnpm api-types:conform` also rewrites the drafts, with the same code,
+in the `draft/` dir beside the raw dir it read, so its report lines point at
+drafts built from the same samples
+([Check the types against the samples](check-types-against-samples.md)).
 
 ```
 .api-types/report/<group>.md     path table
@@ -86,7 +89,11 @@ What it leaves to you:
 - Moving discriminated unions into a registry (`PlayTypes`, `SkaterReportRows`,
   `GoalieReportRows`) so consumers can augment them.
 
-The draft is regenerated on every `infer`. Never import from it.
+The draft is regenerated on every `infer` and `conform`. Never import from it.
+
+A draft names its interfaces by JSON path; `src/types/` uses curated, shared
+types with JSDoc. That's why fixes for drift come from conform, which edits
+the declared types, and not from regenerating drafts.
 
 ## Shape snapshots
 
@@ -106,4 +113,6 @@ Kinds are joined with `|` (`null|string`). A trailing `?` means the path is
 missing from some parents. Snapshots are committed so that
 `pnpm api-types:check` has something to diff against
 ([Check for API drift](check-for-drift.md)), and a diff in `shapes/` in a pull
-request shows reviewers how the payload changed.
+request shows reviewers how the payload changed. They keep no values or
+sample counts, which limits what a history replay can check
+([History replay](check-types-against-samples.md#history-replay)).

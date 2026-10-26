@@ -8,6 +8,7 @@
   "scripts": {
     "api:report": "pnpm --filter nhl-api-ts run api:report",
     "api-types:check": "pnpm --filter api-types-infer run check",
+    "api-types:conform": "pnpm --filter api-types-infer run conform",
     "api-types:fetch": "pnpm --filter api-types-infer run fetch",
     "api-types:fixtures": "pnpm --filter api-types-infer run fixtures",
     "api-types:infer": "pnpm --filter api-types-infer run infer",

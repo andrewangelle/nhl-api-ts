@@ -45,8 +45,9 @@ Things to know:
 pnpm openapi:schemas
 ```
 
-This parses the interfaces in `packages/nhl-api-ts/src/types/` and rewrites
-two blocks in `packages/nhl-api-ts/openapi.yaml`:
+This reads the interfaces in `packages/nhl-api-ts/src/types/` (with the same
+ts-morph loader as conform, so imported and aliased names resolve through the
+type checker) and rewrites two blocks in `packages/nhl-api-ts/openapi.yaml`:
 
 ```yaml
     # BEGIN GENERATED SCHEMAS (pnpm openapi:schemas)

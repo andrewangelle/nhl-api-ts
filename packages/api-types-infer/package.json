@@ -15,6 +15,7 @@
     "fetch": "node --conditions=source src/fetch.mts",
     "infer": "node --conditions=source src/infer.mts",
     "check": "node --conditions=source src/check.mts",
+    "conform": "node --conditions=source src/conform.mts",
     "fixtures": "node --conditions=source src/fixtures.mts",
     "openapi": "node --conditions=source src/openapi.mts",
     "test": "node --conditions=source --test \"test/**/*.test.mts\"",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "ts-morph": "^28.0.0",
     "typescript": "^7.0.2"
   }
 }

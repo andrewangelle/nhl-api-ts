@@ -21,6 +21,8 @@ export const ELEMENT_CAP = 4000;
 export interface Element {
   value: Record<string, unknown>;
   tag: string;
+  /** The raw sample the element came from, so a union split can group elements by response. */
+  sampleId: number;
 }
 
 export interface ShapeNode {
@@ -37,6 +39,12 @@ export interface ShapeNode {
   missingIn: Set<string>;
   sampleId: number;
   sampleCount: number;
+  /** Objects merged into this node during the current sample (`sampleCount` also counts nulls and other kinds). */
+  sampleObjects: number;
+  /** Raw samples in which this node was an object at least once. */
+  objectSamples: Set<number>;
+  /** Raw samples in which a parent object existed without this node (in some or all of that sample's objects). */
+  absentIn: Set<number>;
 }
 
 export function newNode(): ShapeNode {
@@ -51,6 +59,9 @@ export function newNode(): ShapeNode {
     missingIn: new Set(),
     sampleId: -1,
     sampleCount: 0,
+    sampleObjects: 0,
+    objectSamples: new Set(),
+    absentIn: new Set(),
   };
 }
 
@@ -90,6 +101,7 @@ export function merge(
   if (node.sampleId !== sampleId) {
     node.sampleId = sampleId;
     node.sampleCount = 0;
+    node.sampleObjects = 0;
   }
 
   node.sampleCount += 1;
@@ -117,12 +129,20 @@ export function merge(
     }
 
     case 'object': {
+      node.sampleObjects += 1;
+      node.objectSamples.add(sampleId);
       for (const [key, child] of Object.entries(
         value as Record<string, unknown>,
       )) {
         let childNode = node.props.get(key);
         if (!childNode) {
           childNode = newNode();
+          // Every earlier sample with objects here lacked this key.
+          for (const earlier of node.objectSamples) {
+            if (earlier !== sampleId) {
+              childNode.absentIn.add(earlier);
+            }
+          }
           node.props.set(key, childNode);
         }
         merge(childNode, child, tag, sampleId);
@@ -136,7 +156,11 @@ export function merge(
       for (const item of value as unknown[]) {
         merge(node.items, item, tag, sampleId);
         if (kindOf(item) === 'object' && node.elements.length < ELEMENT_CAP) {
-          node.elements.push({ value: item as Record<string, unknown>, tag });
+          node.elements.push({
+            value: item as Record<string, unknown>,
+            tag,
+            sampleId,
+          });
         }
       }
       break;
@@ -161,6 +185,9 @@ export function finishSample(
       // missing from some elements of a sample varies per element instead.
       if (present === 0 && objectsInSample > 0) {
         child.missingIn.add(tag);
+      }
+      if (present < node.sampleObjects) {
+        child.absentIn.add(sampleId);
       }
       finishSample(child, sampleId, tag);
     }
@@ -205,4 +232,51 @@ export function snapshot(root: ShapeNode): Snapshot {
   walk(root, '', false);
 
   return out;
+}
+
+const SNAPSHOT_ROOT_COUNT = 1000;
+
+/** Splits a snapshot path (`.a.b[].c`) into its segments; `[]` is an array item. */
+function pathSegments(path: string): string[] {
+  return path.match(/\[\]|\.[^.[]*/g) ?? [];
+}
+
+/**
+ * Rebuilds a shape tree from a committed snapshot, for replaying history.
+ * Snapshots keep only kinds and an optional flag, so the tree has no values,
+ * elements or sample IDs. A required node is seen as often as its parent,
+ * an optional one once less.
+ */
+export function shapeFromSnapshot(snap: Snapshot): ShapeNode {
+  const root = newNode();
+  root.count = SNAPSHOT_ROOT_COUNT;
+  const nodes = new Map<string, ShapeNode>([['$', root]]);
+
+  for (const [path, entry] of Object.entries(snap).sort(
+    ([left], [right]) => pathSegments(left).length - pathSegments(right).length,
+  )) {
+    let node = root;
+    const optional = entry.endsWith('?');
+    if (path !== '$') {
+      const segments = pathSegments(path);
+      const last = segments.at(-1) as string;
+      const parent = nodes.get(segments.slice(0, -1).join('') || '$');
+      if (!parent) {
+        continue;
+      }
+      node = newNode();
+      node.count = parent.count - (optional ? 1 : 0);
+      if (last === '[]') {
+        parent.items = node;
+      } else {
+        parent.props.set(last.slice(1), node);
+      }
+      nodes.set(path, node);
+    }
+    for (const kind of entry.replace(/\?$/, '').split('|')) {
+      node.kinds[kind as Kind] = node.count;
+    }
+  }
+
+  return root;
 }

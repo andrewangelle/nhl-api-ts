@@ -110,6 +110,25 @@ export function inferAll(rawDir: string): Map<string, ShapeNode> {
   return shapes;
 }
 
+/**
+ * The draft file for a sample group. A grouped endpoint's root is named
+ * after its group (`SkaterRowSummary`, not `SkaterRow`).
+ */
+export function draftFor(group: string, shape: ShapeNode): string {
+  const endpoint = group.split('.').slice(0, 2).join('.');
+  const spec = specFor(endpoint);
+  const groupName = group === endpoint ? '' : group.slice(endpoint.length + 1);
+
+  const { type, interfaces } = emitFor(shape, {
+    ...spec,
+    name: groupName
+      ? `${spec.name}${groupName[0].toUpperCase()}${groupName.slice(1)}`
+      : spec.name,
+  });
+
+  return `// root: ${type}\n${[...interfaces.values()].join('\n\n')}\n`;
+}
+
 if (import.meta.main) {
   mkdirSync(REPORT_DIR, { recursive: true });
   mkdirSync(DRAFT_DIR, { recursive: true });
@@ -118,28 +137,12 @@ if (import.meta.main) {
   const shapes = inferAll(RAW_DIR);
 
   for (const [group, shape] of shapes) {
-    const endpoint = group.split('.').slice(0, 2).join('.');
-    const spec = specFor(endpoint);
-
     writeFileSync(
       `${REPORT_DIR}/${group}.md`,
       `# ${group}\n\n| path | status | kinds | count | values | missing when |\n| --- | --- | --- | --- | --- | --- |\n${reportRows(shape).join('\n')}\n`,
     );
 
-    const groupName =
-      group === endpoint ? '' : group.slice(endpoint.length + 1);
-
-    const { type, interfaces } = emitFor(shape, {
-      ...spec,
-      name: groupName
-        ? `${spec.name}${groupName[0].toUpperCase()}${groupName.slice(1)}`
-        : spec.name,
-    });
-
-    writeFileSync(
-      `${DRAFT_DIR}/${group}.mts`,
-      `// root: ${type}\n${[...interfaces.values()].join('\n\n')}\n`,
-    );
+    writeFileSync(`${DRAFT_DIR}/${group}.mts`, draftFor(group, shape));
 
     writeFileSync(
       `${SHAPES_DIR}/${group}.json`,
