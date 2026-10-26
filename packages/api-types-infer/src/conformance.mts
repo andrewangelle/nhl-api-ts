@@ -155,50 +155,84 @@ function allow(types: Type[]): Allowed {
   }
 
   function visit(type: Type) {
-    if (type.isAny() || type.isUnknown() || type.isTypeParameter()) {
-      allowed.any = true;
-    } else if (type.isNull()) {
-      allowed.nullable = true;
-    } else if (type.isUndefined() || type.isNever()) {
-      // optionality is read from the property, not its type
-    } else if (type.isBoolean() || type.isBooleanLiteral()) {
-      allowed.boolean = true;
-    } else if (type.isUnion()) {
-      for (const member of type.getUnionTypes()) {
-        visit(member);
-      }
-    } else if (type.isString()) {
-      strings().open = true;
-    } else if (type.isStringLiteral()) {
-      strings().literals.add(type.getLiteralValue() as string);
-    } else if (type.isNumber()) {
-      numbers().open = true;
-    } else if (type.isNumberLiteral()) {
-      numbers().literals.add(type.getLiteralValue() as number);
-    } else if (type.isIntersection()) {
-      const members = type.getIntersectionTypes();
-      // `string & {}` / `number & {}`: the open half of an OpenUnion
-      if (members.some((member) => member.isString())) {
+    switch (true) {
+      case type.isAny() || type.isUnknown() || type.isTypeParameter():
+        allowed.any = true;
+        break;
+
+      case type.isNull():
+        allowed.nullable = true;
+        break;
+
+      case type.isUndefined() || type.isNever():
+        // optionality is read from the property, not its type
+        break;
+
+      case type.isBoolean() || type.isBooleanLiteral():
+        allowed.boolean = true;
+        break;
+
+      case type.isUnion():
+        for (const member of type.getUnionTypes()) {
+          visit(member);
+        }
+        break;
+
+      case type.isString():
         strings().open = true;
-      } else if (members.some((member) => member.isNumber())) {
+        break;
+
+      case type.isStringLiteral():
+        strings().literals.add(type.getLiteralValue() as string);
+        break;
+
+      case type.isNumber():
         numbers().open = true;
-      } else {
-        allowed.objects.push(type);
+        break;
+
+      case type.isNumberLiteral():
+        numbers().literals.add(type.getLiteralValue() as number);
+        break;
+
+      case type.isIntersection(): {
+        const members = type.getIntersectionTypes();
+        // `string & {}` / `number & {}`: the open half of an OpenUnion
+        switch (true) {
+          case members.some((member) => member.isString()):
+            strings().open = true;
+            break;
+
+          case members.some((member) => member.isNumber()):
+            numbers().open = true;
+            break;
+
+          default:
+            allowed.objects.push(type);
+        }
+        break;
       }
-    } else if (type.isArray()) {
-      allowed.arrays.push(type.getArrayElementTypeOrThrow());
-    } else if (type.isTuple()) {
-      allowed.arrays.push(...type.getTupleElements());
-    } else if (type.isObject()) {
-      allowed.objects.push(type);
-    } else {
-      allowed.any = true;
+
+      case type.isArray():
+        allowed.arrays.push(type.getArrayElementTypeOrThrow());
+        break;
+
+      case type.isTuple():
+        allowed.arrays.push(...type.getTupleElements());
+        break;
+
+      case type.isObject():
+        allowed.objects.push(type);
+        break;
+
+      default:
+        allowed.any = true;
     }
   }
 
   for (const type of types) {
     visit(type);
   }
+
   return allowed;
 }
 
