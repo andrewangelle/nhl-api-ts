@@ -19,6 +19,7 @@ import {
   type FindingKind,
 } from '#src/conformance.mjs';
 import { quoteKey } from '#src/emit.mjs';
+import { GROUP_REGISTRIES } from '#src/specs.mjs';
 
 export type Tier = 'auto' | 'propose' | 'report';
 
@@ -46,10 +47,7 @@ export const FIX_POLICY: Record<
 /** Interfaces that key a union or report rows; consumers augment them. */
 export const REGISTRIES = new Set([
   'PlayTypes',
-  'SkaterReportRows',
-  'GoalieReportRows',
-  'SkaterLeaderRows',
-  'GoalieLeaderRows',
+  ...Object.values(GROUP_REGISTRIES),
 ]);
 
 /** Shared by every module, so never edited automatically. */
