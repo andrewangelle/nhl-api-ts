@@ -5639,6 +5639,7 @@ components:
           type: number
         otPeriods:
           type: number
+          description: Absent before the game is played and for games that end in regulation
     PeriodEndPlay:
       type: object
       required:
@@ -7442,6 +7443,7 @@ components:
           '$ref': '#/components/schemas/SpecialEvent'
         condensedGameFr:
           type: string
+          description: 'Absent before the game is played; French broadcasts only'
         ticketsLink:
           type: string
           description: Only present before the game starts
