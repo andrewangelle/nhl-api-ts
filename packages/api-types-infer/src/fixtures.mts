@@ -111,7 +111,7 @@ for (const [key, group] of groupAll(loadSamples(RAW_DIR))) {
     body = Array.isArray(inner) ? inner[0] : inner;
   }
 
-  let type = declaredTypeFor(key, group.endpoint);
+  let type = declaredTypeFor(key);
 
   const file = fileOf(group.endpoint);
   const baseName = `${lowerFirst(type.replace(/\W+/g, ''))}Fixture`;

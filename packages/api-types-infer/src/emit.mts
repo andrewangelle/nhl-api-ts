@@ -171,33 +171,26 @@ export function primitiveType(
   }
 }
 
-function shapeOf(elements: Element[], sampleBase: number): ShapeNode {
-  const node = newNode();
-  elements.forEach(({ value, tag }, index) => {
-    merge(node, value, tag, sampleBase + index);
-    finishSample(node, sampleBase + index, tag);
-  });
-  return node;
-}
-
 /**
- * The shape of one variant's elements, keeping their raw sample IDs, so two
- * elements from one response count as one sample (unlike drafts, which treat
- * each element as its own sample).
+ * The shape of one variant's elements. By default two elements from one raw
+ * response count as one sample; `perElement` makes each element its own
+ * sample, as drafts do.
  */
-export function variantShape(elements: Element[]): ShapeNode {
+export function variantShape(
+  elements: Element[],
+  options: { perElement?: boolean } = {},
+): ShapeNode {
   const node = newNode();
-  let current: Element | undefined;
-  for (const element of elements) {
-    if (current && current.sampleId !== element.sampleId) {
-      finishSample(node, current.sampleId, current.tag);
+  function sampleOf(index: number) {
+    return options.perElement ? index : elements[index].sampleId;
+  }
+  elements.forEach(({ value, tag }, index) => {
+    const sampleId = sampleOf(index);
+    merge(node, value, tag, sampleId);
+    if (index === elements.length - 1 || sampleOf(index + 1) !== sampleId) {
+      finishSample(node, sampleId, tag);
     }
-    merge(node, element.value, element.tag, element.sampleId);
-    current = element;
-  }
-  if (current) {
-    finishSample(node, current.sampleId, current.tag);
-  }
+  });
   return node;
 }
 
@@ -367,11 +360,8 @@ export class Emitter {
       }
 
       const shapes = new Map<string, ShapeNode>();
-      let base = 0;
-
       for (const [value, group] of grouped) {
-        shapes.set(value, shapeOf(group, base));
-        base += group.length;
+        shapes.set(value, variantShape(group, { perElement: true }));
       }
 
       const sets = [...shapes.values()].map((shape) => pathSet(shape, 3));

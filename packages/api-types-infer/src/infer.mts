@@ -15,7 +15,7 @@ import {
 } from '#src/load.mjs';
 import { DRAFT_DIR, RAW_DIR, REPORT_DIR, SHAPES_DIR } from '#src/paths.mjs';
 import { type ShapeNode, snapshot } from '#src/shape.mjs';
-import { ALIASES, specFor } from '#src/specs.mjs';
+import { ALIASES, specFor, splitGroup } from '#src/specs.mjs';
 
 export interface SampleGroup {
   /** The endpoint whose spec (unwrap, name) applies. */
@@ -115,9 +115,8 @@ export function inferAll(rawDir: string): Map<string, ShapeNode> {
  * after its group (`SkaterRowSummary`, not `SkaterRow`).
  */
 export function draftFor(group: string, shape: ShapeNode): string {
-  const endpoint = group.split('.').slice(0, 2).join('.');
+  const { endpoint, groupName } = splitGroup(group);
   const spec = specFor(endpoint);
-  const groupName = group === endpoint ? '' : group.slice(endpoint.length + 1);
 
   const { type, interfaces } = emitFor(shape, {
     ...spec,

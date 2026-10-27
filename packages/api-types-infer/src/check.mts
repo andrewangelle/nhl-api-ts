@@ -10,11 +10,9 @@
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { runConform } from '#src/conform.mjs';
 import { runFetch } from '#src/fetch.mjs';
-import { groupAll } from '#src/infer.mjs';
-import { buildShape, loadSamples } from '#src/load.mjs';
+import { inferAll } from '#src/infer.mjs';
 import { CACHE_DIR, SHAPES_DIR } from '#src/paths.mjs';
 import { type Snapshot, snapshot } from '#src/shape.mjs';
-import { specFor } from '#src/specs.mjs';
 
 const CHECK_RAW = `${CACHE_DIR}/check/raw`;
 
@@ -60,12 +58,10 @@ if (import.meta.main) {
   rmSync(`${CACHE_DIR}/check`, { recursive: true, force: true });
   await runFetch(CHECK_RAW, { refresh: true });
 
+  const shapes = inferAll(CHECK_RAW);
   const current = new Map<string, Snapshot>();
-  for (const [key, group] of groupAll(loadSamples(CHECK_RAW))) {
-    current.set(
-      key,
-      snapshot(buildShape(group.samples, specFor(group.endpoint).unwrap)),
-    );
+  for (const [key, shape] of shapes) {
+    current.set(key, snapshot(shape));
   }
 
   const committed = new Set(
@@ -105,6 +101,6 @@ if (import.meta.main) {
   }
 
   // Drafts go to .api-types/check/draft/, beside the refetched samples.
-  const errors = runConform({ raw: CHECK_RAW });
+  const errors = runConform({ raw: CHECK_RAW, shapes });
   process.exitCode = errors > 0 ? 1 : 0;
 }

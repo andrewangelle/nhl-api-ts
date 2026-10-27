@@ -344,8 +344,8 @@ describe('endpoint -> type mapping', () => {
     ];
     const expressions = endpoints.map((endpoint) =>
       SPECS[endpoint]?.groupBy
-        ? declaredTypeFor(`${endpoint}.${representative[endpoint]}`, endpoint)
-        : declaredTypeFor(endpoint, endpoint),
+        ? declaredTypeFor(`${endpoint}.${representative[endpoint]}`)
+        : declaredTypeFor(endpoint),
     );
     const resolved = Declarations.fromSdk(SDK_DIR).resolve(expressions);
     const failed = [...resolved.values()].filter((entry) => entry.error);
@@ -354,15 +354,9 @@ describe('endpoint -> type mapping', () => {
 
   it('indexes registries for grouped endpoints', () => {
     assert.equal(
-      declaredTypeFor(
-        'stats.skaterStatsWithQueryContext.summary',
-        'stats.skaterStatsWithQueryContext',
-      ),
+      declaredTypeFor('stats.skaterStatsWithQueryContext.summary'),
       "SkaterReportRows['summary']",
     );
-    assert.equal(
-      declaredTypeFor('teams.teamRoster', 'teams.teamRoster'),
-      'Roster',
-    );
+    assert.equal(declaredTypeFor('teams.teamRoster'), 'Roster');
   });
 });

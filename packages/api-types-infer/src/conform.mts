@@ -16,7 +16,7 @@ import { dirname, relative } from 'node:path';
 import {
   applyFixes,
   type Decision,
-  type Fix,
+  type FileChange,
   planFixes,
   unifiedDiff,
 } from '#src/codemod.mjs';
@@ -38,6 +38,8 @@ export const REGENERATE =
 
 export interface ConformOptions {
   raw: string;
+  /** Shapes already inferred from `raw`, to skip inferring them again. */
+  shapes?: Map<string, ShapeNode>;
   json?: boolean;
   verbose?: boolean;
   fix?: boolean;
@@ -51,9 +53,11 @@ export function draftDirFor(raw: string): string {
   return `${dirname(raw.replace(/\/+$/, ''))}/draft`;
 }
 
-/** Infers every group in `raw` and writes its draft beside it, as `infer` does. */
-export function writeDrafts(raw: string): Map<string, ShapeNode> {
-  const shapes = inferAll(raw);
+/** Writes every group's draft beside `raw`, as `infer` does; infers the shapes unless given. */
+export function writeDrafts(
+  raw: string,
+  shapes: Map<string, ShapeNode> = inferAll(raw),
+): Map<string, ShapeNode> {
   const draftDir = draftDirFor(raw);
   mkdirSync(draftDir, { recursive: true });
   for (const [group, shape] of shapes) {
@@ -183,14 +187,10 @@ function errorsOf(result: ConformResult): Finding[] {
   return result.findings.filter((finding) => finding.severity === 'error');
 }
 
-function diffs(fixes: Fix[]): string[] {
-  if (fixes.length === 0) {
-    return [];
-  }
-  const { project } = Declarations.fromSdk(SDK_DIR);
-  return applyFixes(project, SDK_DIR, fixes).map((change) =>
-    unifiedDiff(change, shown(`${SDK_DIR}${change.file}`)),
-  );
+function diffs(changes: FileChange[]): string {
+  return changes
+    .map((change) => unifiedDiff(change, shown(`${SDK_DIR}${change.file}`)))
+    .join('\n');
 }
 
 /** Runs conform; returns the number of error findings left. */
@@ -199,8 +199,9 @@ export function runConform(options: ConformOptions): number {
   const err = options.err ?? ((text: string) => console.error(text));
   const draftDir = draftDirFor(options.raw);
 
-  const shapes = writeDrafts(options.raw);
-  const result = conformShapes(shapes, Declarations.fromSdk(SDK_DIR));
+  const shapes = writeDrafts(options.raw, options.shapes);
+  const declarations = Declarations.fromSdk(SDK_DIR);
+  const result = conformShapes(shapes, declarations);
   const { decisions, fixes } = planFixes(result);
   const errors = errorsOf(result);
 
@@ -251,26 +252,31 @@ export function runConform(options: ConformOptions): number {
   }
 
   const print = options.json ? err : out;
+  // Conform only added its probe file, so its project takes the auto edits;
+  // propose needs a fresh one, without them.
+  const changes = applyFixes(declarations.project, SDK_DIR, auto);
   if (auto.length > 0) {
     print(
       `# auto (${auto.length})${options.write ? '' : ', dry run: pass --write to apply'}`,
     );
-    print(diffs(auto).join('\n'));
+    print(diffs(changes));
   }
   if (propose.length > 0) {
     print(`# propose (${propose.length}), never applied`);
     for (const fix of propose) {
       print(`# ${fix.interface}.${fix.property} ${fix.kind}: ${fix.reason}`);
     }
-    print(diffs(propose).join('\n'));
+    print(
+      diffs(
+        applyFixes(Declarations.fromSdk(SDK_DIR).project, SDK_DIR, propose),
+      ),
+    );
   }
 
   if (!options.write || auto.length === 0) {
     return errors.length;
   }
 
-  const declarations = Declarations.fromSdk(SDK_DIR);
-  const changes = applyFixes(declarations.project, SDK_DIR, auto);
   for (const change of changes) {
     writeFileSync(`${SDK_DIR}${change.file}`, change.after);
   }

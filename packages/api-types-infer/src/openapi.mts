@@ -20,6 +20,7 @@ import {
 } from 'ts-morph';
 import { Declarations } from '#src/declarations.mjs';
 import { SDK_DIR } from '#src/paths.mjs';
+import { GROUP_REGISTRIES } from '#src/specs.mjs';
 
 const TYPES_DIR = `${SDK_DIR}src/types`;
 const OPENAPI_PATH = `${SDK_DIR}openapi.yaml`;
@@ -29,10 +30,7 @@ type Schema = Record<string, unknown>;
 /** Types that are SDK-built or registries, not API payloads. */
 const SKIPPED = new Set([
   'StatsApiPage',
-  'SkaterReportRows',
-  'GoalieReportRows',
-  'SkaterLeaderRows',
-  'GoalieLeaderRows',
+  ...Object.values(GROUP_REGISTRIES),
   'AllPlayersEntry',
   'PlayerSummaryStatistics',
 ]);

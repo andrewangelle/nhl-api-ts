@@ -720,8 +720,7 @@ export function conformShapes(
 ): ConformResult {
   const expressions = new Map<string, string>();
   for (const group of shapes.keys()) {
-    const endpoint = group.split('.').slice(0, 2).join('.');
-    expressions.set(group, declaredTypeFor(group, endpoint));
+    expressions.set(group, declaredTypeFor(group));
   }
 
   const resolved = declarations.resolve([...new Set(expressions.values())]);
