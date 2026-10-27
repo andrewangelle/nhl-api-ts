@@ -61,6 +61,8 @@ export interface PeriodDescriptor {
   number: number;
   periodType: PeriodType;
   maxRegulationPeriods: number;
+  /** Absent before the game is played and for games that end in regulation */
+  otPeriods?: number;
 }
 
 export interface SeriesStatus {

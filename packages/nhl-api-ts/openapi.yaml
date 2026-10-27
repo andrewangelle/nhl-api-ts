@@ -5637,6 +5637,8 @@ components:
           description: 'Known values: REG, OT, SO. Others may appear.'
         maxRegulationPeriods:
           type: number
+        otPeriods:
+          type: number
     PeriodEndPlay:
       type: object
       required:
@@ -7438,6 +7440,8 @@ components:
           description: Absent before the game is played
         specialEvent:
           '$ref': '#/components/schemas/SpecialEvent'
+        condensedGameFr:
+          type: string
         ticketsLink:
           type: string
           description: Only present before the game starts

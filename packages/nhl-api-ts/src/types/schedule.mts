@@ -340,6 +340,8 @@ export interface ScheduleGame {
   /** Absent before the game is played */
   condensedGame?: string;
   specialEvent?: SpecialEvent;
+  /** Absent before the game is played; French broadcasts only */
+  condensedGameFr?: string;
   /** Only present before the game starts */
   ticketsLink?: string;
   /** Only present before the game starts */
