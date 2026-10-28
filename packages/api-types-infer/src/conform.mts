@@ -60,9 +60,11 @@ export function writeDrafts(
 ): Map<string, ShapeNode> {
   const draftDir = draftDirFor(raw);
   mkdirSync(draftDir, { recursive: true });
+
   for (const [group, shape] of shapes) {
     writeFileSync(`${draftDir}/${group}.mts`, draftFor(group, shape));
   }
+
   return shapes;
 }
 
@@ -77,6 +79,7 @@ function shown(path: string): string {
 function describe(finding: Finding): string {
   const { evidence } = finding;
   const parts: string[] = [];
+
   if (evidence.kinds) {
     parts.push(
       Object.entries(evidence.kinds)
@@ -84,34 +87,43 @@ function describe(finding: Finding): string {
         .join('|'),
     );
   }
+
   if (evidence.declared) {
     parts.push(`declared ${evidence.declared}`);
   }
+
   if (evidence.present !== undefined && evidence.objects !== undefined) {
     parts.push(`in ${evidence.present}/${evidence.objects} objects`);
   }
+
   if (evidence.absentSamples !== undefined && evidence.samples !== undefined) {
     parts.push(
       `absent in ${evidence.absentSamples}/${evidence.samples} samples`,
     );
   }
+
   if (evidence.values) {
     parts.push(
       `values ${evidence.values.map((value) => JSON.stringify(value)).join(', ')}${evidence.overflow ? ', ...' : ''}`,
     );
   }
+
   if (evidence.missingIn) {
     parts.push(`missing when ${evidence.missingIn.slice(0, 4).join('; ')}`);
   }
+
   if (finding.kind === 'unknown-variant' && evidence.objects !== undefined) {
     parts.push(`${evidence.objects} elements in ${evidence.samples} samples`);
   }
+
   if (evidence.snapshot) {
     parts.push('snapshot');
   }
+
   if (evidence.capped) {
     parts.push('element cap hit');
   }
+
   return parts.join(', ');
 }
 
@@ -128,14 +140,17 @@ export function formatFindings(
   options: { draftDir: string; verbose?: boolean },
 ): string[] {
   const byDeclaration = new Map<string, Finding[]>();
+
   for (const finding of result.findings) {
     const key = finding.declaration
       ? declarationKey(finding.declaration)
       : `(${finding.group})`;
+
     byDeclaration.set(key, [...(byDeclaration.get(key) ?? []), finding]);
   }
 
   const lines: string[] = [];
+
   for (const [key, findings] of [...byDeclaration].sort(([left], [right]) =>
     left.localeCompare(right),
   )) {
@@ -145,10 +160,13 @@ export function formatFindings(
           (finding) =>
             finding.severity === 'error' || finding.kind === 'new-literal',
         );
+
     const hidden = findings.length - listed.length;
+
     if (listed.length === 0 && !options.verbose) {
       continue;
     }
+
     const declaration = findings[0].declaration;
     const groups = result.usage.get(key)?.size;
 
@@ -157,16 +175,20 @@ export function formatFindings(
         ? `${declaration.name}  ${shown(`${SDK_DIR}${declaration.file}`)}:${declaration.line}${groups ? `  (${groups} group${groups === 1 ? '' : 's'})` : ''}`
         : key,
     );
+
     for (const finding of listed) {
       const decision = decisions.get(finding) as Decision;
+
       const draft =
         decision.tier === 'report' && finding.severity === 'error'
           ? `  draft: ${shown(`${options.draftDir}/${finding.group}.mts`)}`
           : '';
+
       lines.push(
         `  ${finding.severity.padEnd(5)} ${finding.kind}  ${finding.group} ${finding.path}  ${describe(finding)}  ${tierText(decision)}${draft}`,
       );
     }
+
     if (hidden > 0) {
       const kinds = [
         ...new Set(
@@ -175,11 +197,13 @@ export function formatFindings(
             .map((finding) => finding.kind),
         ),
       ];
+
       lines.push(
         `  info  ${hidden} more (${kinds.join(', ')}); --verbose lists them`,
       );
     }
   }
+
   return lines;
 }
 
@@ -241,6 +265,7 @@ export function runConform(options: ConformOptions): number {
   err(
     `api-types:conform: ${shapes.size} groups, ${errors.length} error(s), ${result.findings.length - errors.length} info; fixes: ${auto.length} auto, ${propose.length} propose; ${reported.length} error(s) to report`,
   );
+
   if (reported.length > 0) {
     err(
       `Report-tier errors are design decisions: see ${RECIPE} and the drafts in ${shown(draftDir)}/`,
@@ -252,15 +277,18 @@ export function runConform(options: ConformOptions): number {
   }
 
   const print = options.json ? err : out;
+
   // Conform only added its probe file, so its project takes the auto edits;
   // propose needs a fresh one, without them.
   const changes = applyFixes(declarations.project, SDK_DIR, auto);
+
   if (auto.length > 0) {
     print(
       `# auto (${auto.length})${options.write ? '' : ', dry run: pass --write to apply'}`,
     );
     print(diffs(changes));
   }
+
   if (propose.length > 0) {
     print(`# propose (${propose.length}), never applied`);
     for (const fix of propose) {
@@ -280,6 +308,7 @@ export function runConform(options: ConformOptions): number {
   for (const change of changes) {
     writeFileSync(`${SDK_DIR}${change.file}`, change.after);
   }
+
   const files = changes.map((change) => `${SDK_DIR}${change.file}`);
   spawnSync('pnpm', ['exec', 'biome', 'check', '--write', ...files], {
     cwd: `${SDK_DIR}../..`,
@@ -300,9 +329,11 @@ export function runConform(options: ConformOptions): number {
   for (const finding of unfixed) {
     err(`  still failing: ${finding.kind} ${finding.group} ${finding.path}`);
   }
+
   for (const finding of added) {
     err(`  new error: ${finding.kind} ${finding.group} ${finding.path}`);
   }
+
   err(
     unfixed.length === 0 && added.length === 0
       ? 'recheck: every auto fix is gone and no new errors appeared'
@@ -323,5 +354,6 @@ if (import.meta.main) {
     fix: args.includes('--fix'),
     write: args.includes('--write'),
   });
+
   process.exitCode = errors > 0 ? 1 : 0;
 }
