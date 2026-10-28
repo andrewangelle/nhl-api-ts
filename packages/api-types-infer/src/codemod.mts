@@ -59,8 +59,8 @@ const COMMON_SPECIFIER = '#src/types/common.mjs';
 
 export interface Decision {
   tier: Tier;
-  /** Why it isn't auto. */
-  reason?: string;
+
+  reason?: string; // Why it's not auto fixable
 }
 
 export function decide(
@@ -68,22 +68,27 @@ export function decide(
   usage: ConformResult['usage'],
 ): Decision {
   const policy = FIX_POLICY[finding.kind];
+
   if (policy.tier === 'report') {
     return { tier: 'report' };
   }
 
   const target = finding.declaration;
+
   if (!target?.isInterface) {
     return { tier: 'report', reason: 'not declared in an interface' };
   }
+
   if (finding.kind === 'missing-field' && !finding.field?.typeText) {
     return { tier: 'report', reason: 'object or array value' };
   }
+
   if (finding.kind !== 'missing-field' && !target.property) {
     return { tier: 'report', reason: 'no property to edit' };
   }
 
   const groups = usage.get(declarationKey(target))?.size ?? 0;
+
   // Guards only lower a tier: auto becomes propose.
   function cap(reason: string): Decision {
     return { tier: 'propose', reason };
@@ -92,18 +97,23 @@ export function decide(
   if (finding.evidence.snapshot) {
     return cap('snapshot evidence');
   }
+
   if (finding.confidence === 'low') {
     return cap('low confidence');
   }
+
   if (REGISTRIES.has(target.name)) {
     return cap('registry');
   }
+
   if (SHARED_FILES.has(basename(target.file))) {
     return cap(basename(target.file));
   }
+
   if (groups > 1) {
     return cap(`used by ${groups} groups`);
   }
+
   if (
     policy.minAbsentSamples !== undefined &&
     (finding.evidence.absentSamples ?? 0) < policy.minAbsentSamples
@@ -112,6 +122,7 @@ export function decide(
       `absent in ${finding.evidence.absentSamples ?? 0} sample(s), needs ${policy.minAbsentSamples}`,
     );
   }
+
   return { tier: policy.tier };
 }
 
@@ -159,6 +170,7 @@ export function planFixes(result: ConformResult): {
   for (const finding of result.findings) {
     const decision = decide(finding, result.usage);
     decisions.set(finding, decision);
+
     if (decision.tier === 'report' || !finding.declaration) {
       continue;
     }
@@ -176,6 +188,7 @@ export function planFixes(result: ConformResult): {
       existing.tier = merged.tier;
       existing.reason = merged.reason;
       existing.findings.push(finding);
+
       if (existing.field && finding.field) {
         existing.field = mergeFields(existing.field, finding.field);
       }
@@ -210,22 +223,29 @@ function ensureCommonImports(file: SourceFile, typeText: string): void {
   if (SHARED_FILES.has(file.getBaseName())) {
     return;
   }
+
   const needed = COMMON_NAMES.filter((name) =>
     new RegExp(`\\b${name}\\b`).test(typeText),
   );
+
   if (needed.length === 0) {
     return;
   }
+
   const existing = file.getImportDeclaration(
     (declaration) => declaration.getModuleSpecifierValue() === COMMON_SPECIFIER,
   );
+
   const imported = new Set(
     existing?.getNamedImports().map((named) => named.getName()) ?? [],
   );
+
   const missing = needed.filter((name) => !imported.has(name));
+
   if (missing.length === 0) {
     return;
   }
+
   if (existing) {
     existing.addNamedImports(missing);
   } else {
@@ -245,10 +265,13 @@ function applyFix(file: SourceFile, fix: Fix): boolean {
 
   if (fix.kind === 'missing-field') {
     const field = fix.field as FieldEdit;
+
     if (propertyOf(target, field.key) || !field.typeText) {
       return false;
     }
+
     const members = target.getMembers();
+
     let index = members.length;
     for (const key of [...field.before].reverse()) {
       const sibling = propertyOf(target, key);
@@ -257,6 +280,7 @@ function applyFix(file: SourceFile, fix: Fix): boolean {
         break;
       }
     }
+
     const typeText = `${field.typeText}${field.nullable ? ' | null' : ''}`;
     target.insertProperty(index, {
       name: quoteKey(field.key),
@@ -268,7 +292,9 @@ function applyFix(file: SourceFile, fix: Fix): boolean {
           }
         : {}),
     });
+
     ensureCommonImports(file, typeText);
+
     return true;
   }
 
@@ -279,21 +305,26 @@ function applyFix(file: SourceFile, fix: Fix): boolean {
 
   if (fix.kind === 'unexpected-null') {
     const typeText = property.getTypeNode()?.getText();
+
     if (!typeText || /\bnull\b/.test(typeText)) {
       return false;
     }
+
     property.setType(
       /=>|\bextends\b/.test(typeText)
         ? `(${typeText}) | null`
         : `${typeText} | null`,
     );
+
     return true;
   }
 
   if (property.hasQuestionToken()) {
     return false;
   }
+
   property.setHasQuestionToken(true);
+
   return true;
 }
 
@@ -311,6 +342,7 @@ export function applyFixes(
   fixes: Fix[],
 ): FileChange[] {
   const before = new Map<string, string>();
+
   for (const fix of fixes) {
     const file = project.getSourceFile(`${baseDir}${fix.file}`);
     if (!file) {
@@ -336,14 +368,17 @@ export function applyFixes(
 /** A unified diff of one change, labelled with the file's path. */
 export function unifiedDiff(change: FileChange, label = change.file): string {
   const dir = mkdtempSync(`${tmpdir()}/conform-`);
+
   try {
     writeFileSync(`${dir}/a`, change.before);
     writeFileSync(`${dir}/b`, change.after);
+
     const { stdout } = spawnSync(
       'git',
       ['diff', '--no-index', '--no-color', `${dir}/a`, `${dir}/b`],
       { encoding: 'utf8' },
     );
+
     return stdout
       .split('\n')
       .filter((line) => !/^(diff --git|index )/.test(line))
