@@ -11,6 +11,7 @@
  * names resolved through the type checker.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { dump } from 'js-yaml';
 import {
   type InterfaceDeclaration,
   Node,
@@ -637,48 +638,14 @@ const RESPONSES: Record<string, { description: string; schema: Schema }> = {
   DraftYears: { description: 'Draft years.', schema: page('DraftYear') },
 };
 
-// ----- YAML -----
-const SAFE_KEY = /^[A-Za-z_][\w-]*$/;
-
-function yamlScalar(value: unknown): string {
-  if (typeof value === 'string') {
-    return /^[\w./ -]+$/.test(value) && !/^(true|false|null|\d.*)$/.test(value)
-      ? value
-      : `'${value.replace(/'/g, "''")}'`;
-  }
-  return String(value);
-}
-
-function toYaml(value: unknown, indent: number): string[] {
+/** `value` as block YAML, every line indented by `indent` spaces. */
+function toYaml(value: unknown, indent: number): string {
   const pad = ' '.repeat(indent);
-  if (Array.isArray(value)) {
-    return value.flatMap((item) => {
-      if (item !== null && typeof item === 'object') {
-        const [first, ...rest] = toYaml(item, indent + 2);
-        return [`${pad}- ${first.trimStart()}`, ...rest];
-      }
-      return [`${pad}- ${yamlScalar(item)}`];
-    });
-  }
-
-  const lines: string[] = [];
-
-  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    const name = SAFE_KEY.test(key) ? key : `'${key}'`;
-    if (child !== null && typeof child === 'object') {
-      const inner = toYaml(child, indent + 2);
-      if (Array.isArray(child) && child.length === 0) {
-        lines.push(`${pad}${name}: []`);
-      } else if (!Array.isArray(child) && Object.keys(child).length === 0) {
-        lines.push(`${pad}${name}: {}`);
-      } else {
-        lines.push(`${pad}${name}:`, ...inner);
-      }
-    } else {
-      lines.push(`${pad}${name}: ${yamlScalar(child)}`);
-    }
-  }
-  return lines;
+  return dump(value, { lineWidth: -1, noRefs: true })
+    .trimEnd()
+    .split('\n')
+    .map((line) => `${pad}${line}`)
+    .join('\n');
 }
 
 export function generatedBlocks(): { schemas: string; responses: string } {
@@ -712,8 +679,8 @@ export function generatedBlocks(): { schemas: string; responses: string } {
   }
 
   return {
-    schemas: toYaml(schemas, 4).join('\n'),
-    responses: toYaml(responses, 4).join('\n'),
+    schemas: toYaml(schemas, 4),
+    responses: toYaml(responses, 4),
   };
 }
 
