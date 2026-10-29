@@ -1,5 +1,11 @@
 # nhl-api-ts
 
+## 0.3.1
+
+### Patch Changes
+
+- [#9](https://github.com/andrewangelle/nhl-api-ts/pull/9) [`d94c162`](https://github.com/andrewangelle/nhl-api-ts/commit/d94c16205724da0a02d1b4c6c05cb26df1429149) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Update fields on PeriodDescriptor type
+
 ## 0.3.0
 
 ### Minor Changes
