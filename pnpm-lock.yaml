@@ -197,6 +197,9 @@ importers:
       '@types/node':
         specifier: ^26.2.0
         version: 26.6.5
+      js-yaml:
+        specifier: ^5.5.0
+        version: 5.5.0
       ts-morph:
         specifier: ^28.0.0
         version: 28.0.0
@@ -566,6 +569,9 @@ packages:
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
+  argparse@3.0.4:
+    resolution: {integrity: sha512-fwWK3Zq22l4XJJjx5mcBHGikIk+hJqO+32dPm0Jur7+rtG5x1scOjSfdT9ZKeWHPpsya/l0HHK4tDImBkTrtvA==}
+
   balanced-match@4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
@@ -656,6 +662,10 @@ packages:
 
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
+
+  js-yaml@5.5.0:
+    resolution: {integrity: sha512-paNr4LFIFPjeeSmwNYdrb8FafLLG/Cr2Af3GjbsHJ5CxIjH4r0c2emlmRdAtpPAieP1gRVzk6buBbVP5gBMGAg==}
+    hasBin: true
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
@@ -1123,6 +1133,8 @@ snapshots:
     dependencies:
       sprintf-js: 1.0.3
 
+  argparse@3.0.4: {}
+
   balanced-match@4.0.4: {}
 
   brace-expansion@5.0.12:
@@ -1186,6 +1198,10 @@ snapshots:
       hasown: 2.0.4
 
   jju@1.4.0: {}
+
+  js-yaml@5.5.0:
+    dependencies:
+      argparse: 3.0.4
 
   json-schema-traverse@1.0.0: {}
 
