@@ -4604,6 +4604,7 @@ export interface PeriodDescriptor {
     maxRegulationPeriods: number;
     // (undocumented)
     number: number;
+    otPeriods?: number;
     // (undocumented)
     periodType: PeriodType;
 }
@@ -6023,6 +6024,7 @@ export interface ScheduleGame {
     // (undocumented)
     awayTeam: WeeklyScheduleGameAwayTeam;
     condensedGame?: string;
+    condensedGameFr?: string;
     // (undocumented)
     easternUTCOffset: string;
     // (undocumented)
