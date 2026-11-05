@@ -131,8 +131,9 @@ changing tiers and thresholds later.
 
 ## Inside `api-types:check`
 
-`api-types:check` refetches into `.api-types/check/raw/`, prints the shape
-diff for information and then runs conform on that dir. Conform's errors are
+`api-types:check` refetches into `.api-types/check/raw/` (or, with
+`--replay`, reuses what the last run left there), prints the shape diff for
+information and then runs conform on that dir. Conform's errors are
 its exit code, and its drafts go to `.api-types/check/draft/`, so its report
 lines point at drafts from the same refetch. See
 [Check for API drift](check-for-drift.md).

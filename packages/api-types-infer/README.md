@@ -35,8 +35,9 @@ nhl-api-ts/src/types/ ──openapi──▶ nhl-api-ts/openapi.yaml (generated 
    shootout games, future and legacy games, skaters vs. goalies, each stats
    report type, and so on. Some game IDs are discovered at run time. Every
    sample goes through the real SDK, so a fetch also exercises each URL.
-2. **Fetch** (`src/fetch.mts`). Runs the matrix with a 250 ms delay between
-   calls and caches each raw response at
+2. **Fetch** (`src/fetch.mts`). Runs the matrix with a 500 ms delay between
+   calls, retrying a `429` up to three times (honoring `Retry-After`), and
+   caches each raw response at
    `.api-types/raw/<module>.<method>/<tags>.json`. Cached samples are skipped
    unless you pass `--refresh`.
 3. **Infer** (`src/infer.mts`, `shape.mts`, `emit.mts`). Merges all samples of
@@ -95,7 +96,7 @@ pnpm api-types:fetch      # cache live responses (network)
 pnpm api-types:infer      # write reports, drafts and shapes/
 pnpm api-types:conform    # check src/types against the cached samples; --fix [--write]
 pnpm api-types:fixtures   # regenerate the SDK's test/fixtures
-pnpm api-types:check      # refetch, diff against shapes/ and conform (network)
+pnpm api-types:check      # refetch, diff against shapes/ and conform (network); --terse, --replay
 pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 ```
 

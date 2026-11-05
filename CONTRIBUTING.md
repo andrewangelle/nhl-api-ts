@@ -87,9 +87,15 @@ pnpm api-types:check       # refetch, diff against shapes/ and conform
 pnpm openapi:schemas       # regenerate the response schemas in openapi.yaml from src/types/
 ```
 
-**Maintainers: run `pnpm api-types:check` before each release.** It prints new
-fields, removed fields and required/optional flips, and exits 1 when the SDK
-types don't allow what the API sent. Refresh the cache
+**Maintainers: run `pnpm api-types:check` before each release.** It lists every
+drifted path (new fields, removed fields, kind or required/optional changes;
+`--terse` prints one `+N -N ~N` line per shape instead), and it exits 1 when the SDK
+types don't allow what the API sent. Shapes with a sample that was rate-limited
+or hit a server error (after retries) are listed as skipped, not diffed; rerun
+later or refetch them with `pnpm api-types:fetch --refresh --only <endpoint>`.
+`--replay` reports on the last run's responses without calling the API again
+(for example `pnpm api-types:check --replay --terse`), against the current
+`shapes/` and SDK types. Refresh the cache
 (`pnpm api-types:fetch --refresh`), let `pnpm api-types:conform --fix --write`
 apply the mechanical fixes to `packages/nhl-api-ts/src/types/`, handle the
 rest by hand, then update `packages/api-types-infer/shapes/`
