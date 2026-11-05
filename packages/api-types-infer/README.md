@@ -105,7 +105,7 @@ pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 | Flag | Effect |
 | --- | --- |
 | `--refresh` | Refetch samples that are already cached. |
-| `--only <prefix>` | Only run samples whose endpoint starts with the prefix, e.g. `edge.` or `stats.playerGameLog`. |
+| `--only <prefix>...` | Only run samples whose endpoint starts with one of the prefixes, e.g. `edge.` or `stats.playerGameLog`. Takes several: `--only players misc edge`. |
 | `--out <dir>` | Write raw responses somewhere other than `.api-types/raw`. |
 
 ### Adding or changing a response type

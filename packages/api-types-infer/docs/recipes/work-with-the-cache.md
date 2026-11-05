@@ -19,9 +19,11 @@ parsed body:
 ```bash
 pnpm api-types:fetch --only edge.                  # one module
 pnpm api-types:fetch --only stats.playerGameLog    # one endpoint
+pnpm api-types:fetch --only players misc edge      # several modules
 ```
 
-`--only` matches the start of the endpoint name. Discovery still runs first
+`--only` matches the start of the endpoint name and takes every value up to
+the next flag; a sample runs if it matches any of them. Discovery still runs first
 (a few schedule, score, config and play-by-play calls), because samples can
 depend on discovered IDs.
 

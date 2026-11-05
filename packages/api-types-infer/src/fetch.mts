@@ -2,7 +2,7 @@
  * Runs the sample matrix against the live NHL APIs and caches every raw
  * response under `.api-types/raw/<endpoint>/<tag-slug>.json`.
  *
- *   pnpm api-types:fetch [--refresh] [--out <dir>] [--only <endpoint-prefix>]
+ *   pnpm api-types:fetch [--refresh] [--out <dir>] [--only <endpoint-prefix>...]
  */
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -23,8 +23,20 @@ function optionValue(name: string): string | undefined {
   return index === -1 ? undefined : args[index + 1];
 }
 
+/** Every value after `name` up to the next flag, e.g. `--only players misc edge`. */
+function optionValues(name: string): string[] | undefined {
+  const index = args.indexOf(name);
+  if (index === -1) {
+    return undefined;
+  }
+  const next = args.findIndex(
+    (arg, position) => position > index && arg.startsWith('--'),
+  );
+  return args.slice(index + 1, next === -1 ? undefined : next);
+}
+
 const outDir = optionValue('--out') ?? RAW_DIR;
-const only = optionValue('--only');
+const only = optionValues('--only');
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -99,7 +111,7 @@ export function backoffMs(retryAfter: string | null, retry: number): number {
 
 export async function runFetch(
   targetDir: string,
-  options: { refresh: boolean; only?: string },
+  options: { refresh: boolean; only?: readonly string[] },
 ): Promise<{ fetched: number; cached: number; failed: number }> {
   const samples = await buildSamples();
   let fetched = 0;
@@ -107,7 +119,10 @@ export async function runFetch(
   let failed = 0;
 
   for (const sample of samples) {
-    if (options.only && !sample.endpoint.startsWith(options.only)) {
+    if (
+      options.only &&
+      !options.only.some((prefix) => sample.endpoint.startsWith(prefix))
+    ) {
       continue;
     }
     const dir = `${targetDir}/${sample.endpoint}`;
@@ -161,6 +176,12 @@ export async function runFetch(
 }
 
 if (import.meta.main) {
+  if (only?.length === 0) {
+    console.error(
+      'usage: api-types:fetch [--refresh] [--out <dir>] [--only <endpoint-prefix>...]',
+    );
+    process.exit(2);
+  }
   const result = await runFetch(outDir, { refresh, only });
   console.error(JSON.stringify(result));
 }
