@@ -179,7 +179,7 @@
   ".matchup.skaterSeasonStats.skaters[].powerPlayGoals": "integer?",
   ".matchup.skaterSeasonStats.skaters[].shootingPctg": "float|integer?",
   ".matchup.skaterSeasonStats.skaters[].shots": "integer?",
-  ".matchup.skaterSeasonStats.skaters[].sweaterNumber": "integer?",
+  ".matchup.skaterSeasonStats.skaters[].sweaterNumber": "integer",
   ".matchup.skaterSeasonStats.skaters[].teamId": "integer",
   ".maxPeriods": "integer?",
   ".otInUse": "boolean",

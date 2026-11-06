@@ -11,7 +11,7 @@
   ".savePctg5v5Details.savePctgClose.value": "float",
   ".savePctg5v5Details.shots": "object",
   ".savePctg5v5Details.shots.leagueAvg": "integer",
-  ".savePctg5v5Details.shots.percentile": "float",
+  ".savePctg5v5Details.shots.percentile": "float|integer",
   ".savePctg5v5Details.shots.value": "integer",
   ".savePctg5v5Details.shotsPer60": "object",
   ".savePctg5v5Details.shotsPer60.leagueAvg": "float",

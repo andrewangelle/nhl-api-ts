@@ -43,9 +43,9 @@
   ".shotLocationSummary[]": "object",
   ".shotLocationSummary[].goalsAgainst": "integer",
   ".shotLocationSummary[].goalsAgainstLeagueAvg": "float",
-  ".shotLocationSummary[].goalsAgainstPercentile": "float",
+  ".shotLocationSummary[].goalsAgainstPercentile": "float|integer",
   ".shotLocationSummary[].locationCode": "string",
-  ".shotLocationSummary[].savePctg": "float",
+  ".shotLocationSummary[].savePctg": "float|integer",
   ".shotLocationSummary[].savePctgLeagueAvg": "float",
   ".shotLocationSummary[].savePctgPercentile": "float|integer",
   ".shotLocationSummary[].saves": "integer",
@@ -71,5 +71,5 @@
   ".stats.pointPctg": "object",
   ".stats.pointPctg.leagueAvg": "float",
   ".stats.pointPctg.percentile": "float|integer",
-  ".stats.pointPctg.value": "float"
+  ".stats.pointPctg.value": "float|integer"
 }
