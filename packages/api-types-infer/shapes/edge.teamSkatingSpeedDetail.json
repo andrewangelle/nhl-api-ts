@@ -54,6 +54,7 @@
   ".topSkatingSpeeds[].awayTeam": "object",
   ".topSkatingSpeeds[].awayTeam.commonName": "object",
   ".topSkatingSpeeds[].awayTeam.commonName.default": "string",
+  ".topSkatingSpeeds[].awayTeam.commonName.fr": "string?",
   ".topSkatingSpeeds[].awayTeam.placeNameWithPreposition": "object",
   ".topSkatingSpeeds[].awayTeam.placeNameWithPreposition.default": "string",
   ".topSkatingSpeeds[].awayTeam.placeNameWithPreposition.fr": "string",
