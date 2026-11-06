@@ -628,11 +628,11 @@ export interface CatGoalieLocationArea {
 // @public (undocumented)
 export interface CatGoalieLocationSummary {
     // (undocumented)
-    goalsAgainst: number;
+    goalsAgainst: number | null;
     // (undocumented)
     goalsAgainstLeagueAvg: number;
     // (undocumented)
-    goalsAgainstPercentile: number;
+    goalsAgainstPercentile: number | null;
     // (undocumented)
     locationCode: string;
     // (undocumented)
@@ -2710,7 +2710,7 @@ export interface GameTeamLeader {
 }
 
 // @public
-export type GameType = 1 | 2 | 3 | (number & {});
+export type GameType = 1 | 2 | 3 | 4 | 6 | 9 | 12 | (number & {});
 
 // @public
 function gametypesPerSeasonDirectoryByTeam(ctx: Context, input: {
@@ -3630,7 +3630,7 @@ export interface GoalieShotLocationArea {
     // (undocumented)
     goalsAgainst: number | null;
     // (undocumented)
-    goalsAgainstPercentile: number;
+    goalsAgainstPercentile: number | null;
     // (undocumented)
     savePctg: number | null;
     // (undocumented)
@@ -3642,7 +3642,7 @@ export interface GoalieShotLocationArea {
     // (undocumented)
     shotsAgainst: number | null;
     // (undocumented)
-    shotsAgainstPercentile: number;
+    shotsAgainstPercentile: number | null;
 }
 
 // @public (undocumented)
@@ -4341,7 +4341,7 @@ export interface MissedShotDetails {
     // (undocumented)
     goalieInNetId: number;
     // (undocumented)
-    reason: OpenUnion<'hit-right-post' | 'wide-right' | 'high-and-wide-right' | 'wide-left' | 'above-crossbar' | 'short' | 'high-and-wide-left' | 'hit-crossbar' | 'hit-left-post'>;
+    reason: OpenUnion<'hit-right-post' | 'wide-right' | 'high-and-wide-right' | 'wide-left' | 'above-crossbar' | 'short' | 'high-and-wide-left' | 'hit-crossbar' | 'hit-left-post' | 'failed-bank-attempt'>;
     // (undocumented)
     shootingPlayerId: number;
     // (undocumented)
@@ -9087,9 +9087,9 @@ export interface StatusQueryOptions {
 // @public (undocumented)
 export interface StoppageDetails {
     // (undocumented)
-    reason: OpenUnion<'offside' | 'puck-frozen' | 'puck-in-netting' | 'goalie-stopped-after-sog' | 'puck-in-benches' | 'icing' | 'referee-or-linesman' | 'puck-in-crowd' | 'net-dislodged-offensive-skater' | 'tv-timeout' | 'hand-pass' | 'high-stick' | 'visitor-timeout' | 'objects-on-ice'>;
+    reason: OpenUnion<'offside' | 'puck-frozen' | 'puck-in-netting' | 'goalie-stopped-after-sog' | 'puck-in-benches' | 'icing' | 'referee-or-linesman' | 'puck-in-crowd' | 'net-dislodged-offensive-skater' | 'tv-timeout' | 'hand-pass' | 'high-stick' | 'visitor-timeout' | 'objects-on-ice' | 'video-review'>;
     // (undocumented)
-    secondaryReason?: OpenUnion<'tv-timeout' | 'visitor-timeout'>;
+    secondaryReason?: OpenUnion<'tv-timeout' | 'visitor-timeout' | 'video-review'>;
 }
 
 // @public (undocumented)
