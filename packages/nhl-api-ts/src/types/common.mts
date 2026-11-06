@@ -19,8 +19,12 @@ export interface LocalizedString {
   sv?: string;
 }
 
-/** 1 = preseason, 2 = regular season, 3 = playoffs. Other codes (4 = all-star) exist. */
-export type GameType = 1 | 2 | 3 | (number & {});
+/**
+ * 1 = preseason, 2 = regular season, 3 = playoffs, 4 = all-star,
+ * 6 = international tournament (e.g. World Cup), 9 = Olympics,
+ * 12 = all-star weekend exhibition. Other codes exist.
+ */
+export type GameType = 1 | 2 | 3 | 4 | 6 | 9 | 12 | (number & {});
 
 /** Season in YYYYYYYY form, e.g. 20232024. */
 export type SeasonId = number;

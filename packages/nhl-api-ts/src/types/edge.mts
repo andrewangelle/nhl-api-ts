@@ -32,8 +32,8 @@ export interface CatGoalieLocationArea {
 
 export interface CatGoalieLocationSummary {
   locationCode: string;
-  goalsAgainst: number;
-  goalsAgainstPercentile: number;
+  goalsAgainst: number | null;
+  goalsAgainstPercentile: number | null;
   goalsAgainstLeagueAvg: number;
   saves: number;
   savesPercentile: number;
@@ -272,9 +272,9 @@ export interface GoalieShotLocationArea {
   saves: number | null;
   goalsAgainst: number | null;
   savePctg: number | null;
-  shotsAgainstPercentile: number;
+  shotsAgainstPercentile: number | null;
   savesPercentile: number | null;
-  goalsAgainstPercentile: number;
+  goalsAgainstPercentile: number | null;
   savePctgPercentile: number | null;
 }
 

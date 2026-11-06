@@ -750,6 +750,7 @@ export interface MissedShotDetails {
     | 'high-and-wide-left'
     | 'hit-crossbar'
     | 'hit-left-post'
+    | 'failed-bank-attempt'
   >;
   shotType: ShotType;
   shootingPlayerId: number;
@@ -1252,8 +1253,11 @@ export interface StoppageDetails {
     | 'high-stick'
     | 'visitor-timeout'
     | 'objects-on-ice'
+    | 'video-review'
   >;
-  secondaryReason?: OpenUnion<'tv-timeout' | 'visitor-timeout'>;
+  secondaryReason?: OpenUnion<
+    'tv-timeout' | 'visitor-timeout' | 'video-review'
+  >;
 }
 
 export interface StoppagePlay {

@@ -990,9 +990,13 @@ components:
         locationCode:
           type: string
         goalsAgainst:
-          type: number
+          oneOf:
+            - type: number
+            - type: 'null'
         goalsAgainstPercentile:
-          type: number
+          oneOf:
+            - type: number
+            - type: 'null'
         goalsAgainstLeagueAvg:
           type: number
         saves:
@@ -4438,13 +4442,17 @@ components:
             - type: number
             - type: 'null'
         shotsAgainstPercentile:
-          type: number
+          oneOf:
+            - type: number
+            - type: 'null'
         savesPercentile:
           oneOf:
             - type: number
             - type: 'null'
         goalsAgainstPercentile:
-          type: number
+          oneOf:
+            - type: number
+            - type: 'null'
         savePctgPercentile:
           oneOf:
             - type: number
@@ -5308,7 +5316,7 @@ components:
           description: 'Known values: O, N, D. Others may appear.'
         reason:
           type: string
-          description: 'Known values: hit-right-post, wide-right, high-and-wide-right, wide-left, above-crossbar, short, high-and-wide-left, hit-crossbar, hit-left-post. Others may appear.'
+          description: 'Known values: hit-right-post, wide-right, high-and-wide-right, wide-left, above-crossbar, short, high-and-wide-left, hit-crossbar, hit-left-post, failed-bank-attempt. Others may appear.'
         shotType:
           type: string
           description: 'Known values: wrist, snap, slap, backhand, tip-in, deflected, wrap-around, bat. Others may appear.'
@@ -11547,10 +11555,10 @@ components:
       properties:
         reason:
           type: string
-          description: 'Known values: offside, puck-frozen, puck-in-netting, goalie-stopped-after-sog, puck-in-benches, icing, referee-or-linesman, puck-in-crowd, net-dislodged-offensive-skater, tv-timeout, hand-pass, high-stick, visitor-timeout, objects-on-ice. Others may appear.'
+          description: 'Known values: offside, puck-frozen, puck-in-netting, goalie-stopped-after-sog, puck-in-benches, icing, referee-or-linesman, puck-in-crowd, net-dislodged-offensive-skater, tv-timeout, hand-pass, high-stick, visitor-timeout, objects-on-ice, video-review. Others may appear.'
         secondaryReason:
           type: string
-          description: 'Known values: tv-timeout, visitor-timeout. Others may appear.'
+          description: 'Known values: tv-timeout, visitor-timeout, video-review. Others may appear.'
     StoppagePlay:
       type: object
       required:
