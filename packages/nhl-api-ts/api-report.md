@@ -3075,7 +3075,7 @@ export interface GoalieComparisonLocationArea {
     // (undocumented)
     goalsAgainst: number;
     // (undocumented)
-    savePctg: number;
+    savePctg?: number;
     // (undocumented)
     saves: number;
     // (undocumented)
@@ -4465,7 +4465,7 @@ export interface OverlayTeam {
 // @public (undocumented)
 export interface PartnerGameOdd {
     // (undocumented)
-    description: OpenUnion<'MONEY_LINE_2_WAY' | 'MONEY_LINE_3_WAY' | 'OVER_UNDER' | 'PUCK_LINE'>;
+    description: OpenUnion<'MONEY_LINE_2_WAY' | 'MONEY_LINE_3_WAY' | 'OVER_UNDER' | 'PUCK_LINE' | 'MONEY_LINE_2_WAY_TNB'>;
     qualifier: string;
     // (undocumented)
     value: number;
@@ -5568,7 +5568,7 @@ export interface PlayTypes {
 }
 
 // @public (undocumented)
-export type PositionCode = OpenUnion<'C' | 'L' | 'R' | 'D' | 'G'>;
+export type PositionCode = OpenUnion<'C' | 'L' | 'R' | 'D' | 'G' | 'all' | 'F'>;
 
 // @public (undocumented)
 export const PositionTypes: {
@@ -9686,6 +9686,8 @@ function teamMonthlySchedule(ctx: Context, input: {
 
 // @public
 export interface TeamOdd {
+    // (undocumented)
+    description?: string;
     // (undocumented)
     providerId: number;
     // (undocumented)
