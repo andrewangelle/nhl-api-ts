@@ -196,7 +196,7 @@
   ".last5Games[].plusMinus": "integer?",
   ".last5Games[].points": "integer?",
   ".last5Games[].powerPlayGoals": "integer?",
-  ".last5Games[].savePctg": "float?",
+  ".last5Games[].savePctg": "float|integer?",
   ".last5Games[].shifts": "integer?",
   ".last5Games[].shorthandedGoals": "integer?",
   ".last5Games[].shots": "integer?",

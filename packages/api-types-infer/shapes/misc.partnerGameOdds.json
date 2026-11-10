@@ -18,7 +18,6 @@
   ".games[].awayTeam.logo": "string",
   ".games[].awayTeam.name": "object",
   ".games[].awayTeam.name.default": "string",
-  ".games[].awayTeam.name.fr": "string?",
   ".games[].awayTeam.odds": "array",
   ".games[].awayTeam.odds[]": "object",
   ".games[].awayTeam.odds[].description": "string",
