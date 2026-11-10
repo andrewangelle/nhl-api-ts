@@ -1,5 +1,25 @@
 # nhl-api-ts
 
+## 0.3.1
+
+### Patch Changes
+
+- [#12](https://github.com/andrewangelle/nhl-api-ts/pull/12) [`61f2017`](https://github.com/andrewangelle/nhl-api-ts/commit/61f2017fa4bbc98d5a7b3b2a6262f8c46a9814a3) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Updated types:
+  
+  **Misc**: Update PartnerGameOdd.description with MONEY_LINE_2_WAY_TNB literal
+  
+  **Edge**: Update GoalieComparisonLocationArea.savePctg to be optional
+  
+  **Shared**: Update PositionCode union with 2 new literals: 'all' | 'F'
+
+- [#9](https://github.com/andrewangelle/nhl-api-ts/pull/9) [`d94c162`](https://github.com/andrewangelle/nhl-api-ts/commit/d94c16205724da0a02d1b4c6c05cb26df1429149) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Update fields on PeriodDescriptor type
+
+- [#12](https://github.com/andrewangelle/nhl-api-ts/pull/12) [`1b033e4`](https://github.com/andrewangelle/nhl-api-ts/commit/1b033e453329dd083c1eda6bfac829e02ec24fc9) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Updated types:
+  
+  **Game center**:Add new failed-bank-attempt literal to MissedShotDetails union.
+  
+  **EDGE**: Make goalsAgainst and goalsAgainstPercentile nullable in CatGoalieLocationSummary.
+
 ## 0.3.0
 
 ### Minor Changes
