@@ -61,7 +61,7 @@
   ".shotSpeedDetails[].avgShotSpeed.rank": "integer",
   ".shotSpeedDetails[].position": "string",
   ".shotSpeedDetails[].shotAttempts70To80": "object",
-  ".shotSpeedDetails[].shotAttempts70To80.leagueAvg": "float|integer",
+  ".shotSpeedDetails[].shotAttempts70To80.leagueAvg": "float",
   ".shotSpeedDetails[].shotAttempts70To80.value": "integer",
   ".shotSpeedDetails[].shotAttempts80To90": "object",
   ".shotSpeedDetails[].shotAttempts80To90.leagueAvg": "float|integer",

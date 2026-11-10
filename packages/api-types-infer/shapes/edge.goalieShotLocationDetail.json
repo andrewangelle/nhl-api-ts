@@ -15,7 +15,7 @@
   ".shotLocationTotals[]": "object",
   ".shotLocationTotals[].goalsAgainst": "integer",
   ".shotLocationTotals[].goalsAgainstLeagueAvg": "float",
-  ".shotLocationTotals[].goalsAgainstPercentile": "float|integer",
+  ".shotLocationTotals[].goalsAgainstPercentile": "float",
   ".shotLocationTotals[].locationCode": "string",
   ".shotLocationTotals[].savePctg": "float|integer",
   ".shotLocationTotals[].savePctgLeagueAvg": "float",

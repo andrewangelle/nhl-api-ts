@@ -91,7 +91,6 @@
   ".goalsSh[].teamLogo": "string",
   ".goalsSh[].teamName": "object",
   ".goalsSh[].teamName.default": "string",
-  ".goalsSh[].teamName.fr": "string?",
   ".goalsSh[].value": "integer",
   ".penaltyMins": "array",
   ".penaltyMins[]": "object",

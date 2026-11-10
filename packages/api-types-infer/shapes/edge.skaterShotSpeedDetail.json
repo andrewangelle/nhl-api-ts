@@ -50,7 +50,7 @@
   ".shotSpeedDetails.shotAttempts70To80.value": "integer",
   ".shotSpeedDetails.shotAttempts80To90": "object",
   ".shotSpeedDetails.shotAttempts80To90.leagueAvg": "float",
-  ".shotSpeedDetails.shotAttempts80To90.percentile": "float|integer",
+  ".shotSpeedDetails.shotAttempts80To90.percentile": "float",
   ".shotSpeedDetails.shotAttempts80To90.value": "integer",
   ".shotSpeedDetails.shotAttempts90To100": "object",
   ".shotSpeedDetails.shotAttempts90To100.leagueAvg": "float",
