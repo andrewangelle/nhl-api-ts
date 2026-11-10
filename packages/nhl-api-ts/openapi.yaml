@@ -1401,7 +1401,7 @@ components:
           $ref: '#/components/schemas/LocalizedString'
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         gamesPlayed:
           type: number
         goals:
@@ -3677,7 +3677,6 @@ components:
         - goalsAgainst
         - shotsAgainst
         - saves
-        - savePctg
       properties:
         area:
           type: string
@@ -4000,7 +3999,7 @@ components:
           type: string
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         gamesPlayed:
           type: number
         seasonPoints:
@@ -4995,7 +4994,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         headshot:
           type: string
         totalSOI:
@@ -5443,7 +5442,7 @@ components:
       properties:
         description:
           type: string
-          description: 'Known values: MONEY_LINE_2_WAY, MONEY_LINE_3_WAY, OVER_UNDER, PUCK_LINE. Others may appear.'
+          description: 'Known values: MONEY_LINE_2_WAY, MONEY_LINE_3_WAY, OVER_UNDER, PUCK_LINE, MONEY_LINE_2_WAY_TNB. Others may appear.'
         value:
           type: number
         qualifier:
@@ -5819,7 +5818,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         headshot:
           type: string
     PlayByPlaySummary:
@@ -6233,7 +6232,7 @@ components:
           type: string
         position:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         sweaterNumber:
           type: number
         teamId:
@@ -6983,7 +6982,7 @@ components:
           $ref: '#/components/schemas/LocalizedString'
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -7034,7 +7033,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -7339,7 +7338,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -8389,7 +8388,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         shootsCatches:
           type: string
           description: 'Known values: L, R. Others may appear.'
@@ -9068,7 +9067,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppFaceoffPct:
           type: number
         ppFaceoffs:
@@ -9157,7 +9156,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppFaceoffs:
           type: number
         ppFaceoffsLost:
@@ -9244,7 +9243,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         powerPlayGoalFor:
           type: number
         powerPlayGoalsAgainst:
@@ -9473,7 +9472,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         seasonId:
           type: number
           description: 'Absent when `aggregate: true`'
@@ -9519,7 +9518,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppGoalsAgainstPer60:
           type: number
         seasonId:
@@ -9591,7 +9590,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         seasonId:
           type: number
           description: 'Absent when `aggregate: true`'
@@ -9638,7 +9637,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         satPercentage:
           type: number
         satPercentageAhead:
@@ -9748,7 +9747,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppAssists:
           type: number
         ppGoals:
@@ -9845,7 +9844,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         satPct:
           type: number
         seasonId:
@@ -9944,7 +9943,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         seasonId:
           type: number
           description: 'Absent when `aggregate: true`'
@@ -10028,7 +10027,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         primaryAssistsPerGame:
           type: number
         seasonId:
@@ -10108,7 +10107,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         primaryAssists5v5:
           type: number
         primaryAssistsPer605v5:
@@ -10168,7 +10167,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         seasonId:
           type: number
           description: 'Absent when `aggregate: true`'
@@ -10650,7 +10649,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppGoals:
           type: number
         ppPoints:
@@ -10711,7 +10710,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         satAgainst:
           type: number
         satAhead:
@@ -10796,7 +10795,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         ppTimeOnIce:
           type: number
         ppTimeOnIcePerGame:
@@ -10993,7 +10992,7 @@ components:
           type: number
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         headshot:
           type: string
         value:
@@ -11437,7 +11436,7 @@ components:
           type: string
         position:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         value:
           type: number
     StatsLeaderTeam:
@@ -11492,7 +11491,7 @@ components:
           type: string
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         sweaterNumber:
           oneOf:
             - type: number
@@ -12115,7 +12114,7 @@ components:
           type: string
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         distanceTotal:
           $ref: '#/components/schemas/EdgeRankedMeasurement'
         distancePer60:
@@ -12350,6 +12349,8 @@ components:
         providerId:
           type: number
         value:
+          type: string
+        description:
           type: string
     TeamOffensiveZoneTimeLeader:
       type: object
@@ -12853,7 +12854,7 @@ components:
       properties:
         positionCode:
           type: string
-          description: 'Known values: C, L, R, D, G. Others may appear.'
+          description: 'Known values: C, L, R, D, G, all, F. Others may appear.'
         maxSkatingSpeed:
           $ref: '#/components/schemas/TeamSpeedMax'
         burstsOver22:

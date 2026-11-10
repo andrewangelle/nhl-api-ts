@@ -72,7 +72,11 @@ export interface MetaPlayerTeam {
 
 export interface PartnerGameOdd {
   description: OpenUnion<
-    'MONEY_LINE_2_WAY' | 'MONEY_LINE_3_WAY' | 'OVER_UNDER' | 'PUCK_LINE'
+    | 'MONEY_LINE_2_WAY'
+    | 'MONEY_LINE_3_WAY'
+    | 'OVER_UNDER'
+    | 'PUCK_LINE'
+    | 'MONEY_LINE_2_WAY_TNB'
   >;
   value: number;
   /** The line, e.g. "-1.5" or "O5.5"; "Draw" for the 3-way draw price; "" otherwise */

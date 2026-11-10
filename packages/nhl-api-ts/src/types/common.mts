@@ -36,7 +36,7 @@ export type GameScheduleState = OpenUnion<
   'OK' | 'PPD' | 'SUSP' | 'CNCL' | 'TBD'
 >;
 export type PeriodType = OpenUnion<'REG' | 'OT' | 'SO'>;
-export type PositionCode = OpenUnion<'C' | 'L' | 'R' | 'D' | 'G'>;
+export type PositionCode = OpenUnion<'C' | 'L' | 'R' | 'D' | 'G' | 'all' | 'F'>;
 export type ShootsCatches = OpenUnion<'L' | 'R'>;
 export type ZoneCode = OpenUnion<'O' | 'N' | 'D'>;
 export type ShotType = OpenUnion<
@@ -110,4 +110,5 @@ export interface OddsPartner {
 export interface TeamOdd {
   providerId: number;
   value: string;
+  description?: string;
 }

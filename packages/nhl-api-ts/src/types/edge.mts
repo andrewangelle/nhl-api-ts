@@ -158,7 +158,7 @@ export interface GoalieComparisonLocationArea {
   goalsAgainst: number;
   shotsAgainst: number;
   saves: number;
-  savePctg: number;
+  savePctg?: number;
 }
 
 export interface GoalieComparisonLocationSummary {
