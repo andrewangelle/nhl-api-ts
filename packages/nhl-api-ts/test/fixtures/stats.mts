@@ -243,7 +243,7 @@ export const goalieMilestoneFixture: GoalieMilestone = {
   currentTeamId: 18,
   firstName: 'Juuse',
   gameTypeId: 2,
-  gamesPlayed: 467,
+  gamesPlayed: 479,
   lastName: 'Saros',
   milestone: 'Shutouts',
   milestoneAmount: 30,
@@ -254,8 +254,8 @@ export const goalieMilestoneFixture: GoalieMilestone = {
   teamCommonName: 'Predators',
   teamFullName: 'Nashville Predators',
   teamPlaceName: 'Nashville',
-  toiMinutes: 26836,
-  wins: 230,
+  toiMinutes: 27568,
+  wins: 235,
 };
 
 export const goalieStatsLeadersFixture: GoalieStatsLeaders = {

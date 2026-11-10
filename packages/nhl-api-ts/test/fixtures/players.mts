@@ -18,15 +18,15 @@ export const statsPlayerFixture: StatsPlayer = {
 
 export const playerSpotlightFixture: PlayerSpotlight[] = [
   {
-    playerId: 8484144,
-    name: { default: 'Connor Bedard' },
-    playerSlug: 'connor-bedard-8484144',
+    playerId: 8471675,
+    name: { default: 'Sidney Crosby' },
+    playerSlug: 'sidney-crosby-8471675',
     position: 'C',
-    sweaterNumber: 98,
-    teamId: 16,
-    headshot: 'https://assets.nhle.com/mugs/nhl/20262027/CHI/8484144.png',
-    teamTriCode: 'CHI',
-    teamLogo: 'https://assets.nhle.com/logos/nhl/svg/CHI_light.svg',
+    sweaterNumber: 87,
+    teamId: 5,
+    headshot: 'https://assets.nhle.com/mugs/nhl/20262027/PIT/8471675.png',
+    teamTriCode: 'PIT',
+    teamLogo: 'https://assets.nhle.com/logos/nhl/svg/PIT_light.svg',
     sortId: 7,
   },
 ];
