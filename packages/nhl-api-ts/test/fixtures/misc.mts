@@ -171,8 +171,8 @@ export const metaFixture: Meta = {
 };
 
 export const partnerGameOddsFixture: PartnerGameOdds = {
-  currentOddsDate: '2026-10-24',
-  lastUpdatedUTC: '2026-10-24T18:30:38Z',
+  currentOddsDate: '2026-11-09',
+  lastUpdatedUTC: '2026-11-10T05:00:38Z',
   bettingPartner: {
     partnerId: 9,
     country: 'USA',
@@ -186,22 +186,26 @@ export const partnerGameOddsFixture: PartnerGameOdds = {
   },
   games: [
     {
-      gameId: 2026020168,
+      gameId: 2026020283,
       gameType: 2,
-      startTimeUTC: '2026-10-24T17:00:00Z',
+      startTimeUTC: '2026-11-10T01:00:00Z',
       homeTeam: {
-        id: 4,
-        name: { default: 'Flyers' },
-        abbrev: 'PHI',
-        logo: 'https://assets.nhle.com/logos/nhl/svg/PHI_light.svg',
-        odds: [{ description: 'MONEY_LINE_2_WAY', value: -315, qualifier: '' }],
+        id: 22,
+        name: { default: 'Oilers' },
+        abbrev: 'EDM',
+        logo: 'https://assets.nhle.com/logos/nhl/svg/EDM_light.svg',
+        odds: [
+          { description: 'MONEY_LINE_3_WAY', value: 280, qualifier: 'Draw' },
+        ],
       },
       awayTeam: {
-        id: 24,
-        name: { default: 'Ducks' },
-        abbrev: 'ANA',
-        logo: 'https://assets.nhle.com/logos/nhl/svg/ANA_light.svg',
-        odds: [{ description: 'MONEY_LINE_2_WAY', value: 230, qualifier: '' }],
+        id: 3,
+        name: { default: 'Rangers' },
+        abbrev: 'NYR',
+        logo: 'https://assets.nhle.com/logos/nhl/svg/NYR_light.svg',
+        odds: [
+          { description: 'MONEY_LINE_3_WAY', value: 280, qualifier: 'Draw' },
+        ],
       },
     },
   ],
@@ -248,20 +252,21 @@ export const seasonRulesFixture: SeasonRules = {
 };
 
 export const tvScheduleFixture: TvSchedule = {
-  date: '2026-10-24',
-  startDate: '2026-10-10',
-  endDate: '2026-11-07',
+  date: '2026-11-10',
+  startDate: '2026-10-27',
+  endDate: '2026-11-24',
   broadcasts: [
     {
-      startTime: '2026-10-24T00:00:00',
-      endTime: '2026-10-24T00:30:00',
-      durationSeconds: 1800,
-      title: 'On The Fly',
-      description: 'On The Fly',
-      houseNumber: 'HOTF27R102326SOR',
+      startTime: '2026-11-10T00:00:00',
+      endTime: '2026-11-10T01:00:00',
+      durationSeconds: 3600,
+      title: 'NHL Tonight With Bonus Coverage',
+      description:
+        'Takes you on the ice with live look-ins, breaking news, real-time scores, and expert analysis. NHL Veterans breakdown highlights and demo game situations. (Live with bonus coverage)',
+      houseNumber: 'H60NYISJS11092026',
       broadcastType: 'HD',
       broadcastStatus: 'LIVE',
-      broadcastImageUrl: 'onthefly.png',
+      broadcastImageUrl: 'nhltonight.png',
     },
   ],
 };
