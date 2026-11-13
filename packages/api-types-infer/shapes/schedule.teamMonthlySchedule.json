@@ -64,6 +64,11 @@
   "[].periodDescriptor.number": "integer",
   "[].periodDescriptor.periodType": "string",
   "[].season": "integer",
+  "[].specialEvent": "object?",
+  "[].specialEvent.name": "object",
+  "[].specialEvent.name.default": "string",
+  "[].specialEvent.name.fr": "string",
+  "[].specialEvent.parentId": "integer",
   "[].startTimeUTC": "string",
   "[].threeMinRecap": "string?",
   "[].threeMinRecapFr": "string?",
@@ -87,6 +92,7 @@
   "[].winningGoalie.lastName": "object",
   "[].winningGoalie.lastName.cs": "string?",
   "[].winningGoalie.lastName.default": "string",
+  "[].winningGoalie.lastName.fi": "string?",
   "[].winningGoalie.lastName.sk": "string?",
   "[].winningGoalie.playerId": "integer",
   "[].winningGoalScorer": "object?",
@@ -95,6 +101,7 @@
   "[].winningGoalScorer.lastName": "object",
   "[].winningGoalScorer.lastName.cs": "string?",
   "[].winningGoalScorer.lastName.default": "string",
+  "[].winningGoalScorer.lastName.fi": "string?",
   "[].winningGoalScorer.lastName.sk": "string?",
   "[].winningGoalScorer.playerId": "integer"
 }
