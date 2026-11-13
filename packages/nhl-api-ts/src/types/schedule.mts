@@ -71,6 +71,8 @@ export interface ClubScheduleGame {
   ticketsLink?: string;
   /** Only present before the game starts */
   ticketsLinkFr?: string;
+  /** Only present for games in a special event series (for example, the Original 6 Series) */
+  specialEvent?: SpecialEvent;
 }
 
 export interface ClubScheduleGameAwayTeam {
