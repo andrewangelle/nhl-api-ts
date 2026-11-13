@@ -1221,6 +1221,8 @@ components:
         ticketsLinkFr:
           type: string
           description: Only present before the game starts
+        specialEvent:
+          $ref: '#/components/schemas/SpecialEvent'
     ClubScheduleGameAwayTeam:
       type: object
       required:

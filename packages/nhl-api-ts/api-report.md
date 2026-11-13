@@ -775,6 +775,7 @@ export interface ClubScheduleGame {
     periodDescriptor: PeriodDescriptor;
     // (undocumented)
     season: number;
+    specialEvent?: SpecialEvent;
     // (undocumented)
     startTimeUTC: string;
     threeMinRecap?: string;
