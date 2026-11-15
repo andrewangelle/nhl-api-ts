@@ -1,5 +1,13 @@
 # nhl-api-ts
 
+## 0.3.2
+
+### Patch Changes
+
+- [#13](https://github.com/andrewangelle/nhl-api-ts/pull/13) [`e700c9f`](https://github.com/andrewangelle/nhl-api-ts/commit/e700c9f68669708a56bb38b436683953ade8eed0) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Updated types:
+  
+  **Schedule**: Add optional `specialEvent` to ClubScheduleGame (for example, the Original 6 Series)
+
 ## 0.3.1
 
 ### Patch Changes
