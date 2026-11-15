@@ -10,16 +10,19 @@
  * in `.api-types/check/raw`, against the current `shapes/` and SDK types.
  * A shape with a sample that was rate-limited or hit a server error is not
  * diffed (its missing fields would read as removed) and is listed as skipped.
+ * `--only <prefix>...` limits the refetch, the diff and conform to the shapes
+ * whose key starts with one of the prefixes, e.g. `--only edge gameCenter`.
  *
- *   pnpm api-types:check [--terse] [--replay]
+ *   pnpm api-types:check [--terse] [--replay] [--only <prefix>...]
  */
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { runConform } from '#src/conform.mjs';
-import { runFetch } from '#src/fetch.mjs';
+import { matchesOnly, optionValues, runFetch } from '#src/fetch.mjs';
 import { groupAll, inferAll } from '#src/infer.mjs';
 import { loadSamples, type RawSample } from '#src/load.mjs';
 import { CACHE_DIR, SHAPES_DIR } from '#src/paths.mjs';
 import { type ShapeNode, type Snapshot, snapshot } from '#src/shape.mjs';
+import { ALIASES } from '#src/specs.mjs';
 
 const CHECK_RAW = `${CACHE_DIR}/check/raw`;
 
@@ -98,15 +101,49 @@ export interface DriftReport {
   skipped: Map<string, string>;
 }
 
-/** Diffs the shapes inferred from `rawDir` against the snapshots in `shapesDir`. */
+/** The shapes whose key starts with one of the `--only` prefixes. */
+export function filterShapes(
+  shapes: Map<string, ShapeNode>,
+  only?: readonly string[],
+): Map<string, ShapeNode> {
+  return new Map([...shapes].filter(([key]) => matchesOnly(key, only)));
+}
+
+/**
+ * The endpoints to refetch for `only`: the prefixes, plus every aliased
+ * endpoint whose samples fold into a matching shape.
+ */
+export function fetchPrefixes(only: readonly string[]): string[] {
+  const aliased = Object.entries(ALIASES)
+    .filter(([, alias]) => {
+      const key = alias.group
+        ? `${alias.endpoint}.${alias.group}`
+        : alias.endpoint;
+      return (
+        matchesOnly(key, only) ||
+        only.some((prefix) => prefix.startsWith(`${key}.`))
+      );
+    })
+    .map(([endpoint]) => endpoint);
+  return [...new Set([...only, ...aliased])];
+}
+
+/**
+ * Diffs the shapes inferred from `rawDir` against the snapshots in `shapesDir`.
+ * With `only`, skipped and removed shapes outside the prefixes are left out too.
+ */
 export function driftReport(
   rawDir: string,
   shapes: Map<string, ShapeNode>,
   shapesDir: string,
   terse: boolean,
+  only?: readonly string[],
 ): DriftReport {
   const skipped = new Map<string, string>();
   for (const [key, group] of groupAll(loadSamples(rawDir))) {
+    if (!matchesOnly(key, only)) {
+      continue;
+    }
     const failures = group.samples.filter(isTransientFailure).length;
     if (failures > 0) {
       skipped.set(key, `${failures}/${group.samples.length} samples failed`);
@@ -115,7 +152,9 @@ export function driftReport(
 
   const committed = new Set(
     existsSync(shapesDir)
-      ? readdirSync(shapesDir).map((file) => file.replace(/\.json$/, ''))
+      ? readdirSync(shapesDir)
+          .map((file) => file.replace(/\.json$/, ''))
+          .filter((key) => matchesOnly(key, only))
       : [],
   );
 
@@ -160,6 +199,14 @@ export function driftReport(
 
 if (import.meta.main) {
   const terse = process.argv.includes('--terse');
+  const only = optionValues('--only');
+
+  if (only?.length === 0) {
+    console.error(
+      'usage: api-types:check [--terse] [--replay] [--only <prefix>...]',
+    );
+    process.exit(2);
+  }
 
   if (process.argv.includes('--replay')) {
     if (!existsSync(CHECK_RAW)) {
@@ -168,17 +215,34 @@ if (import.meta.main) {
       );
       process.exit(1);
     }
+  } else if (only) {
+    // Keep the other endpoints' responses so a later --replay still covers them.
+    const prefixes = fetchPrefixes(only);
+    for (const endpoint of existsSync(CHECK_RAW)
+      ? readdirSync(CHECK_RAW)
+      : []) {
+      if (matchesOnly(endpoint, prefixes)) {
+        rmSync(`${CHECK_RAW}/${endpoint}`, { recursive: true, force: true });
+      }
+    }
+    await runFetch(CHECK_RAW, { refresh: true, only: prefixes });
   } else {
     rmSync(`${CACHE_DIR}/check`, { recursive: true, force: true });
     await runFetch(CHECK_RAW, { refresh: true });
   }
 
-  const shapes = inferAll(CHECK_RAW);
+  const shapes = filterShapes(inferAll(CHECK_RAW), only);
+  if (only && shapes.size === 0) {
+    console.error(`api-types:check: no shapes match --only ${only.join(' ')}`);
+    process.exit(2);
+  }
+
   const { lines, differences, skipped } = driftReport(
     CHECK_RAW,
     shapes,
     SHAPES_DIR,
     terse,
+    only,
   );
 
   if (lines.length > 0) {

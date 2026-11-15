@@ -9,10 +9,12 @@ is never run in CI.
 pnpm api-types:check            # every drifted path
 pnpm api-types:check --terse    # one +N -N ~N line per shape
 pnpm api-types:check --replay   # report on the last run again, no network
+pnpm api-types:check --only edge gameCenter   # only shapes with these key prefixes
 ```
 
 It deletes and rewrites `.api-types/check/`, so it doesn't touch your normal
-cache in `.api-types/raw/`. A full run makes about 500 requests with a 500 ms
+cache in `.api-types/raw/`. With `--only` it rewrites only the matching
+endpoints there (see [Limit to some shapes](#limit-to-some-shapes)). A full run makes about 500 requests with a 500 ms
 gap, so expect it to take five minutes or more. A `429` is retried up to three
 times per sample, waiting for `Retry-After` when the API sends it (5 s, 10 s,
 20 s otherwise, capped at a minute), so a rate-limited run takes longer.
@@ -88,14 +90,15 @@ skipped (rate-limited or server error; not diffed, rerun later):
 `--terse` groups the list by module (`  stats  40 shape(s)`). A `404` is a real
 response, not a failure, so a sample that is expected to 404 (a team that
 missed the playoffs) doesn't skip its shape. Conform still runs on the
-samples that did come back. Rerun `check` later, or refetch the skipped
-endpoints into the main cache with `pnpm api-types:fetch --refresh --only
+samples that did come back. Rerun `check` later, or just the skipped modules
+with `pnpm api-types:check --only <module>`, or refetch the skipped endpoints
+into the main cache with `pnpm api-types:fetch --refresh --only
 <module>.<method>`.
 
 ## Replay the last run
 
 `--replay` skips the refetch and runs the shape diff and conform again on the
-responses the last full run left in `.api-types/check/raw/`. It takes a couple
+responses the last run left in `.api-types/check/raw/`. It takes a couple
 of seconds and makes no requests:
 
 ```bash
@@ -105,10 +108,31 @@ pnpm api-types:check --replay --terse
 It compares those responses with the current `shapes/` and SDK types, so after
 you fix a type or rerun `infer` it shows what's still outstanding, and its
 output can differ from the original run's. The exit code is still conform's.
-The saved responses last until the next full `check`, which deletes them. With
-no previous run, it exits 1. This is unrelated to the
+The saved responses last until the next full `check`, which deletes them; an
+`--only` run replaces just its endpoints' responses. With no previous run, it
+exits 1. This is unrelated to the
 [history replay](check-types-against-samples.md#history-replay) in
 `src/replay.mts`.
+
+## Limit to some shapes
+
+`--only <prefix>...` keeps the shapes whose key starts with one of the
+prefixes: a module (`edge`), an endpoint (`gameCenter.boxscore`) or a group
+(`stats.skaterStatsWithQueryContext.summary`). The shape diff, the skipped
+list, the removed-shape lines and conform (its findings, exit code and drafts)
+all cover only those shapes. It combines with `--terse` and `--replay`:
+
+```bash
+pnpm api-types:check --replay --terse --only edge gameCenter
+```
+
+Without `--replay` it refetches only the matching endpoints, plus any aliased
+endpoint whose samples fold into a matching shape (`schedule.dailySchedule`
+into `schedule.weeklySchedule`), and keeps the other endpoints' responses, so
+a later `--replay` still covers everything. Use it to rerun skipped modules or
+to work through one module's drift at a time. A prefix that matches no shape
+exits 2. Run a full `check` before a release; a scoped run's exit 0 says
+nothing about the other modules.
 
 ## Rule out noise first
 
@@ -148,6 +172,7 @@ Then:
    refresh `shapes/`.
 4. `pnpm lint:fix`, `pnpm test`.
 5. `pnpm api-types:check --replay` to see what's left against the same
-   responses, then a full `pnpm api-types:check`. It should exit 0.
+   responses (add `--only <module>` to focus on the one you're fixing), then
+   a full `pnpm api-types:check`. It should exit 0.
 6. Commit the types, `shapes/`, fixtures and `openapi.yaml`, and add a
    changeset for the type change.

@@ -96,7 +96,7 @@ pnpm api-types:fetch      # cache live responses (network)
 pnpm api-types:infer      # write reports, drafts and shapes/
 pnpm api-types:conform    # check src/types against the cached samples; --fix [--write]
 pnpm api-types:fixtures   # regenerate the SDK's test/fixtures
-pnpm api-types:check      # refetch, diff against shapes/ and conform (network); --terse, --replay
+pnpm api-types:check      # refetch, diff against shapes/ and conform (network); --terse, --replay, --only
 pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 ```
 
@@ -107,6 +107,14 @@ pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 | `--refresh` | Refetch samples that are already cached. |
 | `--only <prefix>...` | Only run samples whose endpoint starts with one of the prefixes, e.g. `edge.` or `stats.playerGameLog`. Takes several: `--only players misc edge`. |
 | `--out <dir>` | Write raw responses somewhere other than `.api-types/raw`. |
+
+`check` flags, e.g. `pnpm api-types:check --replay --terse --only edge gameCenter`:
+
+| Flag | Effect |
+| --- | --- |
+| `--terse` | Print one `+N -N ~N` line per drifted shape instead of every path. |
+| `--replay` | Skip the refetch and re-report the responses the last run left in `.api-types/check/raw`. |
+| `--only <prefix>...` | Only refetch, diff and conform the shapes whose key starts with one of the prefixes, e.g. `edge` or `stats.skaterStats`. Without `--replay`, the other endpoints' cached responses are kept. |
 
 ### Adding or changing a response type
 
