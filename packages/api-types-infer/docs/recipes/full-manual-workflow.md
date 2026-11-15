@@ -7,7 +7,7 @@ The repeatable loop is: run check to see whether anything drifted, refresh the c
 | Thing | Where it lives | Written by | Read by |
 |---|---|---|---|
 | Main cache | `packages/api-types-infer/.api-types/raw/` (gitignored) | `fetch` | `infer`, `conform`, `fixtures` |
-| Check cache | `.api-types/check/raw/` (wiped on every full run, kept by `--replay`) | `check` | `check` only |
+| Check cache | `.api-types/check/raw/` (wiped on every full run, kept by `--replay`, only the matching endpoints replaced by `--only`) | `check` | `check` only |
 | Baseline snapshot | `packages/api-types-infer/shapes/` (committed) | `infer` | `check` (the `+` `-` `~` lines) |
 | SDK types | `packages/nhl-api-ts/src/types/` | you, or `conform --fix --write` | `conform`, `openapi`, `fixtures` typecheck |
  
@@ -23,7 +23,7 @@ The repeatable loop is: run check to see whether anything drifted, refresh the c
 pnpm api-types:check
 ```
  
-Add `--terse` for one `+N -N ~N` line per shape. To read the result again (or in the other format) without refetching, use `pnpm api-types:check --replay [--terse]`.
+Add `--terse` for one `+N -N ~N` line per shape. To read the result again (or in the other format) without refetching, use `pnpm api-types:check --replay [--terse]`. Add `--only <prefix>...` (for example `--only edge gameCenter`) to limit the run, refetch included, to some modules or endpoints.
 
 - **No `+` `-` `~` lines and exit 0:** you're done.
 - **Shapes listed as skipped:** they were rate-limited or hit a server error and weren't diffed. Rerun later, or refetch just those endpoints in step 2.
@@ -70,7 +70,7 @@ pnpm api:report && pnpm docs:llms
  
 ### 6. Confirm and commit
  
-Run `pnpm api-types:check --replay` first to confirm against the same responses, then a full `pnpm api-types:check`. It should print no drift.
+Run `pnpm api-types:check --replay` first to confirm against the same responses (`--only <module>` narrows it while you work), then a full `pnpm api-types:check` without `--only`. It should print no drift.
  
 Commit these together:
  

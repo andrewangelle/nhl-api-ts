@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   diffSnapshots,
+  fetchPrefixes,
+  filterShapes,
   isTransientFailure,
   summarize,
   summarizeSkipped,
 } from '#src/check.mjs';
 import { backoffMs } from '#src/fetch.mjs';
 import type { RawSample } from '#src/load.mjs';
+import type { ShapeNode } from '#src/shape.mjs';
 
 function sample(status: number): RawSample {
   return { tags: {}, url: 'https://example.test', status, body: null };
@@ -43,6 +46,33 @@ describe('check', () => {
       '  stats  2 shape(s)',
       '  teams  1 shape(s)',
     ]);
+  });
+
+  it('filters shapes by --only prefix', () => {
+    const shape = {} as ShapeNode;
+    const shapes = new Map([
+      ['edge.goalieDetail', shape],
+      ['gameCenter.boxscore', shape],
+      ['stats.clubStats', shape],
+    ]);
+
+    assert.deepEqual(
+      [...filterShapes(shapes, ['edge', 'gameCenter']).keys()],
+      ['edge.goalieDetail', 'gameCenter.boxscore'],
+    );
+    assert.equal(filterShapes(shapes).size, 3);
+  });
+
+  it('refetches the aliased endpoints that fold into a matching shape', () => {
+    assert.deepEqual(fetchPrefixes(['edge']), ['edge']);
+    assert.deepEqual(fetchPrefixes(['schedule.weeklySchedule']), [
+      'schedule.weeklySchedule',
+      'schedule.dailySchedule',
+    ]);
+    assert.deepEqual(
+      fetchPrefixes(['stats.skaterStatsWithQueryContext.summary']),
+      ['stats.skaterStatsWithQueryContext.summary', 'stats.skaterStatsSummary'],
+    );
   });
 });
 

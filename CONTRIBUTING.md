@@ -95,7 +95,8 @@ or hit a server error (after retries) are listed as skipped, not diffed; rerun
 later or refetch them with `pnpm api-types:fetch --refresh --only <endpoint>`.
 `--replay` reports on the last run's responses without calling the API again
 (for example `pnpm api-types:check --replay --terse`), against the current
-`shapes/` and SDK types. Refresh the cache
+`shapes/` and SDK types. `--only <prefix>...` limits the run to some modules or
+endpoints (`pnpm api-types:check --replay --only edge gameCenter`). Refresh the cache
 (`pnpm api-types:fetch --refresh`), let `pnpm api-types:conform --fix --write`
 apply the mechanical fixes to `packages/nhl-api-ts/src/types/`, handle the
 rest by hand, then update `packages/api-types-infer/shapes/`

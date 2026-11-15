@@ -24,7 +24,7 @@ function optionValue(name: string): string | undefined {
 }
 
 /** Every value after `name` up to the next flag, e.g. `--only players misc edge`. */
-function optionValues(name: string): string[] | undefined {
+export function optionValues(name: string): string[] | undefined {
   const index = args.indexOf(name);
   if (index === -1) {
     return undefined;
@@ -37,6 +37,11 @@ function optionValues(name: string): string[] | undefined {
 
 const outDir = optionValue('--out') ?? RAW_DIR;
 const only = optionValues('--only');
+
+/** True when no `--only` prefixes were given or `key` starts with one of them. */
+export function matchesOnly(key: string, only?: readonly string[]): boolean {
+  return !only || only.some((prefix) => key.startsWith(prefix));
+}
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -119,10 +124,7 @@ export async function runFetch(
   let failed = 0;
 
   for (const sample of samples) {
-    if (
-      options.only &&
-      !options.only.some((prefix) => sample.endpoint.startsWith(prefix))
-    ) {
+    if (!matchesOnly(sample.endpoint, options.only)) {
       continue;
     }
     const dir = `${targetDir}/${sample.endpoint}`;
