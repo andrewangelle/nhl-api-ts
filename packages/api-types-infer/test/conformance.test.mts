@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { conformShapes } from '#src/conformance.mjs';
 import { Declarations } from '#src/declarations.mjs';
 import { buildShape } from '#src/load.mjs';
-import { SDK_DIR } from '#src/paths.mjs';
-import { shapeFromSnapshot, snapshot } from '#src/shape.mjs';
+import { SDK_DIR, SHAPES_DIR } from '#src/paths.mjs';
+import { normalizeSnapshot, shapeFromSnapshot, snapshot } from '#src/shape.mjs';
 import { ALIASES, declaredTypeFor, SPECS } from '#src/specs.mjs';
 import {
   COMMON,
@@ -306,6 +307,17 @@ describe('snapshot mode', () => {
       '.list[].note': 'string?',
     };
     assert.deepEqual(snapshot(shapeFromSnapshot(snap)), snap);
+  });
+
+  it('round-trips every committed snapshot in order', () => {
+    for (const file of readdirSync(SHAPES_DIR)) {
+      const snap = JSON.parse(readFileSync(`${SHAPES_DIR}/${file}`, 'utf8'));
+      assert.deepEqual(
+        Object.entries(normalizeSnapshot(snap)),
+        Object.entries(snap),
+        file,
+      );
+    }
   });
 
   it('marks its findings as snapshot evidence with low confidence', () => {

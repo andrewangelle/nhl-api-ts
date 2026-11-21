@@ -237,7 +237,7 @@ export function snapshot(root: ShapeNode): Snapshot {
 const SNAPSHOT_ROOT_COUNT = 1000;
 
 /** Splits a snapshot path (`.a.b[].c`) into its segments; `[]` is an array item. */
-function pathSegments(path: string): string[] {
+export function pathSegments(path: string): string[] {
   return path.match(/\[\]|\.[^.[]*/g) ?? [];
 }
 
@@ -273,10 +273,185 @@ export function shapeFromSnapshot(snap: Snapshot): ShapeNode {
       }
       nodes.set(path, node);
     }
-    for (const kind of entry.replace(/\?$/, '').split('|')) {
-      node.kinds[kind as Kind] = node.count;
+    for (const kind of parseEntry(entry).kinds) {
+      node.kinds[kind] = node.count;
     }
   }
 
   return root;
+}
+
+/** Rewrites `snap` in `snapshot()` order (sorted props, depth-first, `[]` last). */
+export function normalizeSnapshot(snap: Snapshot): Snapshot {
+  return snapshot(shapeFromSnapshot(snap));
+}
+
+/** The kinds and optional flag of a snapshot value; `""` (an always-empty array's items) has no kinds. */
+export function parseEntry(entry: string): {
+  kinds: Set<Kind>;
+  optional: boolean;
+} {
+  const optional = entry.endsWith('?');
+  const kinds = (optional ? entry.slice(0, -1) : entry)
+    .split('|')
+    .filter(Boolean) as Kind[];
+  return { kinds: new Set(kinds), optional };
+}
+
+export function formatEntry(kinds: Iterable<Kind>, optional: boolean): string {
+  return `${[...kinds].sort().join('|')}${optional ? '?' : ''}`;
+}
+
+export function isSubset(left: Set<Kind>, right: Set<Kind>): boolean {
+  return [...left].every((kind) => right.has(kind));
+}
+
+/** The parent path of a snapshot path (`$` for a top-level one), or `undefined` for `$`. */
+export function parentPath(path: string): string | undefined {
+  if (path === '$') {
+    return undefined;
+  }
+  return pathSegments(path).slice(0, -1).join('') || '$';
+}
+
+/** The kind a parent needs for `path` to exist under it: `array` for `[]`, `object` for `.prop`. */
+export function neededKind(path: string): Kind {
+  return path.endsWith('[]') ? 'array' : 'object';
+}
+
+/** Orders snapshot paths like `snapshot()`: depth-first, props by name, `[]` after the props. */
+export function comparePaths(left: string, right: string): number {
+  const leftSegments = left === '$' ? [] : pathSegments(left);
+  const rightSegments = right === '$' ? [] : pathSegments(right);
+  const shared = Math.min(leftSegments.length, rightSegments.length);
+  for (let index = 0; index < shared; index++) {
+    const leftSegment = leftSegments[index];
+    const rightSegment = rightSegments[index];
+    if (leftSegment === rightSegment) {
+      continue;
+    }
+    if (leftSegment === '[]') {
+      return 1;
+    }
+    if (rightSegment === '[]') {
+      return -1;
+    }
+    return leftSegment.slice(1).localeCompare(rightSegment.slice(1));
+  }
+  return leftSegments.length - rightSegments.length;
+}
+
+/**
+ * Merges `next` into `base`. New paths are added (marked `?` when their
+ * parent exists on the other side). Paths in both take the union of both
+ * values in either mode. When `next` both adds and drops kinds, `overwrite`
+ * (infer) takes `next`'s value and add-only (check --accept) keeps `base`'s.
+ * Narrowing otherwise needs a reset. A `base` value of `""` always yields to
+ * `next`'s.
+ * Paths only in `base` are kept. The result is in `snapshot()` order.
+ *
+ * Neither mode orphans a child: a `next`-only child whose parent's merged
+ * value lacks the kind it needs (`object` for `.prop`, `array` for `[]`) is
+ * skipped, and overwrite keeps `base`'s value for a path whose kept
+ * `base`-only children `next`'s value can't hold.
+ */
+export function mergeSnapshots(
+  base: Snapshot,
+  next: Snapshot,
+  options: { overwrite: boolean },
+): Snapshot {
+  const merged: Snapshot = {};
+  const paths = [...new Set([...Object.keys(base), ...Object.keys(next)])].sort(
+    comparePaths,
+  );
+
+  // Kinds the base-only children of each path need from it.
+  const baseOnlyNeeds = new Map<string, Set<Kind>>();
+  for (const path of Object.keys(base)) {
+    const parent = parentPath(path);
+    if (parent !== undefined && !(path in next)) {
+      const needs = baseOnlyNeeds.get(parent) ?? new Set();
+      needs.add(neededKind(path));
+      baseOnlyNeeds.set(parent, needs);
+    }
+  }
+
+  for (const path of paths) {
+    const parent = parentPath(path);
+    const isItems = path.endsWith('[]');
+
+    if (path in base && path in next) {
+      merged[path] = mergeEntry(
+        base[path],
+        next[path],
+        isItems,
+        options.overwrite,
+        baseOnlyNeeds.get(path),
+      );
+      continue;
+    }
+
+    if (path in base) {
+      // Absent from next's parents that could hold it: optional in the union.
+      const absentInNext =
+        options.overwrite &&
+        !isItems &&
+        parent !== undefined &&
+        parent in next &&
+        parseEntry(next[parent]).kinds.has(neededKind(path));
+      merged[path] = absentInNext ? withOptional(base[path]) : base[path];
+      continue;
+    }
+
+    if (parent === undefined) {
+      merged[path] = next[path];
+      continue;
+    }
+    if (
+      !(parent in merged) ||
+      !parseEntry(merged[parent]).kinds.has(neededKind(path))
+    ) {
+      // The parent was skipped, or a type change left it without the kind
+      // this child needs: leave it for a human.
+      continue;
+    }
+    const absentInBase =
+      !isItems &&
+      parent in base &&
+      parseEntry(base[parent]).kinds.has(neededKind(path));
+    merged[path] = absentInBase ? withOptional(next[path]) : next[path];
+  }
+
+  return merged;
+}
+
+function withOptional(entry: string): string {
+  return entry.endsWith('?') ? entry : `${entry}?`;
+}
+
+function mergeEntry(
+  baseEntry: string,
+  nextEntry: string,
+  isItems: boolean,
+  overwrite: boolean,
+  baseOnlyNeeds: Set<Kind> | undefined,
+): string {
+  const baseValue = parseEntry(baseEntry);
+  const nextValue = parseEntry(nextEntry);
+  const optional = !isItems && (baseValue.optional || nextValue.optional);
+
+  if (baseValue.kinds.size === 0) {
+    return formatEntry(nextValue.kinds, optional);
+  }
+  if (isSubset(nextValue.kinds, baseValue.kinds)) {
+    return formatEntry(baseValue.kinds, optional);
+  }
+  if (isSubset(baseValue.kinds, nextValue.kinds)) {
+    return formatEntry(nextValue.kinds, optional);
+  }
+  // Adds and drops kinds: a real type change.
+  const orphans = [...(baseOnlyNeeds ?? [])].some(
+    (kind) => !nextValue.kinds.has(kind),
+  );
+  return overwrite && !orphans ? nextEntry : baseEntry;
 }

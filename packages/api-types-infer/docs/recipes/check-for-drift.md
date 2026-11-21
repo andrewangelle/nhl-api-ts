@@ -10,6 +10,7 @@ pnpm api-types:check            # every drifted path
 pnpm api-types:check --terse    # one +N -N ~N line per shape
 pnpm api-types:check --replay   # report on the last run again, no network
 pnpm api-types:check --only edge gameCenter   # only shapes with these key prefixes
+pnpm api-types:check --replay --accept        # merge the drift into shapes/
 ```
 
 It deletes and rewrites `.api-types/check/`, so it doesn't touch your normal
@@ -25,7 +26,8 @@ The output has two parts.
 
 1. **The shape diff**, for information. It shows what changed in the
    payloads since `shapes/` was committed, whether or not the types already
-   allow it. No change prints `api-types:check: no shape drift`. Shapes that
+   allow it. No change prints `api-types:check: no shape drift` (unseen `?`
+   paths don't count, see below). Shapes that
    couldn't be fetched are listed after it as skipped (see
    [Skipped shapes](#skipped-shapes)).
 2. **The conform findings**: what the SDK types don't allow. These decide
@@ -44,18 +46,21 @@ Each shape difference is a line on stdout. For example (illustrative):
 + gameCenter.boxscore .playerByGameStats.awayTeam.forwards[].giveaways  integer
 - teams.teamRoster .goalies[].birthStateProvince  object?
 ~ standings.leagueStandings .standings[].clinchIndicator  string -> string? (required -> optional)
-~ gameCenter.matchUp .venueTimezone  string -> null|string (kinds changed)
+~ gameCenter.boxscore .gameOutcome.otPeriods  float -> float|integer (kinds added)
+~ gameCenter.matchUp .venueTimezone  string -> integer (kinds changed)
+? gameCenter.playByPlay .summary.iceSurface  object?  (+62 below)
 + edge.skaterSpeedTop10  (new endpoint shape)
 - misc.location  (shape no longer produced)
 ```
 
 | Prefix | Meaning | Usual fix |
 | --- | --- | --- |
-| `+` path | A field the snapshot doesn't have. | Add it to the interface, optional unless every sample has it. |
-| `-` path | A field no longer sent. | Make it optional. Remove it only if it's clearly gone for good. |
-| `~` required -> optional | Some samples now lack it. | Add `?`. |
-| `~` optional -> required | Every sample now has it. | Usually leave it optional; older data may still lack it. |
-| `~` kinds changed | The value type changed, often `null` appearing. | Add `\| null` or widen the type. |
+| `+` path | A field the snapshot doesn't have. `--accept` takes it. | Add it to the interface, optional unless every sample has it. |
+| `-` path | A required field no longer sent. | Make it optional. Remove it only if it's clearly gone for good. |
+| `?` path | Not in this run's samples, but the snapshot already marks it (or an ancestor) optional, its parent never had the kind it needs this run (always `null`, say), or it is the items of an array that came back empty. | Usually nothing to do. |
+| `~` required -> optional | Some samples now lack it. `--accept` takes it. | Add `?`. |
+| `~` kinds added | New kinds on top of the snapshot's, often `null` appearing. `--accept` takes it. | Add `\| null` or widen the type. |
+| `~` kinds changed | The value adds some kinds and drops others: a real type change. `--accept` leaves it. | Change the type; land the snapshot with `infer --reset`. |
 | `+` endpoint | A sample group with no snapshot yet. | Run `infer` and commit the new snapshot. |
 | `-` endpoint | No samples produced this group. | A removed sample or `groupBy` value. Delete the stale file in `shapes/`. |
 
@@ -63,17 +68,48 @@ The value after the path is the snapshot entry: the kinds seen, joined with
 `|`, with a trailing `?` when the field is missing from some parents. See
 [Read reports and drafts](read-reports-and-drafts.md#shape-snapshots).
 
-With `--terse`, each drifted shape is one line counting its `+`, `-` and `~`
-lines, and the new and removed endpoint lines stay as they are:
+The snapshot is a union across runs, so a value that is a subset of it (fewer
+kinds, as in `float|integer` against a run of only floats, or no `?` against
+a snapshot `?`) prints nothing. An unseen subtree prints only its root, with
+the number of unseen paths under it as `(+N below)`. Unseen paths are not
+counted as differences.
+
+With `--terse`, each drifted shape is one line counting its `+`, `-`, `~` and
+`?` paths (an unseen root counts `1 + N`), and the new and removed endpoint
+lines stay as they are:
 
 ```
   edge.byTheNumbers  +2
-  gameCenter.matchUp  +1 -71 ~2
-  schedule.weeklySchedule  +1 -11 ~2
+  gameCenter.matchUp  +9 ~15 ?85
+  schedule.weeklySchedule  +8 ?4
 ```
 
 Use it to see where the drift is, then run without `--terse` (or
 `--replay` without `--terse`, see below) for the paths.
+
+## Accept drift into the baseline
+
+Once the SDK types allow what a run found (conform exits 0, or you've fixed
+the types), `--accept` writes the drift into `shapes/` so it stops showing up:
+
+```bash
+pnpm api-types:check --replay --accept               # every shape
+pnpm api-types:check --replay --accept --only schedule
+```
+
+It merges each shape's snapshot from this run into the committed one as a
+union: `+` paths are added (marked `?` when their parent already existed
+without them), and `required -> optional` and `kinds added` values are
+widened. It never drops a path or a kind, so `-` lines and `kinds changed`
+lines stay for a human. New endpoint shapes are written whole; removed shapes
+and skipped shapes are left alone. It prints
+`api-types:check: accepted N path(s) and widened W value(s) in M shape(s)`
+to stderr. Review the `shapes/` diff before you commit it.
+
+`--accept` runs before conform and doesn't wait for it, so accept only drift
+the SDK types already allow. Without `--accept`, every run ends its summary
+with what it would take, for example
+`api-types:check: 68 path(s) and 30 value(s) could be accepted with --accept`.
 
 ## Skipped shapes
 
@@ -140,7 +176,9 @@ Not every difference is drift:
 
 - **Time-dependent samples.** `now` dates, the current season, `live` and
   `future` games change from day to day. A field that only appears during a
-  live game shows up as `+` during game hours and `-` otherwise.
+  live game shows up as `+` during game hours. Once it's accepted (marked
+  `?`), a run without it reports it as `?` unseen, already separated from the
+  `-` lines, rather than as removed.
 - **Failed requests.** Rate limits and server errors skip the shape (see
   [Skipped shapes](#skipped-shapes)). Any other `4xx` or a timeout still drops
   the sample, which can turn required fields optional or make a whole shape
@@ -169,7 +207,13 @@ Then:
    using the drafts in `.api-types/draft/` and the reports in
    `.api-types/report/` (`pnpm api-types:infer`).
 3. `pnpm api-types:conform` until it exits 0, then `pnpm api-types:infer` to
-   refresh `shapes/`.
+   refresh `shapes/` (or `pnpm api-types:check --replay --accept`, see
+   [Accept drift into the baseline](#accept-drift-into-the-baseline)).
+   `infer` merges into the committed snapshots and never drops a path or a
+   kind. Use `pnpm api-types:infer --reset` to rewrite them from the cache
+   alone: when a field is really gone and you want its `-` to stop, or for a
+   real type change on a path with children (`object -> string`,
+   `object -> array`), which a merge keeps the old kind for.
 4. `pnpm lint:fix`, `pnpm test`.
 5. `pnpm api-types:check --replay` to see what's left against the same
    responses (add `--only <module>` to focus on the one you're fixing), then

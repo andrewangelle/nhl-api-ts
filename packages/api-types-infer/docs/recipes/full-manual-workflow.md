@@ -84,7 +84,7 @@ If a public type changed, add a changeset.
  
 ## When to refresh the cache
  
-- **Every time you accept drift.** Steps 2 to 4 always go together. If you skip step 2, `infer` rebuilds `shapes/` from the old data and the `+` lines come back.
+- **Every time you accept drift.** Steps 2 to 4 always go together. If you skip step 2, conform and the fixtures work from the old data. `infer` merges into `shapes/` rather than rebuilding it, so paths already there (or accepted with `pnpm api-types:check --replay --accept`) stay. `pnpm api-types:infer --reset` rebuilds `shapes/` from the cache alone: use it when a field is really gone, or for a real type change (`object -> string`, `object -> array`, ...) on a path with children, which a merge keeps the old kind for.
 - **Before each release**, as `CONTRIBUTING.md` asks: run step 1, then steps 2–4 if it found anything.
 - **Not in CI, and not just to stay current.** If nothing drifted, there's nothing to gain from a refresh.
 > **Be careful with the season.** `--refresh` replaces your samples with whatever the API returns at that moment. If you refresh in the offseason, fields that only appear in-season (playoffs, live games) can show up as `-` removed or `~` required → optional. When that happens, check before you make a type optional — keeping the older type is often the right call. Refresh with `--only` to avoid touching unrelated endpoints.

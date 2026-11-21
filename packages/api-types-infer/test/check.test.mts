@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { describe, it } from 'node:test';
 import {
+  acceptDrift,
   diffSnapshots,
+  driftReport,
   fetchPrefixes,
   filterShapes,
   isTransientFailure,
@@ -9,8 +13,10 @@ import {
   summarizeSkipped,
 } from '#src/check.mjs';
 import { backoffMs } from '#src/fetch.mjs';
-import type { RawSample } from '#src/load.mjs';
-import type { ShapeNode } from '#src/shape.mjs';
+import { buildShape, type RawSample } from '#src/load.mjs';
+import { writeSnapshot } from '#src/paths.mjs';
+import { type ShapeNode, type Snapshot, snapshot } from '#src/shape.mjs';
+import { samples } from './conform-helpers.mts';
 
 function sample(status: number): RawSample {
   return { tags: {}, url: 'https://example.test', status, body: null };
@@ -74,6 +80,207 @@ describe('check', () => {
       ['stats.skaterStatsWithQueryContext.summary', 'stats.skaterStatsSummary'],
     );
   });
+});
+
+describe('diffSnapshots', () => {
+  it('reports a missing optional path as unseen', () => {
+    const lines = diffSnapshots(
+      's',
+      { $: 'object', '.a': 'string?' },
+      { $: 'object' },
+    );
+    assert.deepEqual(lines, ['? s .a  string?']);
+  });
+
+  it('folds the children of a missing optional parent into its line', () => {
+    const lines = diffSnapshots(
+      's',
+      { $: 'object', '.a': 'object?', '.a.b': 'string' },
+      { $: 'object' },
+    );
+    assert.deepEqual(lines, ['? s .a  object?  (+1 below)']);
+    assert.equal(summarize(lines), '?2');
+  });
+
+  it('reports the items of an array that came back empty as unseen', () => {
+    const after = snapshot(buildShape(samples({ x: [] }), undefined));
+    const lines = diffSnapshots(
+      's',
+      { $: 'object', '.x': 'array', '.x[]': 'object', '.x[].y': 'string' },
+      after,
+    );
+    assert.deepEqual(lines, ['? s .x[]  object  (+1 below)']);
+  });
+
+  it('prints nothing for a value that is a subset of the baseline', () => {
+    for (const [before, after] of [
+      ['string?', 'string'],
+      ['float|integer', 'float'],
+      ['integer|null', 'integer'],
+      ['float|integer?', 'float?'],
+    ]) {
+      assert.deepEqual(
+        diffSnapshots(
+          's',
+          { $: 'object', '.v': before },
+          { $: 'object', '.v': after },
+        ),
+        [],
+      );
+    }
+  });
+
+  it('labels values that are not a subset', () => {
+    for (const [before, after, label] of [
+      ['string', 'string?', 'required -> optional'],
+      ['float', 'float|integer', 'kinds added'],
+      ['string?', 'integer', 'kinds changed'],
+    ]) {
+      assert.deepEqual(
+        diffSnapshots(
+          's',
+          { $: 'object', '.v': before },
+          { $: 'object', '.v': after },
+        ),
+        [`~ s .v  ${before} -> ${after} (${label})`],
+      );
+    }
+  });
+
+  it('reports a missing required path under a present parent as removed', () => {
+    const lines = diffSnapshots(
+      's',
+      { $: 'object', '.x': 'object', '.x.y': 'string' },
+      { $: 'object', '.x': 'object' },
+    );
+    assert.deepEqual(lines, ['- s .x.y  string']);
+  });
+
+  it('reports the children of a parent that lost their kind as unseen', () => {
+    assert.deepEqual(
+      diffSnapshots(
+        's',
+        { $: 'object', '.x': 'null|object', '.x.y': 'string' },
+        { $: 'object', '.x': 'null' },
+      ),
+      ['? s .x.y  string'],
+    );
+    assert.deepEqual(
+      diffSnapshots(
+        's',
+        {
+          $: 'object',
+          '.x': 'array|object',
+          '.x.y': 'string',
+          '.x[]': 'integer',
+        },
+        { $: 'object', '.x': 'array', '.x[]': 'integer' },
+      ),
+      ['? s .x.y  string'],
+    );
+  });
+});
+
+describe('acceptDrift', () => {
+  function withShapes(
+    files: Record<string, Snapshot>,
+    run: (dir: string) => void,
+  ) {
+    const dir = mkdtempSync(`${tmpdir()}/shapes-`);
+    try {
+      for (const [key, snap] of Object.entries(files)) {
+        writeSnapshot(dir, key, snap);
+      }
+      run(dir);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  function shapeOf(...bodies: unknown[]): ShapeNode {
+    return buildShape(samples(...bodies), undefined);
+  }
+
+  it('widens values, writes new shapes whole and leaves skipped and removed shapes alone', () => {
+    withShapes(
+      {
+        widened: { $: 'object', '.a': 'string', '.v': 'float', '.t': 'string' },
+        skipped: { $: 'object' },
+        removed: { $: 'object' },
+      },
+      (dir) => {
+        const shapes = new Map([
+          ['widened', shapeOf({ v: 1.5, t: 1 }, { a: 'x', v: 2, t: 2 })],
+          ['skipped', shapeOf({ b: 1 })],
+          ['fresh', shapeOf({ c: 1 })],
+        ]);
+        const result = acceptDrift(
+          shapes,
+          dir,
+          new Map([['skipped', '1/1 samples failed']]),
+        );
+        assert.deepEqual([...result.writes.keys()], ['widened', 'fresh']);
+        assert.deepEqual(result.writes.get('widened'), {
+          $: 'object',
+          '.a': 'string?',
+          '.t': 'string',
+          '.v': 'float|integer',
+        });
+        assert.deepEqual(
+          result.writes.get('fresh'),
+          snapshot(shapes.get('fresh') as ShapeNode),
+        );
+        assert.equal(result.paths, 0);
+        assert.equal(result.widened, 2);
+        assert.equal(result.newShapes, 1);
+        assert.equal(existsSync(`${dir}/fresh.json`), false);
+      },
+    );
+  });
+
+  for (const [name, before, bodies, path, accepted] of [
+    [
+      'a new child of an existing parent',
+      { $: 'object', '.p': 'object' },
+      [{ p: { c: 'x' } }, { p: { c: 'y' } }],
+      '.p.c',
+      'string?',
+    ],
+    [
+      'a field one sample lacks',
+      { $: 'object', '.a': 'string' },
+      [{ a: 'x' }, {}],
+      '.a',
+      'string?',
+    ],
+    [
+      'a float field that gained integers',
+      { $: 'object', '.v': 'float' },
+      [{ v: 1.5 }, { v: 2 }],
+      '.v',
+      'float|integer',
+    ],
+  ] as const) {
+    it(`accepts ${name}, then re-checks clean`, () => {
+      withShapes({ s: before }, (dir) => {
+        const shapes = new Map([['s', shapeOf(...bodies)]]);
+        const first = driftReport(`${dir}/no-raw`, shapes, dir, false);
+        assert.equal(first.differences, 1);
+
+        const result = acceptDrift(shapes, dir, first.skipped);
+        for (const [key, snap] of result.writes) {
+          writeSnapshot(dir, key, snap);
+        }
+        const written = JSON.parse(readFileSync(`${dir}/s.json`, 'utf8'));
+        assert.equal(written[path], accepted);
+
+        const second = driftReport(`${dir}/no-raw`, shapes, dir, false);
+        assert.deepEqual(second.lines, []);
+        assert.equal(second.differences, 0);
+        assert.equal(acceptDrift(shapes, dir, second.skipped).writes.size, 0);
+      });
+    });
+  }
 });
 
 describe('backoffMs', () => {

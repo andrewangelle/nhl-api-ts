@@ -50,7 +50,10 @@ nhl-api-ts/src/types/ ──openapi──▶ nhl-api-ts/openapi.yaml (generated 
      nullable only if `null` was seen, `OpenUnion` for enum-like strings,
      discriminated unions, dynamic-key maps).
    - `shapes/<endpoint>.json`: a flat `path -> kind` snapshot. This is
-     committed and is the baseline for drift checks.
+     committed and is the baseline for drift checks. It is merged into the
+     committed file (a union across runs: paths and kinds are added, never
+     dropped), so paths accepted with `check --accept` survive;
+     `infer --reset` rewrites it from this run alone.
 4. **Conform** (`src/conform.mts`, `conformance.mts`, `declarations.mts`,
    `codemod.mts`). Reads the declared type of every sample group through the
    TypeScript checker (ts-morph) and walks the observed shape alongside it.
@@ -61,8 +64,10 @@ nhl-api-ts/src/types/ ──openapi──▶ nhl-api-ts/openapi.yaml (generated 
    Also rewrites the drafts beside the raw dir it read.
 5. **Check** (`src/check.mts`). Refetches everything into `.api-types/check/`,
    re-infers the snapshots and diffs them against `shapes/` for information
-   (added `+`, removed `-` and changed `~` paths), then runs conform on the
-   refetch and exits 1 on its errors.
+   (added `+`, removed `-` and changed `~` paths, and `?` unseen paths the
+   baseline marks optional but this run didn't carry), then runs conform on
+   the refetch and exits 1 on its errors. `--accept` merges the `+` paths and
+   widened values into `shapes/`.
 6. **Fixtures** (`src/fixtures.mts`). Trims cached responses to one item per
    array (one per variant for tagged unions) and writes them to
    `packages/nhl-api-ts/test/fixtures/<module>.mts`, each declared with its
@@ -93,10 +98,10 @@ Run from the repository root:
 
 ```bash
 pnpm api-types:fetch      # cache live responses (network)
-pnpm api-types:infer      # write reports, drafts and shapes/
+pnpm api-types:infer      # write reports, drafts and shapes/ (merged); --reset rewrites shapes/
 pnpm api-types:conform    # check src/types against the cached samples; --fix [--write]
 pnpm api-types:fixtures   # regenerate the SDK's test/fixtures
-pnpm api-types:check      # refetch, diff against shapes/ and conform (network); --terse, --replay, --only
+pnpm api-types:check      # refetch, diff against shapes/ and conform (network); --terse, --replay, --accept, --only
 pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 ```
 
@@ -112,8 +117,9 @@ pnpm openapi:schemas      # regenerate openapi.yaml response schemas
 
 | Flag | Effect |
 | --- | --- |
-| `--terse` | Print one `+N -N ~N` line per drifted shape instead of every path. |
+| `--terse` | Print one `+N -N ~N ?N` line per drifted shape instead of every path (`?` counts unseen paths). |
 | `--replay` | Skip the refetch and re-report the responses the last run left in `.api-types/check/raw`. |
+| `--accept` | Merge the `+` paths and the `required -> optional` / `kinds added` values into `shapes/`. Never drops a path or a kind; `kinds changed` lines are left alone. Without it, the summary says how much it would take. |
 | `--only <prefix>...` | Only refetch, diff and conform the shapes whose key starts with one of the prefixes, e.g. `edge` or `stats.skaterStats`. Without `--replay`, the other endpoints' cached responses are kept. |
 
 ### Adding or changing a response type

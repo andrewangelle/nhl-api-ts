@@ -2,8 +2,9 @@
  * Drift check: refetches the sample matrix into `.api-types/check/raw`, then
  * runs conform on it against the SDK types and exits 1 on its errors. Also
  * diffs the re-inferred shapes against the committed snapshots in `shapes/`
- * (new fields, removed fields, required <-> optional flips) as information.
- * Manual only; run it before each release.
+ * (new fields, removed fields, widened or changed values, and `?` fields this
+ * run's samples didn't carry) as information. Manual only; run it before each
+ * release.
  *
  * Lists every drifted path; `--terse` prints one `+N -N ~N` line per shape.
  * `--replay` skips the refetch and reports on the responses the last run left
@@ -12,16 +13,29 @@
  * diffed (its missing fields would read as removed) and is listed as skipped.
  * `--only <prefix>...` limits the refetch, the diff and conform to the shapes
  * whose key starts with one of the prefixes, e.g. `--only edge gameCenter`.
+ * `--accept` merges the `+` paths and widened values (`required -> optional`,
+ * `kinds added`) into `shapes/`; without it, the summary says how much it
+ * would take. It never drops a path or a kind and runs before conform.
  *
- *   pnpm api-types:check [--terse] [--replay] [--only <prefix>...]
+ *   pnpm api-types:check [--terse] [--replay] [--accept] [--only <prefix>...]
  */
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { runConform } from '#src/conform.mjs';
 import { matchesOnly, optionValues, runFetch } from '#src/fetch.mjs';
 import { groupAll, inferAll } from '#src/infer.mjs';
 import { loadSamples, type RawSample } from '#src/load.mjs';
-import { CACHE_DIR, SHAPES_DIR } from '#src/paths.mjs';
-import { type ShapeNode, type Snapshot, snapshot } from '#src/shape.mjs';
+import { CACHE_DIR, SHAPES_DIR, writeSnapshot } from '#src/paths.mjs';
+import {
+  comparePaths,
+  isSubset,
+  mergeSnapshots,
+  neededKind,
+  parentPath,
+  parseEntry,
+  type ShapeNode,
+  type Snapshot,
+  snapshot,
+} from '#src/shape.mjs';
 import { ALIASES } from '#src/specs.mjs';
 
 const CHECK_RAW = `${CACHE_DIR}/check/raw`;
@@ -31,18 +45,40 @@ export function isTransientFailure(sample: RawSample): boolean {
   return sample.status === 429 || sample.status >= 500;
 }
 
-/** `+2 -1 ~3` for the lines `diffSnapshots` returned. */
-export function summarize(lines: string[]): string {
-  const counts = { '+': 0, '-': 0, '~': 0 };
+const BELOW = /\(\+(\d+) below\)$/;
+
+/**
+ * Paths per sign in the lines `diffSnapshots` returned. An unseen (`?`) line
+ * counts its root plus the `(+N below)` paths under it.
+ */
+export function countPaths(
+  lines: string[],
+): Record<'+' | '-' | '~' | '?', number> {
+  const counts = { '+': 0, '-': 0, '~': 0, '?': 0 };
   for (const line of lines) {
-    counts[line[0] as keyof typeof counts] += 1;
+    const sign = line[0] as keyof typeof counts;
+    counts[sign] += sign === '?' ? 1 + Number(BELOW.exec(line)?.[1] ?? 0) : 1;
   }
-  return Object.entries(counts)
+  return counts;
+}
+
+/** `+2 -1 ~3 ?14` for the lines `diffSnapshots` returned. */
+export function summarize(lines: string[]): string {
+  return Object.entries(countPaths(lines))
     .filter(([, count]) => count > 0)
     .map(([sign, count]) => `${sign}${count}`)
     .join(' ');
 }
 
+/**
+ * `+` new paths, `-` removed required paths, `~` values that are not a subset
+ * of the baseline's, and `?` unseen paths: missing ones the baseline marks
+ * optional, the children of an unseen path or of one that lost the kind they
+ * need, and the items of an array that came back empty. An unseen subtree
+ * prints as its root with a `(+N below)` count. Values that are a subset of
+ * the baseline's (fewer kinds, or no `?`) print nothing: the baseline is a
+ * union across runs.
+ */
 export function diffSnapshots(
   name: string,
   before: Snapshot,
@@ -56,38 +92,112 @@ export function diffSnapshots(
     }
   }
 
-  for (const path of Object.keys(before)) {
-    if (!(path in after)) {
-      lines.push(`- ${name} ${path}  ${before[path]}`);
-    } else if (before[path] !== after[path]) {
-      const flip = flipValue(before[path], after[path]);
+  // Unseen path -> its unseen root; root -> paths below it.
+  const unseenRoot = new Map<string, string>();
+  const below = new Map<string, number>();
+  const entries: Array<{ unseen: string } | { line: string }> = [];
 
-      lines.push(
-        `~ ${name} ${path}  ${before[path]} -> ${after[path]} (${flip})`,
-      );
+  function markUnseen(path: string, parent: string | undefined) {
+    const root = parent !== undefined ? unseenRoot.get(parent) : undefined;
+    if (root === undefined) {
+      unseenRoot.set(path, path);
+      below.set(path, 0);
+      entries.push({ unseen: path });
+    } else {
+      unseenRoot.set(path, root);
+      below.set(root, (below.get(root) ?? 0) + 1);
     }
+  }
+
+  for (const path of Object.keys(before).sort(comparePaths)) {
+    const parent = parentPath(path);
+    const beforeValue = parseEntry(before[path]);
+
+    if (!(path in after)) {
+      const parentUnseen =
+        parent !== undefined &&
+        (unseenRoot.has(parent) ||
+          (parent in after &&
+            parent in before &&
+            parseEntry(before[parent]).kinds.has(neededKind(path)) &&
+            !parseEntry(after[parent]).kinds.has(neededKind(path))));
+
+      if (beforeValue.optional || parentUnseen) {
+        markUnseen(path, parent);
+      } else {
+        entries.push({ line: `- ${name} ${path}  ${before[path]}` });
+      }
+      continue;
+    }
+
+    if (before[path] === after[path]) {
+      continue;
+    }
+
+    const afterValue = parseEntry(after[path]);
+
+    if (
+      path.endsWith('[]') &&
+      afterValue.kinds.size === 0 &&
+      beforeValue.kinds.size > 0
+    ) {
+      // The array came back empty in every sample.
+      markUnseen(path, parent);
+      continue;
+    }
+    if (
+      isSubset(afterValue.kinds, beforeValue.kinds) &&
+      (!afterValue.optional || beforeValue.optional)
+    ) {
+      continue;
+    }
+
+    entries.push({
+      line: `~ ${name} ${path}  ${before[path]} -> ${after[path]} (${flipValue(beforeValue, afterValue)})`,
+    });
+  }
+
+  for (const entry of entries) {
+    if ('line' in entry) {
+      lines.push(entry.line);
+      continue;
+    }
+
+    const count = below.get(entry.unseen) ?? 0;
+
+    lines.push(
+      `? ${name} ${entry.unseen}  ${before[entry.unseen]}${count > 0 ? `  (+${count} below)` : ''}`,
+    );
   }
   return lines;
 }
 
-function flipValue(before: string, after: string) {
-  if (before.replace('?', '') === after.replace('?', '')) {
-    if (before.endsWith('?')) {
-      return 'optional -> required';
-    }
-    return 'required -> optional';
-  }
+/** Labels a `~` value that is not a subset of the baseline's. */
+function flipValue(
+  before: ReturnType<typeof parseEntry>,
+  after: ReturnType<typeof parseEntry>,
+) {
+  switch (true) {
+    case isSubset(after.kinds, before.kinds):
+      return 'required -> optional';
 
-  return 'kinds changed';
+    case isSubset(before.kinds, after.kinds):
+      return 'kinds added';
+
+    default:
+      return 'kinds changed';
+  }
 }
 
 /** `  stats  40 shape(s)` per module, for the terse skipped list. */
 export function summarizeSkipped(skipped: Map<string, string>): string[] {
   const byModule = new Map<string, number>();
+
   for (const key of skipped.keys()) {
     const module = key.split('.')[0];
     byModule.set(module, (byModule.get(module) ?? 0) + 1);
   }
+
   return [...byModule].map(
     ([module, count]) => `  ${module}  ${count} shape(s)`,
   );
@@ -96,7 +206,10 @@ export function summarizeSkipped(skipped: Map<string, string>): string[] {
 export interface DriftReport {
   /** Report lines: every drifted path, or one summary per shape when terse. */
   lines: string[];
+  /** Counted `+`, `-` and `~` paths. */
   differences: number;
+  /** Paths not in this run's samples (`?`); not counted in `differences`. */
+  unseen: number;
   /** Shape key -> why it was not diffed. */
   skipped: Map<string, string>;
 }
@@ -160,6 +273,7 @@ export function driftReport(
 
   const lines: string[] = [];
   let differences = 0;
+  let unseen = 0;
 
   for (const [key, shape] of shapes) {
     if (skipped.has(key)) {
@@ -182,7 +296,9 @@ export function driftReport(
       continue;
     }
 
-    differences += diff.length;
+    const counts = countPaths(diff);
+    differences += counts['+'] + counts['-'] + counts['~'];
+    unseen += counts['?'];
 
     lines.push(...(terse ? [`  ${key}  ${summarize(diff)}`] : diff));
   }
@@ -194,16 +310,84 @@ export function driftReport(
     }
   }
 
-  return { lines, differences, skipped };
+  return { lines, differences, unseen, skipped };
+}
+
+export interface AcceptResult {
+  /** Shape key -> the snapshot to write. */
+  writes: Map<string, Snapshot>;
+  /** `+` paths added to existing shapes. */
+  paths: number;
+  /** Values widened (`required -> optional`, `kinds added`). */
+  widened: number;
+  /** Shapes with no committed file yet, written whole. */
+  newShapes: number;
+}
+
+/**
+ * What `--accept` writes to `shapesDir`: each shape's `+` paths and widened
+ * values, merged add-only into its committed snapshot, and new shapes whole.
+ * Skipped shapes and shapes no longer produced are left alone.
+ */
+export function acceptDrift(
+  shapes: Map<string, ShapeNode>,
+  shapesDir: string,
+  skipped: Map<string, string>,
+): AcceptResult {
+  const result: AcceptResult = {
+    writes: new Map(),
+    paths: 0,
+    widened: 0,
+    newShapes: 0,
+  };
+
+  for (const [key, shape] of shapes) {
+    if (skipped.has(key)) {
+      continue;
+    }
+    const file = `${shapesDir}/${key}.json`;
+    if (!existsSync(file)) {
+      result.writes.set(key, snapshot(shape));
+      result.newShapes += 1;
+      continue;
+    }
+
+    const before: Snapshot = JSON.parse(readFileSync(file, 'utf8'));
+    const merged = mergeSnapshots(before, snapshot(shape), {
+      overwrite: false,
+    });
+    let paths = 0;
+    let widened = 0;
+    for (const path of Object.keys(merged)) {
+      if (!(path in before)) {
+        paths += 1;
+      } else if (merged[path] !== before[path]) {
+        widened += 1;
+      }
+    }
+    if (paths + widened > 0) {
+      result.writes.set(key, merged);
+      result.paths += paths;
+      result.widened += widened;
+    }
+  }
+
+  return result;
+}
+
+function describeAccept(result: AcceptResult): string {
+  return `${result.paths} path(s) and ${result.widened} value(s)${result.newShapes > 0 ? ` (plus ${result.newShapes} new shape(s))` : ''}`;
 }
 
 if (import.meta.main) {
   const terse = process.argv.includes('--terse');
   const only = optionValues('--only');
 
+  const accept = process.argv.includes('--accept');
+
   if (only?.length === 0) {
     console.error(
-      'usage: api-types:check [--terse] [--replay] [--only <prefix>...]',
+      'usage: api-types:check [--terse] [--replay] [--accept] [--only <prefix>...]',
     );
     process.exit(2);
   }
@@ -232,12 +416,13 @@ if (import.meta.main) {
   }
 
   const shapes = filterShapes(inferAll(CHECK_RAW), only);
+
   if (only && shapes.size === 0) {
     console.error(`api-types:check: no shapes match --only ${only.join(' ')}`);
     process.exit(2);
   }
 
-  const { lines, differences, skipped } = driftReport(
+  const { lines, differences, unseen, skipped } = driftReport(
     CHECK_RAW,
     shapes,
     SHAPES_DIR,
@@ -259,13 +444,30 @@ if (import.meta.main) {
     );
   }
 
+  const unseenNote = unseen > 0 ? `, ${unseen} unseen path(s)` : '';
+
   if (differences === 0) {
     console.error(
-      `api-types:check: no shape drift${skipped.size > 0 ? ` (${skipped.size} skipped)` : ''}`,
+      `api-types:check: no shape drift${unseenNote}${skipped.size > 0 ? ` (${skipped.size} skipped)` : ''}`,
     );
   } else {
     console.error(
-      `api-types:check: ${differences} shape difference(s), ${skipped.size} shape(s) skipped (information only${terse ? '; drop --terse to list every path' : ''})`,
+      `api-types:check: ${differences} shape difference(s)${unseenNote}, ${skipped.size} shape(s) skipped (information only${terse ? '; drop --terse to list every path' : ''})`,
+    );
+  }
+
+  const accepted = acceptDrift(shapes, SHAPES_DIR, skipped);
+
+  if (accept) {
+    for (const [key, snap] of accepted.writes) {
+      writeSnapshot(SHAPES_DIR, key, snap);
+    }
+    console.error(
+      `api-types:check: accepted ${accepted.paths} path(s) and widened ${accepted.widened} value(s) in ${accepted.writes.size - accepted.newShapes} shape(s)${accepted.newShapes > 0 ? `, ${accepted.newShapes} new shape(s)` : ''}`,
+    );
+  } else if (accepted.writes.size > 0) {
+    console.error(
+      `api-types:check: ${describeAccept(accepted)} could be accepted with --accept`,
     );
   }
 
