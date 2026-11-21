@@ -32,8 +32,8 @@ payload:
 - `check --accept` writes the new `+` paths (computed by the tool) into
   `shapes/`, and widens values that only gained kinds or a `?` (union
   semantics, see §1 and Decisions). It never drops a kind or a path.
-- `infer` merges into `shapes/` instead of overwriting, so accepted paths
-  survive; a `--reset` flag keeps today's full rewrite for real removals.
+- `infer` merges into `shapes/` instead of overwriting, so accepted paths and
+  accepted widened values survive (union semantics, §1); a `--reset` flag keeps today's full rewrite for real removals.
 - The diff reports a missing path that was optional (or sits under a missing
   optional path, or is the items of an array that came back empty, or sits
   under one) as *unseen*, not `-` / `~`, and doesn't count it as a difference.
@@ -56,10 +56,11 @@ Add next to `snapshot()`:
 ```ts
 /**
  * Merges `next` into `base`. New paths are added (marked `?` when their
- * parent exists on the other side); with `overwrite`, paths in both take
- * `next`'s value (infer), otherwise the union of both values unless `next`
- * both adds and drops kinds, which keeps `base`'s (check --accept). A
- * `base` value of `""` always yields to `next`'s.
+ * parent exists on the other side). Paths in both take the union of both
+ * values in either mode. When `next` both adds and drops kinds, `overwrite`
+ * (infer) takes `next`'s value and add-only (check --accept) keeps `base`'s.
+ * Narrowing otherwise needs a reset. A `base` value of `""` always yields to
+ * `next`'s.
  * Paths only in `base` are kept. The result is in `snapshot()` order.
  */
 export function mergeSnapshots(
@@ -72,22 +73,27 @@ export function mergeSnapshots(
 export function normalizeSnapshot(snap: Snapshot): Snapshot;
 ```
 
-- **Paths in both, add-only mode (union semantics).** Compare `next`'s kinds
+- **Paths in both (union semantics, both modes).** Compare `next`'s kinds
   (`N`) with `base`'s (`B`), ignoring `?`:
   - `N ⊆ B`: `base` is already the union. Keep `base`'s kinds; the value is
     optional if either side is (`B?` stays, `B` with `next` `N?` gets `?`).
   - `N ⊇ B` (adds kinds): take `N`, optional if either side is.
   - neither (adds and drops kinds, e.g. `string` vs `integer`, `object` vs
-    `array`): a real type change. Keep `base`'s value unchanged; `next`-only
-    children that need a kind `base` lacks are skipped (rule below).
+    `array`): a real type change. Add-only: keep `base`'s value unchanged;
+    `next`-only children that need a kind `base` lacks are skipped (rule
+    below). Overwrite: take `next`'s value, subject to the orphan rule below.
   - Never add `?` to a `[]` path (below). A union never removes a kind, so it
     can't orphan a `base` child.
   - Because a widened parent can gain `object` or `array`, the kind check for
     `next`-only children runs against the *merged* value: base `.x: object`,
     next `.x: array|object` + `.x[]: object` gives `.x: array|object` and
     `.x[]: object` (no `?`).
-  - Overwrite mode (infer) is unchanged: `next` wins, subject to the orphan
-    rule below.
+  - Overwrite mode (infer) uses the same union rule, so a value widened by
+    `--accept` (`.a: string?`, `float|integer`) isn't narrowed back by an
+    infer run whose cache always has `.a` or only floats. Only the
+    adds-and-drops case takes `next`'s value (subject to the orphan rule
+    below); narrowing otherwise happens only through `--reset`. The baseline
+    only grows.
 - Ordering: implement `normalizeSnapshot` as
   `snapshot(shapeFromSnapshot(snap))` if the round trip is lossless (it should
   be: `shapeFromSnapshot` sets every kind to the node's count and marks
@@ -187,8 +193,10 @@ export function normalizeSnapshot(snap: Snapshot): Snapshot;
 - Replace the unconditional `writeFileSync(${SHAPES_DIR}/${group}.json, ...)`
   with: read the existing file if present,
   `mergeSnapshots(existing, snapshot(shape), { overwrite: true })`, write.
-  New values win (the main cache is the trusted, reviewed data), so most `~`
-  changes still land the way they do today. Exception (§1 orphan rule): when
+  Paths in both take the union of both values (§1), so values widened by
+  `--accept` survive even when the main cache lacks the evidence; only a
+  value that adds and drops kinds takes the main cache's value (trusted,
+  reviewed data). Narrowing needs `--reset`. Exception (§1 orphan rule): when
   `next`'s value for a path lacks the kind its `base` descendants need
   (`object` for `.prop`, `array` for `[]`), `base`'s value is kept, so a real
   type change such as `object -> string` or `object -> array` needs `--reset`.
@@ -206,10 +214,16 @@ these is true:
 
 - its own `before` value ends in `?`;
 - an ancestor path (by `pathSegments`) is unseen: either missing from `after`
-  and unseen itself, or present in `after` with value `""` (no kinds, i.e. an
-  empty array's items node) while its `before` value has kinds (so the
-  children of a missing optional object, or of an empty array's items, follow
-  it).
+  and unseen itself, or present in `after` but lacking the kind the child's
+  segment needs (`object` for `.prop`, `array` for `[]`) while its `before`
+  value has that kind. `snapshot()` only writes `.prop` children for nodes
+  that merged objects and `[]` for nodes that merged arrays
+  (`shape.mts:222-228`), so after `--accept` widens `.x: object` to
+  `null|object`, a run where `.x` was always null gives `after .x: null` and
+  every required `.x.y` is missing; likewise `array|object` coming back as
+  `array` only. The `""` case (an empty array's items node, no kinds) is one
+  instance of this rule. So the children of a missing optional object, of a
+  now-null/now-non-object parent, or of an empty array's items, follow it.
 
 Also, in the changed-paths loop: a path whose last segment is `[]`, whose
 `after` value is `""` and whose `before` value has kinds is unseen, not
@@ -252,7 +266,10 @@ Output:
   On the last check run this is 61 lines for 192 unseen paths.
 - Don't count them in `differences`, so "no shape drift" can still print.
 - `summarize()` counts `?` too (`+2 -1 ~3 ?14`) as paths, not lines: an
-  unseen root line counts `1 + N`. Same for `DriftReport.unseen`. Either
+  unseen root line counts `1 + N`. `summarize` indexes `counts[line[0]]`
+  into a fixed `{ '+', '-', '~' }` object (`check.mts:36-38`): add `'?'`
+  there, or the `?` lines produce `NaN`. `DriftReport` (`check.mts:96-102`)
+  only has `lines`, `differences` and `skipped`: add `unseen: number`. Either
   parse the `(+N below)` suffix or have `diffSnapshots` return structured
   entries; pick whichever keeps `summarize` simple.
 - No `--strict` flag (see Decisions).
@@ -265,7 +282,11 @@ Output:
   (`float|integer` + next `float` -> `float|integer`); add-only widens
   (`float` + next `float|integer` -> `float|integer`; `string` + next
   `string?` -> `string?`); add-only keeps base on adds-and-drops (`string` +
-  next `integer` -> `string`); overwrite takes next values;
+  next `integer` -> `string`); overwrite takes next only on adds-and-drops
+  (`string` + next `integer` -> `integer`);
+  overwrite keeps accepted widenings (the accept-then-infer regression): base
+  `.a: string?` + next `.a: string` -> `string?`, base `float|integer` + next
+  `float` -> `float|integer`;
   base-only paths kept; output order equals `snapshot()` order; the
   "child under a non-object base path" case skips the subtree (§1);
   base `.x[]: ""` + next `.x[]: object`, `.x[].y: string` -> `.x[]: object`,
@@ -305,6 +326,13 @@ Output:
     `float` vs `float|integer` (`kinds added`), `string?` vs `integer`
     (`kinds changed`);
   - missing required path with present parent -> `-`;
+  - parent present but lost the needed kind: `before` `.x: null|object` +
+    `.x.y: string`, `after` `.x: null` (no `.x.y`) -> `.x` is a subset (no
+    line) and `.x.y` is unseen, not `-` (it prints as its own unseen root,
+    `? s .x.y  string`, counted in `?` and not in `differences`); same for
+    `before` `.x: array|object` + `.x.y`, `after` `.x: array`; while
+    `before` `.x: object` + `.x.y: string` with `after` `.x: object` and
+    `.x.y` missing is still `-`;
   - `summarize` includes `?N` and existing `'+2 -2 ~1'` assertion still holds.
 - `acceptDrift`: skipped shapes untouched; new shape written whole; removed
   shapes untouched; `required -> optional` and `kinds added` values widened
@@ -368,7 +396,9 @@ Output:
    own
    (`chore(api-types-infer): Accept drift into shapes`).
 4. §3 (`infer` merge). Run `pnpm api-types:infer` and confirm `shapes/` has
-   no diff (or only `~` value updates from the main cache). A clean diff can
+   no diff (or only adds-and-drops `~` updates from the main cache; accepted
+  widenings such as `string?` / `float|integer` must survive, and a plain
+  narrowing showing up in the diff is a bug in the union rule). A clean diff can
    hide orphaned children, so also run the §1 round-trip check over the
    merged files (`normalizeSnapshot(file)` equals the file).
 5. Docs.
