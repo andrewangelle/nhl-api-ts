@@ -1,4 +1,6 @@
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { Snapshot } from '#src/shape.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -18,4 +20,9 @@ export function slug(tags: Record<string, string>): string {
     .map(([key, value]) => `${key}-${value}`)
     .join('_');
   return (joined || 'default').replace(/[^A-Za-z0-9_.-]+/g, '-');
+}
+
+/** Writes `shapes/<key>.json` (or `<dir>/<key>.json`) in the committed format. */
+export function writeSnapshot(dir: string, key: string, snap: Snapshot): void {
+  writeFileSync(`${dir}/${key}.json`, `${JSON.stringify(snap, null, 2)}\n`);
 }

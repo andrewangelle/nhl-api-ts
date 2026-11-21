@@ -40,12 +40,14 @@ pnpm build                   # emits packages/nhl-api-ts/dist/
 pnpm api:report              # regenerate api-report.md (builds first)
 pnpm docs:llms               # regenerate llms-full.txt from llms.txt
 pnpm api-types:fetch         # api-types-infer: cache live responses (network; never in CI)
-pnpm api-types:infer         # api-types-infer: write reports, drafts and shapes/
+pnpm api-types:infer         # api-types-infer: write reports, drafts and shapes/ (merged)
+pnpm api-types:infer --reset # same, but rewrite shapes/ from the cache alone
 pnpm api-types:conform       # api-types-infer: check src/types against cached samples; --fix [--write]
 pnpm api-types:fixtures      # api-types-infer: regenerate the SDK's test/fixtures
 pnpm api-types:check         # api-types-infer: refetch, diff against shapes/ and conform (network)
 pnpm api-types:check --replay --terse   # re-report the last check run, per-shape summary (no network)
 pnpm api-types:check --replay --only edge gameCenter   # same, limited to shapes with these key prefixes
+pnpm api-types:check --replay --accept   # merge the last run's + paths and widened values into shapes/
 pnpm openapi:schemas         # api-types-infer: regenerate openapi.yaml response schemas
 node --conditions=source packages/nhl-api-ts/src/cli.mts --help   # run the CLI from source
 ```

@@ -80,16 +80,19 @@ are in `packages/api-types-infer`; `src/types/`, `test/fixtures/` and
 
 ```bash
 pnpm api-types:fetch       # run the sample matrix, cache raw responses in .api-types/
-pnpm api-types:infer       # write .api-types/report, .api-types/draft and shapes/
+pnpm api-types:infer       # write .api-types/report, .api-types/draft and shapes/ (merged)
+pnpm api-types:infer --reset   # same, but rewrite shapes/ from the cache alone
 pnpm api-types:conform     # check src/types against the cached samples; --fix [--write]
 pnpm api-types:fixtures    # regenerate the SDK's typed fixtures in test/fixtures/
 pnpm api-types:check       # refetch, diff against shapes/ and conform
+pnpm api-types:check --replay --accept   # merge the last run's drift into shapes/
 pnpm openapi:schemas       # regenerate the response schemas in openapi.yaml from src/types/
 ```
 
 **Maintainers: run `pnpm api-types:check` before each release.** It lists every
-drifted path (new fields, removed fields, kind or required/optional changes;
-`--terse` prints one `+N -N ~N` line per shape instead), and it exits 1 when the SDK
+drifted path (new fields, removed fields, kind or required/optional changes,
+and `?` unseen optional fields; `--terse` prints one `+N -N ~N ?N` line per
+shape instead), and it exits 1 when the SDK
 types don't allow what the API sent. Shapes with a sample that was rate-limited
 or hit a server error (after retries) are listed as skipped, not diffed; rerun
 later or refetch them with `pnpm api-types:fetch --refresh --only <endpoint>`.

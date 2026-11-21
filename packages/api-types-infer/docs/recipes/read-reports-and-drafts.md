@@ -110,7 +110,10 @@ the declared types, and not from regenerating drafts.
 ```
 
 Kinds are joined with `|` (`null|string`). A trailing `?` means the path is
-missing from some parents. Snapshots are committed so that
+missing from some parents. A snapshot is a union across runs, not one run's
+output: `infer` and `check --accept` merge into the committed file, adding
+paths and kinds and never dropping them (`infer --reset` rewrites it), and a
+path seen in only some runs is marked `?`. Snapshots are committed so that
 `pnpm api-types:check` has something to diff against
 ([Check for API drift](check-for-drift.md)), and a diff in `shapes/` in a pull
 request shows reviewers how the payload changed. They keep no values or

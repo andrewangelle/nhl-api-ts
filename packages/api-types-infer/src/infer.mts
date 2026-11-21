@@ -2,19 +2,35 @@
  * Merges the cached samples of each endpoint into a shape tree and writes:
  *   .api-types/report/<endpoint>.md        path table (required/optional/nullable, enums)
  *   .api-types/draft/<endpoint>.mts        draft interfaces
- *   shapes/<endpoint>.json                 committed shape snapshot (drift baseline)
+ *   shapes/<endpoint>.json                 committed shape snapshot (drift baseline), merged; --reset rewrites
  *
- *   pnpm api-types:infer
+ * The snapshot is merged into the committed one (see `mergeSnapshots`), so
+ * paths and widened values accepted by `api-types:check --accept` survive.
+ * `--reset` writes this run's snapshot as is, for fields that are really gone
+ * or a type change on a path with children (`object -> string`).
+ *
+ *   pnpm api-types:infer [--reset]
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
   buildShape,
   emitFor,
   loadSamples,
   type RawSample,
 } from '#src/load.mjs';
-import { DRAFT_DIR, RAW_DIR, REPORT_DIR, SHAPES_DIR } from '#src/paths.mjs';
-import { type ShapeNode, snapshot } from '#src/shape.mjs';
+import {
+  DRAFT_DIR,
+  RAW_DIR,
+  REPORT_DIR,
+  SHAPES_DIR,
+  writeSnapshot,
+} from '#src/paths.mjs';
+import {
+  mergeSnapshots,
+  type ShapeNode,
+  type Snapshot,
+  snapshot,
+} from '#src/shape.mjs';
 import { ALIASES, specFor, splitGroup } from '#src/specs.mjs';
 
 export interface SampleGroup {
@@ -133,6 +149,7 @@ if (import.meta.main) {
   mkdirSync(DRAFT_DIR, { recursive: true });
   mkdirSync(SHAPES_DIR, { recursive: true });
 
+  const reset = process.argv.includes('--reset');
   const shapes = inferAll(RAW_DIR);
 
   for (const [group, shape] of shapes) {
@@ -143,9 +160,18 @@ if (import.meta.main) {
 
     writeFileSync(`${DRAFT_DIR}/${group}.mts`, draftFor(group, shape));
 
-    writeFileSync(
-      `${SHAPES_DIR}/${group}.json`,
-      `${JSON.stringify(snapshot(shape), null, 2)}\n`,
+    const file = `${SHAPES_DIR}/${group}.json`;
+    const next = snapshot(shape);
+    writeSnapshot(
+      SHAPES_DIR,
+      group,
+      reset || !existsSync(file)
+        ? next
+        : mergeSnapshots(
+            JSON.parse(readFileSync(file, 'utf8')) as Snapshot,
+            next,
+            { overwrite: true },
+          ),
     );
   }
   console.error(`inferred ${shapes.size} shapes`);
