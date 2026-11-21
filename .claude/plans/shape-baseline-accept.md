@@ -30,15 +30,19 @@ payload:
 ## Goal
 
 - `check --accept` writes the new `+` paths (computed by the tool) into
-  `shapes/`, add-only.
+  `shapes/`, and widens values that only gained kinds or a `?` (union
+  semantics, see §1 and Decisions). It never drops a kind or a path.
 - `infer` merges into `shapes/` instead of overwriting, so accepted paths
   survive; a `--reset` flag keeps today's full rewrite for real removals.
 - The diff reports a missing path that was optional (or sits under a missing
   optional path, or is the items of an array that came back empty, or sits
   under one) as *unseen*, not `-` / `~`, and doesn't count it as a difference.
-- The diff treats a baseline `K?` that this run saw as `K` everywhere as
-  consistent (no line), so an accepted always-present field leaves no
-  permanent `~ optional -> required` line.
+- The diff treats a value that is a subset of the baseline's (fewer kinds,
+  or `K` against a baseline `K?`) as consistent (no line), so an accepted
+  always-present field leaves no permanent `~ optional -> required` line and
+  a run that missed one kind leaves no `~ float|integer -> float` line.
+- Unseen subtrees print as one line (the root, with a `(+N below)` count).
+- Without `--accept`, check says how much `--accept` would take.
 
 Non-goals: changing conform, the exit code (still conform's), or the fetch
 matrix.
@@ -53,7 +57,8 @@ Add next to `snapshot()`:
 /**
  * Merges `next` into `base`. New paths are added (marked `?` when their
  * parent exists on the other side); with `overwrite`, paths in both take
- * `next`'s value (infer), otherwise `base`'s (check --accept), except that a
+ * `next`'s value (infer), otherwise the union of both values unless `next`
+ * both adds and drops kinds, which keeps `base`'s (check --accept). A
  * `base` value of `""` always yields to `next`'s.
  * Paths only in `base` are kept. The result is in `snapshot()` order.
  */
@@ -67,6 +72,22 @@ export function mergeSnapshots(
 export function normalizeSnapshot(snap: Snapshot): Snapshot;
 ```
 
+- **Paths in both, add-only mode (union semantics).** Compare `next`'s kinds
+  (`N`) with `base`'s (`B`), ignoring `?`:
+  - `N ⊆ B`: `base` is already the union. Keep `base`'s kinds; the value is
+    optional if either side is (`B?` stays, `B` with `next` `N?` gets `?`).
+  - `N ⊇ B` (adds kinds): take `N`, optional if either side is.
+  - neither (adds and drops kinds, e.g. `string` vs `integer`, `object` vs
+    `array`): a real type change. Keep `base`'s value unchanged; `next`-only
+    children that need a kind `base` lacks are skipped (rule below).
+  - Never add `?` to a `[]` path (below). A union never removes a kind, so it
+    can't orphan a `base` child.
+  - Because a widened parent can gain `object` or `array`, the kind check for
+    `next`-only children runs against the *merged* value: base `.x: object`,
+    next `.x: array|object` + `.x[]: object` gives `.x: array|object` and
+    `.x[]: object` (no `?`).
+  - Overwrite mode (infer) is unchanged: `next` wins, subject to the orphan
+    rule below.
 - Ordering: implement `normalizeSnapshot` as
   `snapshot(shapeFromSnapshot(snap))` if the round trip is lossless (it should
   be: `shapeFromSnapshot` sets every kind to the node's count and marks
@@ -84,13 +105,16 @@ export function normalizeSnapshot(snap: Snapshot): Snapshot;
     modes take `next`'s value for that path and add its whole subtree (base
     `.x[]: ""`, next `.x[]: object` + `.x[].y: string` gives `.x[]: object`
     and `.x[].y: string`). This is not a type change.
-  - **`base` has real kinds that lack the kind the child needs** (a `.prop`
-    child needs `object` in the parent's resulting value, a `[]` child needs
-    `array`; e.g. base `.x: string`, next `.x: null|object` plus `.x.y`; or
-    base `.x: object`, next `.x: array|object` plus `.x[]: object`): skip that
-    child's subtree and leave the `~` for a human; it's a real type change.
-    `.x` keeps its `base` value. Check the specific kind per child segment, not
+  - **The parent's merged value lacks the kind the child needs** (a `.prop`
+    child needs `object`, a `[]` child needs `array`; e.g. base `.x: string`,
+    next `.x: null|object` plus `.x.y`, which adds and drops kinds so `.x`
+    keeps `string`): skip that child's subtree and leave the `~` for a human;
+    it's a real type change. Check the specific kind per child segment, not
     just "object or array".
+  - A `next`-only child is marked `?` only when `base`'s value for the parent
+    has the kind the child needs (`base` had objects/arrays there without the
+    child). When the parent only gained that kind in the merge, the child is
+    copied with its own marker.
 - **Never add `?` to a path whose last segment is `[]`.** `snapshot()` always
   writes `[]` items with `optional=false` (`shape.mts:227-228`), so a `?` there
   would be dropped by the round trip.
@@ -128,6 +152,9 @@ export function normalizeSnapshot(snap: Snapshot): Snapshot;
 
 ### 2. `--accept` on check (`src/check.mts`)
 
+- `--accept` takes the `+` paths and the `~` lines labelled `required ->
+  optional` or `kinds added` (both come from the §1 union merge). `~ kinds
+  changed` (adds and drops kinds) is never accepted.
 - Parse `--accept` next to `--terse` / `--replay`. Usage string becomes
   `api-types:check [--terse] [--replay] [--accept] [--only <prefix>...]`.
 - After printing the drift report and before `runConform`, for every shape in
@@ -140,14 +167,20 @@ export function normalizeSnapshot(snap: Snapshot): Snapshot;
   `${JSON.stringify(snap, null, 2)}\n`. Factor a `writeSnapshot(dir, key, snap)`
   helper (takes the target folder so tests can use a temp dir) into
   `src/shape.mts` or `src/paths.mts` and use it from both.
-- Print to stderr: `api-types:check: accepted N path(s) in M shape(s)` (plus
-  `K new shape(s)` when any).
+- Print to stderr: `api-types:check: accepted N path(s) and widened W
+  value(s) in M shape(s)` (plus `K new shape(s)` when any).
+- Without `--accept`, on any run (live, `--replay`, `--only`), run the same
+  computation without writing and, when anything would change, add to the
+  stderr summary: `N path(s) and W value(s) could be accepted with
+  --accept` (plus `K new shape(s)`).
+- `--accept` doesn't gate on conform errors (it runs before conform). The
+  docs say to accept only drift the SDK types allow.
 - Works with `--replay` (no network) and `--only`. Typical use:
   `pnpm api-types:check --replay --accept --only schedule`.
-- `~` lines are not accepted. Open question below.
 - Extract the accept step into an exported pure-ish function (for example
   `acceptDrift(shapes, shapesDir, skipped)` returning the per-key snapshots to
-  write) so it's testable without the CLI.
+  write plus the path, widened-value and new-shape counts) so it's testable
+  without the CLI and the hint can reuse it.
 
 ### 3. `infer` merges by default (`src/infer.mts`)
 
@@ -188,34 +221,51 @@ fire. Only values not `""` in `before` qualify; `before` `""` vs `after`
 
 Otherwise it stays `-` (a required field is gone, real drift).
 
-Also, in the changed-paths loop: the baseline is a union across runs, so a
-`before` value of `K?` against an `after` value of `K` with the same kinds
-(`before` minus its trailing `?` equals `after`) is consistent with the
-baseline: the field is optional in the union and this run happened to carry it
-everywhere. `snapshot()` writes no `?` for such a path (`shape.mts:225`), so
-without this rule every accepted always-present field (e.g. base `.p`, next
-`.p.c: string`, accepted as `.p.c: string?`) would turn into a permanent
-`~ ... string? -> string (optional -> required)` line on every later run and
-block "no shape drift". Drop these from the diff entirely (no line, not
-counted in `differences`, not in the `?` unseen count). The reverse,
-`required -> optional` (`before` `K`, `after` `K?`), and any `kinds changed`
-stay `~` and counted. Update `flipValue` accordingly: `optional -> required`
-is no longer reported.
+Also, in the changed-paths loop (after the empty-array rule above): the
+baseline is a union across runs, so an `after` value that is a subset of
+`before` (its kinds ⊆ `before`'s kinds, and `after` is optional only if
+`before` is) is consistent with the baseline. This covers `K?` against `K`
+(the field is optional in the union and this run carried it everywhere;
+`snapshot()` writes no `?` for it, `shape.mts:225`) and a run that missed a
+kind (`float|integer -> float`, `integer|null -> integer`,
+`float|integer? -> float?`). Without this rule every accepted always-present
+field (e.g. base `.p`, next `.p.c: string`, accepted as `.p.c: string?`)
+would turn into a permanent `~ ... string? -> string` line on every later run
+and block "no shape drift". Drop these from the diff entirely (no line, not
+counted in `differences`, not in the `?` unseen count).
+
+The remaining `~` lines are labelled by `flipValue`:
+
+- `required -> optional`: same kinds, `after` adds `?`. Accepted by `--accept`.
+- `kinds added`: `after`'s kinds ⊋ `before`'s (with or without a new `?`).
+  Accepted by `--accept`.
+- `kinds changed`: `after` adds and drops kinds. Not accepted.
+
+`optional -> required` is no longer reported.
 
 Output:
 
 - Prefix unseen lines with `?`: `? schedule.teamMonthlySchedule [].specialEvent  object?`.
+- Print only the root of each unseen subtree (the unseen path whose parent
+  isn't unseen), with a count of the unseen paths below it when there are
+  any: `? gameCenter.playByPlay .summary.iceSurface  object?  (+62 below)`.
+  On the last check run this is 61 lines for 192 unseen paths.
 - Don't count them in `differences`, so "no shape drift" can still print.
-- `summarize()` counts `?` too (`+2 -1 ~3 ?14`); `--terse` shows it.
-- Add a `--strict` flag (or reuse a name you like) that prints unseen paths
-  as `-` again, for the pre-release review. Optional; decide when
-  implementing.
+- `summarize()` counts `?` too (`+2 -1 ~3 ?14`) as paths, not lines: an
+  unseen root line counts `1 + N`. Same for `DriftReport.unseen`. Either
+  parse the `(+N below)` suffix or have `diffSnapshots` return structured
+  entries; pick whichever keeps `summarize` simple.
+- No `--strict` flag (see Decisions).
 
 `pathSegments` is module-private in `src/shape.mts`; export it.
 
 ## Tests (`test/check.test.mts`, plus a new `test/shape.test.mts`)
 
-- `mergeSnapshots`: add-only keeps base values; overwrite takes next values;
+- `mergeSnapshots`: add-only keeps base values when next is a subset
+  (`float|integer` + next `float` -> `float|integer`); add-only widens
+  (`float` + next `float|integer` -> `float|integer`; `string` + next
+  `string?` -> `string?`); add-only keeps base on adds-and-drops (`string` +
+  next `integer` -> `string`); overwrite takes next values;
   base-only paths kept; output order equals `snapshot()` order; the
   "child under a non-object base path" case skips the subtree (§1);
   base `.x[]: ""` + next `.x[]: object`, `.x[].y: string` -> `.x[]: object`,
@@ -235,25 +285,30 @@ Output:
   - `array -> object`: base `.x: array` + `.x[]: object`, next `.x: object` +
     `.x.y: string`. Add-only: `.x.y` skipped. Overwrite: `.x` keeps `array`.
   - add-only with base `.x: object`, next `.x: array|object` + `.x[]: object`:
-    `.x[]` is not added (and no `.x[]` value ever ends in `?`);
+    `.x` widens to `array|object` and `.x[]: object` is added without `?`
+    (no `.x[]` value ever ends in `?`);
 - `normalizeSnapshot`: round trip is identity for every file in `shapes/`
   (extend the existing round-trip test at `test/conformance.test.mts:296-308`
   rather than writing a new one).
 - `diffSnapshots`:
   - missing optional path -> `?`, not `-`;
-  - missing required child of a missing optional parent -> `?`;
+  - missing required child of a missing optional parent -> no line of its
+    own: the parent's line reads `(+1 below)` and `summarize` gives `?2`;
   - empty array: build `after` with a real `snapshot()` of a shape from
     samples `{x: []}` (not hand-written data) against a `before` with
-    `.x[]: object` and `.x[].y: string`: `.x[]` -> `?` (not `~`), `.x[].y`
-    -> `?` (not `-`), neither counted in `differences`;
-  - `.p.c: string?` before and `.p.c: string` after -> no line, not counted in
-    `differences`; `.p.c: string` before and `.p.c: string?` after (`required
-    -> optional`) and `.p.c: string?` before vs `.p.c: number` after (`kinds
-    changed`) are still `~` and counted;
+    `.x[]: object` and `.x[].y: string`: one line `? s .x[]  object  (+1
+    below)` (not `~`, no `-` for `.x[].y`), not counted in `differences`;
+  - subset values -> no line, not counted: `.p.c: string?` vs `string`,
+    `float|integer` vs `float`, `integer|null` vs `integer`,
+    `float|integer?` vs `float?`;
+  - still `~` and counted: `string` vs `string?` (`required -> optional`),
+    `float` vs `float|integer` (`kinds added`), `string?` vs `integer`
+    (`kinds changed`);
   - missing required path with present parent -> `-`;
   - `summarize` includes `?N` and existing `'+2 -2 ~1'` assertion still holds.
 - `acceptDrift`: skipped shapes untouched; new shape written whole; removed
-  shapes untouched; `~` paths keep the base value.
+  shapes untouched; `required -> optional` and `kinds added` values widened
+  and counted as widened; `kinds changed` paths keep the base value.
 - Accept then re-check, end to end at the function level (the CLI runs only
   under `import.meta.main` and hardcodes `CHECK_RAW`/`SHAPES_DIR`, so don't
   spawn it): over a fixture where the parent exists in base and the new child
@@ -261,16 +316,25 @@ Output:
   `writeSnapshot(dir, ...)` into a `mkdtemp` folder → `driftReport` again with
   that folder as `shapesDir`. The first pass accepts `.p.c` as `string?`; the
   second reports no counted line for `.p.c` (no `+`, no `~ string? -> string`),
-  and `differences` for it is 0.
+  and `differences` for it is 0. Same round trip for each accepted `~`, one
+  change per case: (1) base `.a: string`, one sample lacks `.a` -> accepted
+  as `string?`, no line after; (2) base `.v: float`, samples `1.5` and `2`
+  -> accepted as `float|integer`, no line after.
 
 ## Docs
 
-- `README.md` (this package): flags table (`--accept`), the `shapes/` bullet
+- `README.md` (this package): flags table (`--accept`, `--terse` shows `?N`), the `shapes/` bullet
   (line ~52: now merged, `--reset`), the check step (line ~63: `?` unseen).
 - `docs/recipes/check-for-drift.md`:
-  - "Read the output": add the `?` unseen line to the example and the prefix
-    table ("Not in this run's samples. Usually nothing to do.").
-  - New section "Accept drift into the baseline" for `--accept`.
+  - "Read the output": add the `?` unseen line (with a `(+N below)` example)
+    to the example and the prefix table ("Not in this run's samples. Usually
+    nothing to do."). In the table, drop the `~ optional -> required` row,
+    add `~ kinds added`, and say which `~` rows `--accept` takes
+    (`required -> optional`, `kinds added`) and which it doesn't
+    (`kinds changed`). Explain that subset values print nothing.
+  - New section "Accept drift into the baseline" for `--accept`: union
+    semantics, the `could be accepted` hint, and that it doesn't gate on
+    conform.
   - "Apply the drift" step 3: `infer` now merges; mention `--reset` (also
     needed for a real type change such as `object -> string` or
     `object -> array` on a path with descendants).
@@ -291,10 +355,17 @@ Output:
 1. Implement §1 with tests.
 2. §4 (diff) with tests. Run `pnpm api-types:check --replay --terse` and
    compare the counts with the last run: `-` should drop, `?` appear.
+   Reference, from the first implementation against the current
+   `.api-types/check/raw` (valid while that folder is unchanged): 317
+   differences (`+68 -192 ~57`) before. With the subset rule it should be 98
+   (`+68 ~30`) plus 192 unseen paths in 61 lines, and stderr should say 68
+   paths and 30 values could be accepted.
 3. §2 (`--accept`). Run `pnpm api-types:check --replay --accept`, review the
    `shapes/` git diff, then run `pnpm api-types:check --replay --terse` again
-   and confirm the accepted paths produce no `+` and no `~ optional ->
-   required` lines. Commit it on its own
+   and confirm the accepted paths produce no `+` lines and no
+   `required -> optional` / `kinds added` lines. On the reference data that
+   is 0 counted differences ("no shape drift") and no hint. Commit it on its
+   own
    (`chore(api-types-infer): Accept drift into shapes`).
 4. §3 (`infer` merge). Run `pnpm api-types:infer` and confirm `shapes/` has
    no diff (or only `~` value updates from the main cache). A clean diff can
@@ -307,15 +378,33 @@ Output:
 
 No changeset: `api-types-infer` is private (`privatePackages.version: false`).
 
-## Open questions
+## Decisions (2026-11-21)
 
-- Should `--accept` also take `~` values? Probably only `optional -> required`
-  is safe to skip forever and `required -> optional` / `kinds changed` are
-  worth seeing until conform/infer lands them. Start add-only.
-  (`optional -> required` for a `K?` baseline vs `K` run is resolved in §4:
-  it's dropped from the diff, so accepting an always-present field doesn't
-  leave a permanent `~`.)
-- `--strict` (unseen shown as `-`) or always separate? Decide after seeing
-  how many `?` lines a full run has.
-- Should a full non-`--only` `check` (not `--replay`) without `--accept`
-  print a hint like `N path(s) could be accepted with --accept`?
+- **`--accept` takes `~` values with union semantics.** The baseline is a
+  set of kinds plus an "absent somewhere" flag, unioned across runs. A value
+  that only drops kinds or a `?` is a subset: no diff line, nothing to
+  accept (§4). A value that only adds kinds or a `?` (`required ->
+  optional`, `kinds added`) is new information, like a `+` path: `--accept`
+  takes the union (§1). A value that adds and drops kinds (`kinds changed`)
+  is a real type change: still `~`, never accepted, landed with
+  `infer --reset`. On the last check run, the 36 `~` lines left after the
+  first implementation were 25 `required -> optional` (future games without
+  a score or clock, skaters without season stats), 5 `kinds added` and 6
+  subsets (integer/float churn, `integer|null -> integer`), and conform had 0
+  errors. Trade-off: the baseline only grows, so the diff no longer says when
+  a kind stops appearing. That was already true of `?` fields, the diff is
+  information only, and conform (which reads samples, not the baseline)
+  still decides the exit code.
+- **No `--strict`. Unseen paths stay separate, collapsed to subtree roots.**
+  The 192 unseen paths on the last run were 61 subtrees, each rooted at a
+  path the baseline already marks optional: `summary.iceSurface` (live games
+  only, 126 lines in `matchUp` and `playByPlay`), about 45 localized name
+  keys (`cs`, `fi`, `sk`, `de`, `es`, `sv`, `fr`), `radioLink` /
+  `condensedGameFr` / `venueLocation.fr`, and rare events (`servedBy`,
+  `seasonSeries[].clock`, `specialEvent.lightLogoUrl`). The fix for a `-` is
+  "make it optional", and all of these already are, so showing them as `-`
+  gives nothing to act on, and one run can't show a field is gone for good.
+  Collapsing to roots takes the full output from 192 `?` lines to 61.
+- **Hint on every run.** Without `--accept`, the stderr summary says how many
+  paths and values `--accept` would take, on live, `--replay` and `--only`
+  runs alike (§2). It reuses `acceptDrift`, so it costs nothing extra.
