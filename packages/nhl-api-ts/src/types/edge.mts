@@ -105,7 +105,7 @@ export interface Goalie5v5Last10Game {
   gameCenterLink: string;
   savePctg: number;
   gameDate: string;
-  decision: string;
+  decision?: string;
   playerOnHomeTeam: boolean;
   homeTeam: EdgeGameTeam;
   awayTeam: EdgeGameTeam;
@@ -255,7 +255,7 @@ export interface GoalieSaveLast10Game {
   gameCenterLink: string;
   savePctg: number;
   gameDate: string;
-  decision: string;
+  decision?: string;
   playerOnHomeTeam: boolean;
   homeTeam: EdgeTeamRef;
   awayTeam: EdgeTeamRef;
