@@ -1,5 +1,13 @@
 # nhl-api-ts
 
+## 0.3.3
+
+### Patch Changes
+
+- [#17](https://github.com/andrewangelle/nhl-api-ts/pull/17) [`5b68b9c`](https://github.com/andrewangelle/nhl-api-ts/commit/5b68b9c40ae7eee7580880c8724615973518f5fc) Thanks [@andrewangelle](https://github.com/andrewangelle)! - Updated types:
+  
+  **Edge**: Update `decision` from required to optional in Goalie5v5Last10Game and GoalieSaveLast10Game
+
 ## 0.3.2
 
 ### Patch Changes
