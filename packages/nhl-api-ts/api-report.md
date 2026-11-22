@@ -2883,7 +2883,7 @@ export interface Goalie5v5Last10Game {
     // (undocumented)
     awayTeam: EdgeGameTeam;
     // (undocumented)
-    decision: string;
+    decision?: string;
     // (undocumented)
     gameCenterLink: string;
     // (undocumented)
@@ -3477,7 +3477,7 @@ export interface GoalieSaveLast10Game {
     // (undocumented)
     awayTeam: EdgeTeamRef;
     // (undocumented)
-    decision: string;
+    decision?: string;
     // (undocumented)
     gameCenterLink: string;
     // (undocumented)
