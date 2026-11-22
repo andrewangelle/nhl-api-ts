@@ -22,7 +22,7 @@
   ".savePctgLast10[].awayTeam.teamLogo": "object",
   ".savePctgLast10[].awayTeam.teamLogo.dark": "string",
   ".savePctgLast10[].awayTeam.teamLogo.light": "string",
-  ".savePctgLast10[].decision": "string",
+  ".savePctgLast10[].decision": "string?",
   ".savePctgLast10[].gameCenterLink": "string",
   ".savePctgLast10[].gameDate": "string",
   ".savePctgLast10[].homeTeam": "object",

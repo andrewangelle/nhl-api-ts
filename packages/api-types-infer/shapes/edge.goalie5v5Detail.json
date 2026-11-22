@@ -31,7 +31,7 @@
   ".savePctg5v5Last10[].awayTeam.teamLogo": "object",
   ".savePctg5v5Last10[].awayTeam.teamLogo.dark": "string",
   ".savePctg5v5Last10[].awayTeam.teamLogo.light": "string",
-  ".savePctg5v5Last10[].decision": "string",
+  ".savePctg5v5Last10[].decision": "string?",
   ".savePctg5v5Last10[].gameCenterLink": "string",
   ".savePctg5v5Last10[].gameDate": "string",
   ".savePctg5v5Last10[].homeTeam": "object",

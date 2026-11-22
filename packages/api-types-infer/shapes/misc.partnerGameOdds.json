@@ -31,6 +31,7 @@
   ".games[].homeTeam.logo": "string",
   ".games[].homeTeam.name": "object",
   ".games[].homeTeam.name.default": "string",
+  ".games[].homeTeam.name.fr": "string?",
   ".games[].homeTeam.odds": "array",
   ".games[].homeTeam.odds[]": "object",
   ".games[].homeTeam.odds[].description": "string",
