@@ -1,4 +1,5 @@
 /**
+ *
  * Drift check: refetches the sample matrix into `.api-types/check/raw`, then
  * runs conform on it against the SDK types and exits 1 on its errors. Also
  * diffs the re-inferred shapes against the committed snapshots in `shapes/`
@@ -6,18 +7,23 @@
  * run's samples didn't carry) as information. Manual only; run it before each
  * release.
  *
- * Lists every drifted path; `--terse` prints one `+N -N ~N` line per shape.
- * `--replay` skips the refetch and reports on the responses the last run left
- * in `.api-types/check/raw`, against the current `shapes/` and SDK types.
- * A shape with a sample that was rate-limited or hit a server error is not
- * diffed (its missing fields would read as removed) and is listed as skipped.
- * `--only <prefix>...` limits the refetch, the diff and conform to the shapes
- * whose key starts with one of the prefixes, e.g. `--only edge gameCenter`.
- * `--accept` merges the `+` paths and widened values (`required -> optional`,
- * `kinds added`) into `shapes/`; without it, the summary says how much it
- * would take. It never drops a path or a kind and runs before conform.
+ * Lists every drifted path;
+ * `--terse` prints one `+N -N ~N` line per shape.
  *
- *   pnpm api-types:check [--terse] [--replay] [--accept] [--only <prefix>...]
+ * `--replay` skips the refetch and reports on the responses the last run left
+ *    in `.api-types/check/raw`, against the current `shapes/` and SDK types.
+ *    A shape with a sample that was rate-limited or hit a server error is not
+ *    diffed (its missing fields would read as removed) and is listed as skipped.
+ *
+ * `--only <prefix>...` limits the refetch, the diff and conform to the shapes
+ *    whose key starts with one of the prefixes, e.g. `--only edge gameCenter`.
+ *
+ * `--accept` merges the `+` paths and widened values
+ *    (`required -> optional`, `kinds added`) into `shapes/`;
+ *    without it, the summary says how much it would take.
+ *    It never drops a path or a kind and runs before conform.
+ *
+ * pnpm api-types:check [--terse] [--replay] [--accept] [--only <prefix>...]
  */
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { runConform } from '#src/conform.mjs';

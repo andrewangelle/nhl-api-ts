@@ -94,6 +94,7 @@
   "[].winningGoalie.lastName.default": "string",
   "[].winningGoalie.lastName.fi": "string?",
   "[].winningGoalie.lastName.sk": "string?",
+  "[].winningGoalie.lastName.sv": "string?",
   "[].winningGoalie.playerId": "integer",
   "[].winningGoalScorer": "object?",
   "[].winningGoalScorer.firstInitial": "object",

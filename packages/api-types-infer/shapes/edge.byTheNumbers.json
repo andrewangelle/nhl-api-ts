@@ -105,6 +105,7 @@
   ".highDangerSavesGoalie.overlay.gameDate": "string",
   ".highDangerSavesGoalie.overlay.gameOutcome": "object",
   ".highDangerSavesGoalie.overlay.gameOutcome.lastPeriodType": "string",
+  ".highDangerSavesGoalie.overlay.gameOutcome.otPeriods": "integer?",
   ".highDangerSavesGoalie.overlay.gameType": "integer",
   ".highDangerSavesGoalie.overlay.homeTeam": "object",
   ".highDangerSavesGoalie.overlay.homeTeam.abbrev": "string",
@@ -418,7 +419,9 @@
   ".totalDistanceSkatedTeam.topFiveSkaters[].homeTeam.teamLogo.light": "string",
   ".totalDistanceSkatedTeam.topFiveSkaters[].player": "object",
   ".totalDistanceSkatedTeam.topFiveSkaters[].player.name": "object",
+  ".totalDistanceSkatedTeam.topFiveSkaters[].player.name.cs": "string?",
   ".totalDistanceSkatedTeam.topFiveSkaters[].player.name.default": "string",
+  ".totalDistanceSkatedTeam.topFiveSkaters[].player.name.sk": "string?",
   ".totalDistanceSkatedTeam.topFiveSkaters[].playerOnHomeTeam": "boolean",
   ".totalDistanceSkatedTeam.topFiveSkaters[].toi": "integer"
 }

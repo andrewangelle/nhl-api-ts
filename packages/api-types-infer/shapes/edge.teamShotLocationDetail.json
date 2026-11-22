@@ -5,7 +5,7 @@
   ".shotLocationDetails[].area": "string",
   ".shotLocationDetails[].goals": "integer",
   ".shotLocationDetails[].goalsRank": "integer",
-  ".shotLocationDetails[].shootingPctg": "float|null",
+  ".shotLocationDetails[].shootingPctg": "float|integer|null",
   ".shotLocationDetails[].shootingPctgRank": "integer|null",
   ".shotLocationDetails[].sog": "integer",
   ".shotLocationDetails[].sogRank": "integer",

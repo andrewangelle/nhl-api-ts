@@ -66,7 +66,7 @@
   ".stats.goalsAgainstAvg.value": "float",
   ".stats.goalSupportAvg": "object",
   ".stats.goalSupportAvg.leagueAvg": "float",
-  ".stats.goalSupportAvg.percentile": "float",
+  ".stats.goalSupportAvg.percentile": "float|integer",
   ".stats.goalSupportAvg.value": "float",
   ".stats.pointPctg": "object",
   ".stats.pointPctg.leagueAvg": "float",

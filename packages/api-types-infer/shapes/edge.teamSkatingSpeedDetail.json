@@ -27,6 +27,7 @@
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.gameDate": "string",
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.gameOutcome": "object",
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.gameOutcome.lastPeriodType": "string",
+  ".skatingSpeedDetails[].maxSkatingSpeed.overlay.gameOutcome.otPeriods": "integer?",
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.gameType": "integer",
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.homeTeam": "object",
   ".skatingSpeedDetails[].maxSkatingSpeed.overlay.homeTeam.abbrev": "string",
